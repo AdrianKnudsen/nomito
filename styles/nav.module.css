@@ -1,0 +1,8 @@
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 95%;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.33);
+}

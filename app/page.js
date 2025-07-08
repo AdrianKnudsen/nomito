@@ -1,6 +1,13 @@
-import Image from "next/image";
-import styles from "../styles/page.module.css";
+import styles from "../styles/app.module.css";
 
-export default function Home() {
-  return <main>{/* Din kode her */}</main>;
+function App() {
+  return (
+    <>
+      <main className={styles.background}>
+        <div className={styles.backgroundImg}></div>
+      </main>
+    </>
+  );
 }
+
+export default App;
