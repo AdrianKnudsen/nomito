@@ -1,15 +1,12 @@
 import { Geist, Geist_Mono } from "next/font/google";
+import { Khand } from "next/font/google";
 import "../styles/globals.css";
 import NavBar from "../app/components/NavBar";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const khand = Khand({
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  variable: "--font-khand",
 });
 
 export const metadata = {
@@ -20,7 +17,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className={`${khand.variable}`}>
         {children}
         <NavBar></NavBar>
       </body>
