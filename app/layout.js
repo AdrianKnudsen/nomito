@@ -1,7 +1,7 @@
-import { Geist, Geist_Mono } from "next/font/google";
 import { Khand } from "next/font/google";
 import "../styles/globals.css";
 import NavBar from "../app/components/NavBar";
+import SearchBar from "./components/searchBar";
 
 const khand = Khand({
   subsets: ["latin"],
@@ -19,7 +19,8 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={`${khand.variable}`}>
         {children}
-        <NavBar></NavBar>
+        <NavBar />
+        <SearchBar />
       </body>
     </html>
   );

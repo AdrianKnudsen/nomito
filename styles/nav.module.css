@@ -7,7 +7,7 @@
 .nav {
   width: 90%;
   padding: 0.8rem;
-  background: rgba(255, 255, 255, 0.18); /* mer gjennomsiktig */
+  background: rgba(255, 255, 255, 0.18);
   display: grid;
   grid-template-columns: 1fr 2fr 1fr;
   align-items: center;
