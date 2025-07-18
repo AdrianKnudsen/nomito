@@ -1,7 +1,8 @@
 import { Khand } from "next/font/google";
 import "../styles/globals.css";
-import NavBar from "../app/components/NavBar";
-import SearchBar from "./components/searchBar";
+import NavBar from "../app/components/NavBar.js";
+import SearchBar from "./components/searchBar.js";
+import Result from "./components/result";
 
 const khand = Khand({
   subsets: ["latin"],
@@ -21,6 +22,7 @@ export default function RootLayout({ children }) {
         {children}
         <NavBar />
         <SearchBar />
+        <Result />
       </body>
     </html>
   );
