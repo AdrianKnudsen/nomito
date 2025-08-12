@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { fetchRecipes } from "./api";
+import styles from "..//../styles/result.module.css";
 
 export default function Result({ ingredients }) {
   const [recipes, setRecipes] = useState([]);
@@ -31,30 +32,30 @@ export default function Result({ ingredients }) {
   }, [ingredients]);
 
   if (loading) {
-    return <p>Loading recipes...</p>;
+    return <p className={styles.loading}>Loading recipes...</p>;
   }
 
   if (recipes.length === 0 && hasSearched) {
-    return <p>No recipes found.</p>;
+    return <p className={styles.loading}>No recipes found.</p>;
   }
 
   if (hasSearched === true && recipes.length > 0) {
     return (
-      <div>
-        <h2>Recipes:</h2>
-        <ul>
+      <div className={styles.background}>
+        <h2 className={styles.heading}>Recipes:</h2>
+        <ul className={styles.recipeList}>
           {recipes.map((recipe) => (
-            <li key={recipe.id}>
-              <strong>{recipe.title}</strong>
+            <li key={recipe.id} className={styles.recipeItem}>
               {recipe.image && (
                 <Image
+                  className={styles.recipeImage}
                   src={recipe.image}
                   alt={recipe.title}
-                  width={100}
-                  height={100}
-                  style={{ objectFit: "cover" }}
+                  width={80}
+                  height={80}
                 />
               )}
+              <span className={styles.recipeTitle}>{recipe.title}</span>
             </li>
           ))}
         </ul>
