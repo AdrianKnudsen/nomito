@@ -28,7 +28,7 @@ The goal is to reduce food waste, save money, and make everyday cooking easier a
 
 ## 🌍 Live Website
 
-A public live version will be available soon. Stay tuned!
+https://nomito.vercel.app/
 
 ---
 
