@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Khand } from "next/font/google";
 import "../styles/globals.css";
 import NavBar from "../app/components/NavBar.js";
-import SearchBar from "./components/searchBar.js";
+import SearchBar from "./components/SearchBar.js";
 import Result from "./components/result";
 import React from "react";
 

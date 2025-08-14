@@ -3,24 +3,29 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { fetchRecipes } from "./api";
-import styles from "..//../styles/result.module.css";
+import RecipeDetails from "./RecipeDetails";
+import styles from "../../styles/result.module.css";
+
+const API_KEY = process.env.NEXT_PUBLIC_SPOONACULAR_KEY;
 
 export default function Result({ ingredients }) {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [detailsLoading, setDetailsLoading] = useState(false);
 
   useEffect(() => {
     async function loadData() {
       if (!ingredients || ingredients.trim() === "") return;
 
       setLoading(true);
+      setSelectedRecipe(null); // Reset details when searching
       try {
         const data = await fetchRecipes(ingredients);
         setRecipes(data);
         setHasSearched(true);
       } catch (error) {
-        console.error("Error fetching recipes:", error);
         setRecipes([]);
         setHasSearched(true);
       } finally {
@@ -31,6 +36,16 @@ export default function Result({ ingredients }) {
     loadData();
   }, [ingredients]);
 
+  const handleRecipeClick = async (id) => {
+    setDetailsLoading(true);
+    const res = await fetch(
+      `https://api.spoonacular.com/recipes/${id}/information?apiKey=${API_KEY}`
+    );
+    const data = await res.json();
+    setSelectedRecipe(data);
+    setDetailsLoading(false);
+  };
+
   if (loading) {
     return <p className={styles.loading}>Loading recipes...</p>;
   }
@@ -39,13 +54,28 @@ export default function Result({ ingredients }) {
     return <p className={styles.loading}>No recipes found.</p>;
   }
 
-  if (hasSearched === true && recipes.length > 0) {
+  if (selectedRecipe) {
+    return (
+      <RecipeDetails
+        recipe={selectedRecipe}
+        onBack={() => setSelectedRecipe(null)}
+      />
+    );
+  }
+
+  // Show recipe list
+  if (hasSearched && recipes.length > 0) {
     return (
       <div className={styles.background}>
         <h2 className={styles.heading}>Recipes:</h2>
         <ul className={styles.recipeList}>
           {recipes.map((recipe) => (
-            <li key={recipe.id} className={styles.recipeItem}>
+            <li
+              key={recipe.id}
+              className={styles.recipeItem}
+              style={{ cursor: "pointer" }}
+              onClick={() => handleRecipeClick(recipe.id)}
+            >
               {recipe.image && (
                 <Image
                   className={styles.recipeImage}
