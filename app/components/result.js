@@ -38,9 +38,7 @@ export default function Result({ ingredients }) {
 
   const handleRecipeClick = async (id) => {
     setDetailsLoading(true);
-    const res = await fetch(
-      `https://api.spoonacular.com/recipes/${id}/information?apiKey=${API_KEY}`
-    );
+    const res = await fetch(`/api/recipe/${id}`);
     const data = await res.json();
     setSelectedRecipe(data);
     setDetailsLoading(false);
