@@ -29,7 +29,7 @@
   font-family: var(--font-khand), sans-serif;
   font-weight: 500;
   justify-self: center;
-  font-size: 2rem;
+  font-size: clamp(1.8rem, 6vw, 2rem);
   color: whitesmoke;
 }
 
