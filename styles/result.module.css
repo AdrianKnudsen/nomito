@@ -2,9 +2,9 @@
   margin: 2rem auto 0 auto;
   width: 90%;
   max-width: 600px;
-  max-height: 43rem;
+  max-height: 70dvh;
   padding: 0.8rem;
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(57, 57, 57, 0.18);
   border-radius: 10px;
   border: solid 1px rgb(255, 255, 255);
   backdrop-filter: blur(16px) saturate(180%);
