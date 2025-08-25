@@ -10,7 +10,7 @@ export default function SearchBar({ onSearch }) {
     onSearch(inputValue);
   };
   return (
-    <main>
+    <main className={styles.searchContainer}>
       <div className={styles.searchBox}>
         <div className={styles.inputButtonBox}>
           <input

@@ -1,3 +1,7 @@
+.background {
+  height: 0.01dvh;
+}
+
 .backgroundImg {
   background: url("/images/Poachedgggwithvegetables.jpg") no-repeat center
     center;

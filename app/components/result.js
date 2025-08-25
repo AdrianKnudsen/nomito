@@ -64,29 +64,31 @@ export default function Result({ ingredients }) {
   // Show recipe list
   if (hasSearched && recipes.length > 0) {
     return (
-      <div className={styles.background}>
-        <h2 className={styles.heading}>Recipes:</h2>
-        <ul className={styles.recipeList}>
-          {recipes.map((recipe) => (
-            <li
-              key={recipe.id}
-              className={styles.recipeItem}
-              style={{ cursor: "pointer" }}
-              onClick={() => handleRecipeClick(recipe.id)}
-            >
-              {recipe.image && (
-                <Image
-                  className={styles.recipeImage}
-                  src={recipe.image}
-                  alt={recipe.title}
-                  width={80}
-                  height={80}
-                />
-              )}
-              <span className={styles.recipeTitle}>{recipe.title}</span>
-            </li>
-          ))}
-        </ul>
+      <div className={styles.resultWrapper}>
+        <div className={styles.resultBox}>
+          <h2 className={styles.heading}>Recipes:</h2>
+          <ul className={styles.recipeList}>
+            {recipes.map((recipe) => (
+              <li
+                key={recipe.id}
+                className={styles.recipeItem}
+                style={{ cursor: "pointer" }}
+                onClick={() => handleRecipeClick(recipe.id)}
+              >
+                {recipe.image && (
+                  <Image
+                    className={styles.recipeImage}
+                    src={recipe.image}
+                    alt={recipe.title}
+                    width={80}
+                    height={80}
+                  />
+                )}
+                <span className={styles.recipeTitle}>{recipe.title}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     );
   }
