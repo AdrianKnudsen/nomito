@@ -21,7 +21,7 @@ The goal is to reduce food waste, save money, and make everyday cooking easier a
 - **Framework:** [Next.js](https://nextjs.org/)
 - **Language:** JavaScript (ES6+)
 - **Styling:** CSS Modules
-- **Deployment:** Vercel (coming soon)
+- **Deployment:** Vercel
 - **Version Control:** Git + GitHub
 
 ---
