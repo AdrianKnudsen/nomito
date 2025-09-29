@@ -1,6 +1,6 @@
 .searchContainer {
-  position: fixed;
-  top: 9.5rem;
+  position: relative;
+  top: 3rem;
   width: 100vw;
   z-index: 10;
   background: transparent;

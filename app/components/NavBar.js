@@ -1,7 +1,10 @@
+import { useState } from "react";
 import styles from "../../styles/nav.module.css";
 import Image from "next/image";
 
 const NavBar = () => {
+  const [expanded, setExpanded] = useState(false);
+
   return (
     <nav className={styles.navContainer}>
       <div className={styles.nav}>
@@ -13,8 +16,11 @@ const NavBar = () => {
           height={100}
         />
         <div className={styles.title}>Recipe Finder</div>
-
-        <button className={styles.menuButton} aria-label="Open menu">
+        <button
+          className={styles.menuButton}
+          aria-label="Open menu"
+          onClick={() => setExpanded((prev) => !prev)}
+        >
           <svg
             width="32"
             height="32"
@@ -31,6 +37,16 @@ const NavBar = () => {
             />
           </svg>
         </button>
+      </div>
+      <div
+        className={styles.expandedArea}
+        style={{
+          height: expanded ? "20rem" : "0",
+          transition: "height 0.5s cubic-bezier(0.4,0,0.2,1)",
+          overflow: "hidden",
+        }}
+      >
+        {/* */}
       </div>
     </nav>
   );

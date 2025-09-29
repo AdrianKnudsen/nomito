@@ -5,7 +5,7 @@
   height: 100dvh;
   width: 100%;
   justify-content: flex-start;
-  padding-top: 12.5rem;
+  padding-top: 0.5rem;
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -24,7 +24,7 @@
   box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.07);
   overflow-y: auto;
   overflow-x: hidden;
-  max-height: calc(100dvh - 9rem);
+  max-height: calc(85dvh - 9rem);
 }
 
 .heading {
