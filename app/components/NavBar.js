@@ -6,8 +6,14 @@ const NavBar = () => {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <nav className={styles.navContainer}>
-      <div className={styles.nav}>
+    <nav
+      className={styles.navContainer}
+      style={{
+        height: expanded ? "20rem" : "6rem",
+        transition: "height 1.2s cubic-bezier(0.4, 0, 0.2, 1)",
+      }}
+    >
+      <div className={`${styles.nav} ${expanded ? styles.navExpanded : ""}`}>
         <Image
           className={styles.logo}
           src="/images/NomitoLogo.png"
@@ -37,16 +43,6 @@ const NavBar = () => {
             />
           </svg>
         </button>
-      </div>
-      <div
-        className={styles.expandedArea}
-        style={{
-          height: expanded ? "20rem" : "0",
-          transition: "height 0.5s cubic-bezier(0.4,0,0.2,1)",
-          overflow: "hidden",
-        }}
-      >
-        {/* */}
       </div>
     </nav>
   );
