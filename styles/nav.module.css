@@ -8,7 +8,8 @@
   background: transparent;
   display: flex;
   justify-content: center;
-  transition: height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  align-items: flex-start;
+  transition: height 0.1s;
 }
 
 .nav {
@@ -16,7 +17,7 @@
   padding: 0.8rem;
   background: rgba(57, 57, 57, 0.18);
   display: grid;
-  grid-template-columns: 1fr 2fr 1fr;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
   border-radius: 10px;
   border: solid 1px rgb(255, 255, 255);
@@ -27,7 +28,6 @@
 
 .navExpanded {
   grid-template-rows: 1fr 1fr 1fr 1fr;
-  transition: height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .logo {
