@@ -1,9 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "../../styles/nav.module.css";
 import Image from "next/image";
 
+const ANIMATION_DURATION = 2000;
+
 const NavBar = () => {
   const [expanded, setExpanded] = useState(false);
+  const [showMenuContent, setShowMenuContent] = useState(false);
+
+  useEffect(() => {
+    let timeout;
+    if (expanded) {
+      setShowMenuContent(true);
+    } else {
+      timeout = setTimeout(() => setShowMenuContent(false), ANIMATION_DURATION);
+    }
+    return () => clearTimeout(timeout);
+  }, [expanded]);
 
   return (
     <nav className={styles.navContainer}>
@@ -12,7 +25,7 @@ const NavBar = () => {
         style={{
           height: expanded ? "20rem" : "6.2em",
           transition: "height 2s cubic-bezier(0.4, 0, 0.2, 1)",
-          overflow: "hidden",
+          overflow: "auto",
         }}
       >
         <Image
@@ -22,7 +35,7 @@ const NavBar = () => {
           width={100}
           height={100}
         />
-        <div className={styles.title}>Recipe Finder</div>
+        <div className={styles.title}>Welcome to Nomito</div>
         <button
           className={styles.menuButton}
           aria-label="Open menu"
@@ -44,6 +57,16 @@ const NavBar = () => {
             />
           </svg>
         </button>
+        {showMenuContent && (
+          <div className={styles.menuContent}>
+            <ul>
+              <li>Search Recipes by Ingredients</li>
+              <li>placeholder</li>
+              <li>placeholder</li>
+              <li>placeholder</li>
+            </ul>
+          </div>
+        )}
       </div>
     </nav>
   );

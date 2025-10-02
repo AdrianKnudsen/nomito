@@ -61,3 +61,30 @@
   height: 32px;
   display: block;
 }
+
+.menuContent {
+  grid-column: 1 / -1;
+  margin-top: 1rem;
+  color: whitesmoke;
+  text-align: center;
+}
+
+.menuContent ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menuContent li {
+  margin: 0.5rem 0;
+  font-family: var(--font-khand), sans-serif;
+  font-weight: 500;
+  font-size: clamp(1.8rem, 6vw, 2rem);
+  color: whitesmoke;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.menuContent li:hover {
+  color: #85ec3c;
+}
