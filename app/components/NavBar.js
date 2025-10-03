@@ -4,7 +4,7 @@ import Image from "next/image";
 
 const ANIMATION_DURATION = 2000;
 
-const NavBar = () => {
+export default function NavBar({ onShowSearchBar }) {
   const [expanded, setExpanded] = useState(false);
   const [showMenuContent, setShowMenuContent] = useState(false);
 
@@ -60,7 +60,7 @@ const NavBar = () => {
         {showMenuContent && (
           <div className={styles.menuContent}>
             <ul>
-              <li>Search Recipes by Ingredients</li>
+              <li onClick={onShowSearchBar}>Search Recipes by Ingredients</li>
               <li>placeholder</li>
               <li>placeholder</li>
               <li>placeholder</li>
@@ -70,6 +70,4 @@ const NavBar = () => {
       </div>
     </nav>
   );
-};
-
-export default NavBar;
+}
