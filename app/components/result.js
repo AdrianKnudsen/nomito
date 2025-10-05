@@ -6,8 +6,6 @@ import { fetchRecipes } from "./api";
 import RecipeDetails from "./RecipeDetails";
 import styles from "../../styles/result.module.css";
 
-const API_KEY = process.env.NEXT_PUBLIC_SPOONACULAR_KEY;
-
 export default function Result({ ingredients }) {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(false);

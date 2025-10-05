@@ -21,12 +21,14 @@ const khand = Khand({
 
 export default function RootLayout({ children }) {
   const [showSearchBar, setShowSearchBar] = useState(false);
+  const [ingredients, setIngredients] = useState("");
 
   return (
     <html lang="en">
       <body className={`${khand.variable}`}>
         <NavBar onShowSearchBar={() => setShowSearchBar(true)} />
-        {showSearchBar && <SearchBar />}
+        {showSearchBar && <SearchBar onSearch={setIngredients} />}
+        <Result ingredients={ingredients} />
         {children}
       </body>
     </html>
