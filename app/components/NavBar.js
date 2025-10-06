@@ -4,7 +4,7 @@ import Image from "next/image";
 
 const ANIMATION_DURATION = 2000;
 
-export default function NavBar({ onShowSearchBar }) {
+export default function NavBar({ onShowSearchBar, onSetTitle, navTitle }) {
   const [expanded, setExpanded] = useState(false);
   const [showMenuContent, setShowMenuContent] = useState(false);
 
@@ -35,7 +35,7 @@ export default function NavBar({ onShowSearchBar }) {
           width={100}
           height={100}
         />
-        <div className={styles.title}>Welcome to Nomito</div>
+        <div className={styles.title}>{navTitle}</div>
         <button
           className={styles.menuButton}
           aria-label="Open menu"
@@ -60,10 +60,16 @@ export default function NavBar({ onShowSearchBar }) {
         {showMenuContent && (
           <div className={styles.menuContent}>
             <ul>
-              <li onClick={onShowSearchBar}>Search Recipes by Ingredients</li>
-              <li>placeholder</li>
-              <li>placeholder</li>
-              <li>placeholder</li>
+              <li onClick={onShowSearchBar}>Recipes by Ingredients</li>
+              <li onClick={() => onSetTitle && onSetTitle("Placeholder")}>
+                Placeholder
+              </li>
+              <li onClick={() => onSetTitle && onSetTitle("Placeholder")}>
+                Placeholder
+              </li>
+              <li onClick={() => onSetTitle && onSetTitle("Placeholder")}>
+                Placeholder
+              </li>
             </ul>
           </div>
         )}
