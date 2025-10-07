@@ -60,14 +60,36 @@ export default function NavBar({ onShowSearchBar, onSetTitle, navTitle }) {
         {showMenuContent && (
           <div className={styles.menuContent}>
             <ul>
-              <li onClick={onShowSearchBar}>Recipes by Ingredients</li>
-              <li onClick={() => onSetTitle && onSetTitle("Placeholder")}>
+              <li
+                onClick={() => {
+                  onShowSearchBar();
+                  setExpanded(false);
+                }}
+              >
+                Recipes by Ingredients
+              </li>
+              <li
+                onClick={() => {
+                  onSetTitle && onSetTitle("Placeholder");
+                  setExpanded(false);
+                }}
+              >
                 Placeholder
               </li>
-              <li onClick={() => onSetTitle && onSetTitle("Placeholder")}>
+              <li
+                onClick={() => {
+                  onSetTitle && onSetTitle("Placeholder");
+                  setExpanded(false);
+                }}
+              >
                 Placeholder
               </li>
-              <li onClick={() => onSetTitle && onSetTitle("Placeholder")}>
+              <li
+                onClick={() => {
+                  onSetTitle && onSetTitle("Placeholder");
+                  setExpanded(false);
+                }}
+              >
                 Placeholder
               </li>
             </ul>
