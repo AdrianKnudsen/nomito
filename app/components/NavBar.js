@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import styles from "../../styles/nav.module.css";
 import Image from "next/image";
 
-const ANIMATION_DURATION = 2000;
+const ANIMATION_DURATION = 1000;
 
 export default function NavBar({ onShowSearchBar, onSetTitle, navTitle }) {
   const [expanded, setExpanded] = useState(false);
@@ -24,7 +24,7 @@ export default function NavBar({ onShowSearchBar, onSetTitle, navTitle }) {
         className={`${styles.nav} ${expanded ? styles.navExpanded : ""}`}
         style={{
           height: expanded ? "20rem" : "6.2em",
-          transition: "height 2s cubic-bezier(0.4, 0, 0.2, 1)",
+          transition: "height 1s cubic-bezier(0.4, 0, 0.2, 1)",
           overflow: "auto",
         }}
       >
