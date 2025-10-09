@@ -6,6 +6,7 @@ import "../styles/globals.css";
 import NavBar from "../app/components/NavBar.js";
 import SearchBar from "./components/SearchBar.js";
 import Result from "./components/result";
+import About from "./components/about";
 import React from "react";
 
 const khand = Khand({
@@ -38,6 +39,7 @@ export default function RootLayout({ children }) {
         {showSearchBar && <SearchBar onSearch={setIngredients} />}
         <Result ingredients={ingredients} />
         {children}
+        <About />
       </body>
     </html>
   );
