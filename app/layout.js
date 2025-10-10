@@ -24,6 +24,7 @@ export default function RootLayout({ children }) {
   const [showSearchBar, setShowSearchBar] = useState(false);
   const [ingredients, setIngredients] = useState("");
   const [navTitle, setNavTitle] = useState("");
+  const [showAbout, setShowAbout] = useState(true);
 
   return (
     <html lang="en">
@@ -32,14 +33,18 @@ export default function RootLayout({ children }) {
           onShowSearchBar={() => {
             setShowSearchBar(true);
             setNavTitle("Recipes by Ingredients");
+            setShowAbout(false);
           }}
-          onSetTitle={setNavTitle}
+          onSetTitle={(title) => {
+            setNavTitle(title);
+            setShowAbout(false);
+          }}
           navTitle={navTitle}
         />
         {showSearchBar && <SearchBar onSearch={setIngredients} />}
         <Result ingredients={ingredients} />
         {children}
-        <About />
+        {showAbout && <About />}
       </body>
     </html>
   );
