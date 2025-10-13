@@ -23,7 +23,7 @@ const khand = Khand({
 export default function RootLayout({ children }) {
   const [showSearchBar, setShowSearchBar] = useState(false);
   const [ingredients, setIngredients] = useState("");
-  const [navTitle, setNavTitle] = useState("");
+  const [navTitle, setNavTitle] = useState("Home");
   const [showAbout, setShowAbout] = useState(true);
 
   return (
@@ -39,6 +39,8 @@ export default function RootLayout({ children }) {
             setNavTitle(title);
             setShowAbout(false);
           }}
+          setShowSearchBar={setShowSearchBar}
+          setShowAbout={setShowAbout}
           navTitle={navTitle}
         />
         {showSearchBar && <SearchBar onSearch={setIngredients} />}

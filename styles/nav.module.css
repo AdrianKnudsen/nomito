@@ -36,6 +36,7 @@
   height: 4.5em;
   margin-left: 0.5rem;
   grid-row: 1;
+  cursor: pointer;
 }
 
 .title {
