@@ -8,8 +8,7 @@ export default function NavBar({
   onShowSearchBar,
   onSetTitle,
   navTitle,
-  setShowSearchBar,
-  setShowAbout,
+  onGoHome,
 }) {
   const [expanded, setExpanded] = useState(false);
   const [showMenuContent, setShowMenuContent] = useState(false);
@@ -41,10 +40,8 @@ export default function NavBar({
           width={100}
           height={100}
           onClick={() => {
-            onSetTitle && onSetTitle("Home");
+            if (onGoHome) onGoHome();
             setExpanded(false);
-            setShowSearchBar && setShowSearchBar(false);
-            setShowAbout && setShowAbout(true);
           }}
         />
         <div className={styles.title}>{navTitle}</div>

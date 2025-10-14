@@ -6,7 +6,7 @@ import { fetchRecipes } from "./api";
 import RecipeDetails from "./RecipeDetails";
 import styles from "../../styles/result.module.css";
 
-export default function Result({ ingredients }) {
+export default function Result({ ingredients, resetTrigger }) {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
@@ -33,6 +33,12 @@ export default function Result({ ingredients }) {
 
     loadData();
   }, [ingredients]);
+
+  useEffect(() => {
+    setRecipes([]);
+    setHasSearched(false);
+    setSelectedRecipe(null);
+  }, [resetTrigger]);
 
   const handleRecipeClick = async (id) => {
     setDetailsLoading(true);

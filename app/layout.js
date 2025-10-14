@@ -25,6 +25,15 @@ export default function RootLayout({ children }) {
   const [ingredients, setIngredients] = useState("");
   const [navTitle, setNavTitle] = useState("Home");
   const [showAbout, setShowAbout] = useState(true);
+  const [resetResult, setResetResult] = useState(false);
+
+  const handleGoHome = () => {
+    setNavTitle("Home");
+    setShowSearchBar(false);
+    setShowAbout(true);
+    setIngredients("");
+    setResetResult((prev) => !prev);
+  };
 
   return (
     <html lang="en">
@@ -42,9 +51,10 @@ export default function RootLayout({ children }) {
           setShowSearchBar={setShowSearchBar}
           setShowAbout={setShowAbout}
           navTitle={navTitle}
+          onGoHome={handleGoHome}
         />
         {showSearchBar && <SearchBar onSearch={setIngredients} />}
-        <Result ingredients={ingredients} />
+        <Result ingredients={ingredients} resetTrigger={resetResult} />
         {children}
         {showAbout && <About />}
       </body>
