@@ -1,5 +1,8 @@
 .textWrapper {
   position: relative;
+  overflow: auto;
+  flex: 1 1 auto;
+  max-height: calc(89dvh - 9rem);
   top: 3rem;
   max-width: 90%;
   margin: 2rem auto;
