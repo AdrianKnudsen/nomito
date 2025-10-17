@@ -10,7 +10,20 @@ export default function RecipeDetails({ recipe, onBack }) {
       if (!recipe?.id) return;
       try {
         const res = await fetch(`/api/recipe/${recipe.id}/instructions`);
-        const data = await res.json();
+
+        if (!res.ok) {
+          console.warn("Failed to fetch analyzed instructions:", res.status);
+          return;
+        }
+
+        let data = [];
+        try {
+          const text = await res.text();
+          data = text ? JSON.parse(text) : [];
+        } catch (err) {
+          console.warn("Invalid JSON from instructions endpoint:", err);
+          data = [];
+        }
 
         if (Array.isArray(data) && data.length > 0) {
           setAnalyzedSteps(data[0].steps);
