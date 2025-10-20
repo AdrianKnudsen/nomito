@@ -22,10 +22,10 @@
 }
 
 .head {
-  font-size: 1.4em;
+  font-size: clamp(1.9rem, 7vw, 2rem);
   margin: 1rem;
 }
 
 .infoText {
-  font-size: 1.4em;
+  font-size: clamp(1.4rem, 9vw, 1.9rem);
 }
