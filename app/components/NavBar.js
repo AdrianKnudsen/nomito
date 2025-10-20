@@ -30,7 +30,7 @@ export default function NavBar({
         style={{
           height: expanded ? "20rem" : "6.2em",
           transition: "height 1s cubic-bezier(0.4, 0, 0.2, 1)",
-          overflow: "auto",
+          overflow: "hidden",
         }}
       >
         <Image
