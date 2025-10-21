@@ -24,6 +24,7 @@
   overflow-y: auto;
   overflow-x: hidden;
   max-height: calc(85dvh - 9rem);
+  font-family: var(--font-khand), sans-serif;
 }
 
 .heading {
@@ -62,7 +63,6 @@
   background: rgba(255, 255, 255, 0.33);
 }
 .subheading {
-  font-family: var(--font-khand), sans-serif;
   color: whitesmoke;
   font-size: 1.3rem;
   margin-top: 2rem;
