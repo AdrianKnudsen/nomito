@@ -6,19 +6,100 @@
   top: 3rem;
   max-width: 90%;
   margin: 2rem auto;
-  z-index: 10;
+  z-index: 0;
   display: flex;
   flex-direction: column;
-  padding: 0.8rem;
-  background: rgba(57, 57, 57, 0.665);
-  border-radius: 10px;
-  border: solid 1px rgb(255, 255, 255);
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.07);
+  padding: 1.2rem;
+  border-radius: 14px;
+
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.06'/></svg>"),
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.06),
+      rgba(255, 255, 255, 0.02)
+    );
+
+  border: solid 1px rgba(255, 255, 255, 0.35);
+
+  box-shadow:
+    0 10px 30px rgba(2, 6, 23, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+  backdrop-filter: blur(20px) saturate(160%) contrast(102%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%) contrast(102%);
+
   font-family: var(--font-khand), sans-serif;
   color: whitesmoke;
   text-align: center;
+}
+.textWrapper::before {
+  content: "";
+  position: sticky;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+
+  background-image: radial-gradient(
+      600px 220px at 12% 12%,
+      rgba(255, 255, 255, 0.12),
+      transparent 14%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.06),
+      rgba(255, 255, 255, 0.02)
+    ),
+    linear-gradient(
+      120deg,
+      rgba(255, 255, 255, 0.25) 0%,
+      rgba(255, 255, 255, 0.1) 30%,
+      transparent 80%
+    );
+
+  mix-blend-mode: overlay;
+  opacity: 0.6;
+
+  animation: shineSweep 9s linear infinite;
+}
+
+.textWrapper::after {
+  content: "";
+  position: sticky;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 100%;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.18));
+}
+
+@keyframes shineSweep {
+  0% {
+    background-position:
+      -200% 0,
+      0 0,
+      -150% 0;
+  }
+  50% {
+    background-position:
+      100% 0,
+      0 0,
+      120% 0;
+  }
+  100% {
+    background-position:
+      -200% 0,
+      0 0,
+      -150% 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .textWrapper {
+    padding: 0.9rem;
+    border-radius: 12px;
+  }
 }
 
 .head {
