@@ -14,11 +14,32 @@ export default function Result({ ingredients, resetTrigger }) {
   const [detailsLoading, setDetailsLoading] = useState(false);
 
   useEffect(() => {
+    const wrapper = document.querySelector(`.${styles.scrollContainer}`);
+    if (!wrapper) return;
+
+    const handleScroll = () => {
+      const scrollTop = wrapper.scrollTop;
+      const scrollHeight = wrapper.scrollHeight - wrapper.clientHeight;
+      const scrollRatio = scrollHeight > 0 ? scrollTop / scrollHeight : 0;
+      const shimmerShift = scrollRatio * 100;
+      if (wrapper.parentElement)
+        wrapper.parentElement.style.setProperty(
+          "--shimmer-shift",
+          `${shimmerShift}%`
+        );
+    };
+
+    handleScroll();
+    wrapper.addEventListener("scroll", handleScroll);
+    return () => wrapper.removeEventListener("scroll", handleScroll);
+  }, [recipes]);
+
+  useEffect(() => {
     async function loadData() {
       if (!ingredients || ingredients.trim() === "") return;
 
       setLoading(true);
-      setSelectedRecipe(null); // Reset details when searching
+      setSelectedRecipe(null);
       try {
         const data = await fetchRecipes(ingredients);
         setRecipes(data);
@@ -70,28 +91,30 @@ export default function Result({ ingredients, resetTrigger }) {
     return (
       <div className={styles.resultWrapper}>
         <div className={styles.resultBox}>
-          <h2 className={styles.heading}>Recipes:</h2>
-          <ul className={styles.recipeList}>
-            {recipes.map((recipe) => (
-              <li
-                key={recipe.id}
-                className={styles.recipeItem}
-                style={{ cursor: "pointer" }}
-                onClick={() => handleRecipeClick(recipe.id)}
-              >
-                {recipe.image && (
-                  <Image
-                    className={styles.recipeImage}
-                    src={recipe.image}
-                    alt={recipe.title}
-                    width={80}
-                    height={80}
-                  />
-                )}
-                <span className={styles.recipeTitle}>{recipe.title}</span>
-              </li>
-            ))}
-          </ul>
+          <div className={styles.scrollContainer}>
+            <h2 className={styles.heading}>Recipes:</h2>
+            <ul className={styles.recipeList}>
+              {recipes.map((recipe) => (
+                <li
+                  key={recipe.id}
+                  className={styles.recipeItem}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => handleRecipeClick(recipe.id)}
+                >
+                  {recipe.image && (
+                    <Image
+                      className={styles.recipeImage}
+                      src={recipe.image}
+                      alt={recipe.title}
+                      width={80}
+                      height={80}
+                    />
+                  )}
+                  <span className={styles.recipeTitle}>{recipe.title}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
     );
