@@ -7,6 +7,7 @@
   padding-top: 0.5rem;
   box-sizing: border-box;
   overflow: hidden;
+  font-family: var(--font-khand), sans-serif;
 }
 
 .detailsBox {
@@ -24,11 +25,9 @@
   overflow-y: auto;
   overflow-x: hidden;
   max-height: calc(85dvh - 9rem);
-  font-family: var(--font-khand), sans-serif;
 }
 
 .heading {
-  font-family: var(--font-khand), sans-serif;
   color: whitesmoke;
   text-align: center;
   font-size: 2.2rem;
@@ -48,19 +47,28 @@
 }
 
 .backButton {
-  background: rgba(255, 255, 255, 0.18);
   color: whitesmoke;
-  border: solid 1px rgba(255, 255, 255, 0.4);
   border-radius: 8px;
   padding: 0.5rem 1.2rem;
-  font-family: var(--font-khand), sans-serif;
   font-size: 1rem;
   cursor: pointer;
   margin-bottom: 1rem;
   transition: background 0.2s;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.06'/></svg>"),
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.06),
+      rgba(255, 255, 255, 0.02)
+    );
+  border: solid 1px rgba(255, 255, 255, 0.35);
+  box-shadow:
+    0 10px 30px rgba(2, 6, 23, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(20px) saturate(160%) contrast(102%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%) contrast(102%);
 }
 .backButton:hover {
-  background: rgba(255, 255, 255, 0.33);
+  background: rgba(255, 255, 255, 0.237);
 }
 .subheading {
   color: whitesmoke;
