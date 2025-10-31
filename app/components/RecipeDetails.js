@@ -4,6 +4,7 @@ import styles from "../../styles/recipeDetails.module.css";
 
 export default function RecipeDetails({ recipe, onBack }) {
   const [analyzedSteps, setAnalyzedSteps] = useState([]);
+  const [readableMode, setReadableMode] = useState(false);
 
   useEffect(() => {
     async function fetchAnalyzedInstructions() {
@@ -40,10 +41,18 @@ export default function RecipeDetails({ recipe, onBack }) {
   return (
     <main className={styles.resultDetailsWrapper}>
       <div className={styles.detailsBox}>
-        <button className={styles.backButton} onClick={onBack}>
-          Back to list
-        </button>
+        <div className={styles.buttonRow}>
+          <button className={styles.actionButton} onClick={onBack}>
+            Back
+          </button>
 
+          <button
+            className={styles.actionButton}
+            onClick={() => setReadableMode(!readableMode)}
+          >
+            {readableMode ? "Normal" : "Read"}
+          </button>
+        </div>
         <h2 className={styles.heading}>{recipe.title}</h2>
         {recipe.image && (
           <Image
@@ -55,17 +64,19 @@ export default function RecipeDetails({ recipe, onBack }) {
           />
         )}
 
-        <h3 className={styles.subheading}>Ingredients:</h3>
-        <ul className={styles.ingredientList}>
-          {recipe.extendedIngredients?.map((ing, idx) => (
-            <li key={`${ing.id}-${idx}`} className={styles.ingredientItem}>
-              {ing.original}
-            </li>
-          ))}
-        </ul>
+        <div
+          className={`${styles.instructions} ${readableMode ? styles.readable : ""}`}
+        >
+          <h3 className={styles.subheading}>Ingredients:</h3>
+          <ul className={styles.ingredientList}>
+            {recipe.extendedIngredients?.map((ing, idx) => (
+              <li key={`${ing.id}-${idx}`} className={styles.ingredientItem}>
+                {ing.original}
+              </li>
+            ))}
+          </ul>
 
-        <h3 className={styles.subheading}>Instructions:</h3>
-        <div className={styles.instructions}>
+          <h3 className={styles.subheading}>Instructions:</h3>
           {analyzedSteps.length > 0 ? (
             <ol>
               {analyzedSteps.map((step, idx) => (
