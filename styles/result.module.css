@@ -122,14 +122,13 @@
 
 .recipeItem {
   display: flex;
-  flex: 1 1 400px;
+  flex: 1 1 300px;
   max-width: 90vw;
   max-height: 7rem;
   align-items: center;
   gap: 1.2rem;
   background: rgba(30, 30, 30, 0.18);
   border-radius: 8px;
-  margin-bottom: 1.2rem;
   padding: 1rem;
   box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.04);
   overflow: hidden;
