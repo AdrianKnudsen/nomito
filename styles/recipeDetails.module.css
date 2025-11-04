@@ -13,7 +13,6 @@
 .detailsBox {
   flex: 1 1 auto;
   width: 90%;
-  max-width: 600px;
   padding: 0.8rem;
   margin: 4rem auto;
   align-items: center;
@@ -35,6 +34,7 @@
   overflow-y: auto;
   overflow-x: hidden;
   max-height: calc(85dvh - 9rem);
+  display: block;
 }
 
 .heading {
@@ -130,4 +130,63 @@
 .readable {
   background: rgba(0, 0, 0, 0.612);
   padding: 1px 1.2rem 0.5rem 1.2rem;
+}
+
+@media (min-width: 900px) {
+  .detailsBox {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    grid-template-rows: auto auto 1fr;
+    grid-template-areas:
+      "buttonRow buttonRow"
+      "heading   heading"
+      "image     content";
+    column-gap: 1.5rem;
+    row-gap: 0.8rem;
+    align-items: start;
+    padding: 1rem 1.2rem;
+  }
+
+  .buttonRow {
+    grid-area: buttonRow;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .heading {
+    grid-area: heading;
+    width: 100%;
+    text-align: center;
+    margin: 0.4rem 0 0.6rem 0;
+    align-self: center;
+  }
+
+  .recipeImage {
+    grid-area: image;
+    display: block;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 8px;
+    align-self: stretch;
+    overflow: hidden;
+  }
+
+  .instructions,
+  .ingredientList,
+  .subheading {
+    grid-area: content;
+  }
+
+  .subheading,
+  .ingredientList,
+  .instructions,
+  .ingredientItem {
+    text-align: left;
+  }
 }
