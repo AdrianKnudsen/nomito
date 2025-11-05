@@ -13,9 +13,9 @@
 .detailsBox {
   flex: 1 1 auto;
   width: 90%;
+  max-width: 1200px;
   padding: 0.8rem;
   margin: 4rem auto;
-  align-items: center;
   border-radius: 10px;
   max-height: calc(85dvh - 9rem);
   isolation: isolate;
@@ -31,10 +31,12 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.04);
   backdrop-filter: blur(20px) saturate(160%) contrast(102%);
   -webkit-backdrop-filter: blur(20px) saturate(160%) contrast(102%);
-  overflow-y: auto;
-  overflow-x: hidden;
-  max-height: calc(85dvh - 9rem);
+  overflow: auto;
   display: block;
+}
+
+.detailsBox > * {
+  min-height: 0;
 }
 
 .heading {
@@ -96,6 +98,7 @@
   margin-top: 2rem;
   margin-bottom: 0.5rem;
 }
+
 .ingredientList {
   padding-left: 1.2rem;
   margin-bottom: 2.5rem;
@@ -135,16 +138,18 @@
 @media (min-width: 900px) {
   .detailsBox {
     display: grid;
-    grid-template-columns: 320px 1fr;
-    grid-template-rows: auto auto 1fr;
+    grid-template-columns: 320px 1fr 1fr; /* image | ingredients | instructions */
+    grid-template-rows: auto auto 1fr; /* buttons, heading, body */
     grid-template-areas:
-      "buttonRow buttonRow"
-      "heading   heading"
-      "image     content";
+      "buttonRow buttonRow buttonRow"
+      "heading   heading   heading"
+      "image     ingredients instructions";
     column-gap: 1.5rem;
     row-gap: 0.8rem;
-    align-items: start;
+    align-items: stretch;
     padding: 1rem 1.2rem;
+    max-width: 1200px;
+    grid-auto-rows: minmax(0, 1fr);
   }
 
   .buttonRow {
@@ -165,22 +170,42 @@
 
   .recipeImage {
     grid-area: image;
-    display: block;
-    margin: 0;
     width: 100%;
+    max-width: 320px;
     height: 100%;
-    max-width: none;
     object-fit: cover;
     object-position: center;
     border-radius: 8px;
     align-self: stretch;
+    justify-self: start;
     overflow: hidden;
   }
 
-  .instructions,
-  .ingredientList,
+  .ingredientList {
+    grid-area: ingredients;
+    padding-left: 1.2rem;
+    margin-bottom: 0;
+    max-height: calc(65dvh - 6rem);
+    overflow-y: auto;
+    align-self: start;
+  }
+
+  .ingredientItem {
+    text-align: left;
+  }
+
+  .instructions {
+    grid-area: instructions;
+    max-height: calc(65dvh - 6rem);
+    overflow-y: auto;
+    padding: 0 0.6rem;
+    text-align: left;
+    align-self: start;
+  }
+
   .subheading {
-    grid-area: content;
+    margin-top: 0;
+    margin-bottom: 0.6rem;
   }
 
   .subheading,

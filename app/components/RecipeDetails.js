@@ -5,36 +5,163 @@ import styles from "../../styles/recipeDetails.module.css";
 export default function RecipeDetails({ recipe, onBack }) {
   const [analyzedSteps, setAnalyzedSteps] = useState([]);
   const [readableMode, setReadableMode] = useState(false);
+  const [parsedIngredients, setParsedIngredients] = useState([]);
+  const [parsedInstructions, setParsedInstructions] = useState([]);
 
   useEffect(() => {
     async function fetchAnalyzedInstructions() {
       if (!recipe?.id) return;
       try {
         const res = await fetch(`/api/recipe/${recipe.id}/instructions`);
-
-        if (!res.ok) {
-          console.warn("Failed to fetch analyzed instructions:", res.status);
-          return;
-        }
-
+        if (!res.ok) return;
+        const text = await res.text();
         let data = [];
         try {
-          const text = await res.text();
           data = text ? JSON.parse(text) : [];
-        } catch (err) {
-          console.warn("Invalid JSON from instructions endpoint:", err);
+        } catch {
           data = [];
         }
-
-        if (Array.isArray(data) && data.length > 0) {
+        if (
+          Array.isArray(data) &&
+          data.length > 0 &&
+          Array.isArray(data[0].steps)
+        ) {
           setAnalyzedSteps(data[0].steps);
+        } else {
+          setAnalyzedSteps([]);
         }
       } catch (err) {
-        console.error("Error fetching analyzed instructions:", err);
+        console.error(err);
+        setAnalyzedSteps([]);
       }
     }
     fetchAnalyzedInstructions();
   }, [recipe]);
+
+  useEffect(() => {
+    if (!recipe) {
+      setParsedIngredients([]);
+      setParsedInstructions([]);
+      return;
+    }
+
+    const ingredientsFromExtended =
+      Array.isArray(recipe.extendedIngredients) &&
+      recipe.extendedIngredients.length > 0
+        ? recipe.extendedIngredients.map(
+            (ing) => ing.original || ing.name || ""
+          )
+        : [];
+
+    if (ingredientsFromExtended.length > 0) {
+      setParsedIngredients(ingredientsFromExtended);
+    }
+
+    if (Array.isArray(analyzedSteps) && analyzedSteps.length > 0) {
+      setParsedInstructions(analyzedSteps.map((s) => s.step || ""));
+      if (ingredientsFromExtended.length > 0) return;
+    }
+
+    const rawHtml = recipe.instructions || "";
+    if (rawHtml) {
+      try {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(rawHtml, "text/html");
+
+        const lists = Array.from(doc.querySelectorAll("ul, ol"));
+        let foundIngredients = [];
+        let foundInstructions = [];
+
+        for (const list of lists) {
+          const items = Array.from(list.querySelectorAll("li")).map(
+            (li) => li.textContent?.trim() || ""
+          );
+          const avgLen =
+            items.reduce((a, b) => a + (b.length || 0), 0) /
+            Math.max(1, items.length);
+          if (
+            items.length >= 3 &&
+            avgLen < 100 &&
+            foundIngredients.length === 0
+          ) {
+            foundIngredients = items;
+            list.remove();
+          } else {
+            foundInstructions = foundInstructions.concat(items);
+            list.remove();
+          }
+        }
+
+        const paragraphs = Array.from(doc.querySelectorAll("p")).map(
+          (p) => p.textContent?.trim() || ""
+        );
+        const remainingText = doc.body.textContent
+          ? doc.body.textContent.trim()
+          : "";
+
+        if (
+          foundIngredients.length === 0 &&
+          ingredientsFromExtended.length === 0
+        ) {
+          const possibleIngredients = paragraphs.filter(
+            (t) =>
+              t.length > 0 &&
+              t.split(",").length <= 6 &&
+              t.split(" ").length < 10
+          );
+          if (possibleIngredients.length > 0) {
+            foundIngredients = possibleIngredients[0]
+              .split(/[\r\n,••]/)
+              .map((s) => s.trim())
+              .filter(Boolean);
+          }
+        }
+
+        if (foundInstructions.length === 0) {
+          const instrCandidates = paragraphs.filter((p) => p.length > 30);
+          if (instrCandidates.length > 0) {
+            foundInstructions = instrCandidates;
+          } else if (remainingText && remainingText.length > 30) {
+            foundInstructions = remainingText
+              .split(/\n{1,}|\.\s+/)
+              .map((s) => s.trim())
+              .filter(Boolean);
+          }
+        }
+
+        if (
+          ingredientsFromExtended.length === 0 &&
+          foundIngredients.length > 0
+        ) {
+          setParsedIngredients(foundIngredients);
+        } else if (ingredientsFromExtended.length === 0) {
+          setParsedIngredients([]);
+        }
+
+        if (Array.isArray(analyzedSteps) && analyzedSteps.length > 0) {
+          // already set above
+        } else if (foundInstructions.length > 0) {
+          setParsedInstructions(foundInstructions);
+        } else {
+          setParsedInstructions([]);
+        }
+      } catch (err) {
+        setParsedIngredients(ingredientsFromExtended);
+        setParsedInstructions(
+          analyzedSteps.length > 0 ? analyzedSteps.map((s) => s.step || "") : []
+        );
+      }
+    } else {
+      setParsedIngredients(ingredientsFromExtended);
+      setParsedInstructions(
+        analyzedSteps.length > 0
+          ? analyzedSteps.map((s) => s.step || "")
+          : recipe.instructions
+            ? [recipe.instructions]
+            : []
+      );
+    }
+  }, [recipe, analyzedSteps]);
 
   if (!recipe) return null;
 
@@ -45,7 +172,6 @@ export default function RecipeDetails({ recipe, onBack }) {
           <button className={styles.actionButton} onClick={onBack}>
             Back
           </button>
-
           <button
             className={styles.actionButton}
             onClick={() => setReadableMode(!readableMode)}
@@ -53,34 +179,42 @@ export default function RecipeDetails({ recipe, onBack }) {
             {readableMode ? "Normal" : "Read"}
           </button>
         </div>
+
         <h2 className={styles.heading}>{recipe.title}</h2>
+
         {recipe.image && (
           <Image
             className={styles.recipeImage}
             src={recipe.image}
             alt={recipe.title}
-            width={200}
-            height={200}
+            width={320}
+            height={480}
           />
         )}
+
+        <ul className={styles.ingredientList}>
+          <h3 className={styles.subheading}>Ingredients:</h3>
+          {parsedIngredients.length > 0 ? (
+            parsedIngredients.map((ing, i) => (
+              <li key={i} className={styles.ingredientItem}>
+                {ing}
+              </li>
+            ))
+          ) : (
+            <li className={styles.ingredientItem}>
+              No ingredient list available.
+            </li>
+          )}
+        </ul>
 
         <div
           className={`${styles.instructions} ${readableMode ? styles.readable : ""}`}
         >
-          <h3 className={styles.subheading}>Ingredients:</h3>
-          <ul className={styles.ingredientList}>
-            {recipe.extendedIngredients?.map((ing, idx) => (
-              <li key={`${ing.id}-${idx}`} className={styles.ingredientItem}>
-                {ing.original}
-              </li>
-            ))}
-          </ul>
-
           <h3 className={styles.subheading}>Instructions:</h3>
-          {analyzedSteps.length > 0 ? (
+          {parsedInstructions.length > 0 ? (
             <ol>
-              {analyzedSteps.map((step, idx) => (
-                <li key={idx}>{step.step}</li>
+              {parsedInstructions.map((instr, i) => (
+                <li key={i}>{instr}</li>
               ))}
             </ol>
           ) : recipe.instructions ? (
