@@ -130,16 +130,23 @@
   margin-bottom: 1.2rem;
 }
 
+.contentSection {
+  display: flex;
+  flex-direction: column;
+}
+
 .readable {
-  background: rgba(0, 0, 0, 0.612);
-  padding: 1px 1.2rem 0.5rem 1.2rem;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 8px;
+  padding: 1.2rem;
+  grid-column: span 2;
 }
 
 @media (min-width: 900px) {
   .detailsBox {
     display: grid;
-    grid-template-columns: 320px 1fr 1fr; /* image | ingredients | instructions */
-    grid-template-rows: auto auto 1fr; /* buttons, heading, body */
+    grid-template-columns: 320px 1fr 1fr;
+    grid-template-rows: auto auto 1fr;
     grid-template-areas:
       "buttonRow buttonRow buttonRow"
       "heading   heading   heading"
@@ -148,7 +155,6 @@
     row-gap: 0.8rem;
     align-items: stretch;
     padding: 1rem 1.2rem;
-    max-width: 1200px;
     grid-auto-rows: minmax(0, 1fr);
   }
 
@@ -181,8 +187,15 @@
     overflow: hidden;
   }
 
+  .contentSection {
+    grid-column: span 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    align-items: start;
+  }
+
   .ingredientList {
-    grid-area: ingredients;
     padding-left: 1.2rem;
     margin-bottom: 0;
     max-height: calc(65dvh - 6rem);
@@ -195,7 +208,6 @@
   }
 
   .instructions {
-    grid-area: instructions;
     max-height: calc(65dvh - 6rem);
     overflow-y: auto;
     padding: 0 0.6rem;
