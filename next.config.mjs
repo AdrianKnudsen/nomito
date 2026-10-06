@@ -1,6 +1,14 @@
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ["img.spoonacular.com"],
+    // remotePatterns erstatter images.domains, som er deprecated i Next 15.
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "img.spoonacular.com",
+        pathname: "/**",
+      },
+    ],
   },
 };
 

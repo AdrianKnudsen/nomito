@@ -39,3 +39,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# claude / agent-local files — never pushed
+.claude/
+.cursor/
+CLAUDE.md
+AGENTS.md
+RESUME.md
+TODO.md
+
+# nullpunkt-skjermbilder, arbeidsmateriale
+baseline/
