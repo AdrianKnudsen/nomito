@@ -1,75 +1,48 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import styles from "../../styles/recipeDetails.module.css";
-import type { InstructionStep, RecipeDetail } from "@/types/spoonacular";
+import type { RecipeDetail } from "@/types/spoonacular";
 
 interface RecipeDetailsProps {
   recipe: RecipeDetail | null;
   onBack: () => void;
 }
 
-/** Første gruppes steg fra /instructions-ruta, eller tom liste om formen er en annen. */
-function firstGroupSteps(data: unknown): InstructionStep[] {
-  if (!Array.isArray(data)) return [];
-  const first: unknown = data[0];
-  if (typeof first !== "object" || first === null || !("steps" in first)) {
-    return [];
+interface Fact {
+  label: string;
+  value: string;
+}
+
+/** Bare feltene Spoonacular faktisk sendte; panelet faller bort om ingen finnes. */
+function recipeFacts(recipe: RecipeDetail): Fact[] {
+  const facts: Fact[] = [];
+  if (recipe.readyInMinutes !== undefined) {
+    facts.push({ label: "Ready in", value: `${recipe.readyInMinutes} min` });
   }
-  return Array.isArray(first.steps) ? (first.steps as InstructionStep[]) : [];
+  if (recipe.servings !== undefined) {
+    facts.push({ label: "Servings", value: String(recipe.servings) });
+  }
+  if (recipe.healthScore !== undefined) {
+    facts.push({ label: "Health score", value: `${recipe.healthScore} / 100` });
+  }
+  if (recipe.diets && recipe.diets.length > 0) {
+    facts.push({ label: "Diets", value: recipe.diets.join(", ") });
+  }
+  return facts;
 }
 
 export default function RecipeDetails({ recipe, onBack }: RecipeDetailsProps) {
-  const [analyzedSteps, setAnalyzedSteps] = useState<InstructionStep[]>([]);
   const [readableMode, setReadableMode] = useState(false);
-  const [parsedIngredients, setParsedIngredients] = useState<string[]>([]);
-  const [parsedInstructions, setParsedInstructions] = useState<string[]>([]);
-
-  useEffect(() => {
-    async function fetchAnalyzedInstructions() {
-      if (!recipe?.id) return;
-      try {
-        const res = await fetch(`/api/recipe/${recipe.id}/instructions`);
-        if (!res.ok) return;
-        const text = await res.text();
-        let data: unknown = [];
-        try {
-          data = text ? JSON.parse(text) : [];
-        } catch {
-          data = [];
-        }
-        setAnalyzedSteps(firstGroupSteps(data));
-      } catch (err) {
-        console.error(err);
-        setAnalyzedSteps([]);
-      }
-    }
-    fetchAnalyzedInstructions();
-  }, [recipe]);
-
-  useEffect(() => {
-    if (!recipe) {
-      setParsedIngredients([]);
-      setParsedInstructions([]);
-      return;
-    }
-
-    const ingredients =
-      recipe.extendedIngredients?.map(
-        (ing) => ing.original || ing.name || ""
-      ) || [];
-
-    const instructions =
-      analyzedSteps.length > 0
-        ? analyzedSteps.map((s) => s.step || "")
-        : recipe.instructions
-          ? [recipe.instructions.replace(/<\/?[^>]+(>|$)/g, "")]
-          : [];
-
-    setParsedIngredients(ingredients);
-    setParsedInstructions(instructions);
-  }, [recipe, analyzedSteps]);
 
   if (!recipe) return null;
+
+  const ingredients =
+    recipe.extendedIngredients?.map((ing) => ing.original || ing.name || "") ??
+    [];
+  const instructionGroups = (recipe.analyzedInstructions ?? []).filter(
+    (group) => group.steps.length > 0
+  );
+  const facts = recipeFacts(recipe);
 
   return (
     <main className={styles.resultDetailsWrapper}>
@@ -88,6 +61,17 @@ export default function RecipeDetails({ recipe, onBack }: RecipeDetailsProps) {
 
         <h2 className={styles.heading}>{recipe.title}</h2>
 
+        {facts.length > 0 && (
+          <dl className={styles.facts}>
+            {facts.map((fact) => (
+              <div key={fact.label}>
+                <dt>{fact.label}</dt>
+                <dd>{fact.value}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
+
         {recipe.image && (
           <Image
             className={styles.recipeImage}
@@ -103,8 +87,8 @@ export default function RecipeDetails({ recipe, onBack }: RecipeDetailsProps) {
         >
           <ul className={styles.ingredientList}>
             <h3 className={styles.subheading}>Ingredients:</h3>
-            {parsedIngredients.length > 0 ? (
-              parsedIngredients.map((ing, i) => (
+            {ingredients.length > 0 ? (
+              ingredients.map((ing, i) => (
                 <li key={i} className={styles.ingredientItem}>
                   {ing}
                 </li>
@@ -118,14 +102,29 @@ export default function RecipeDetails({ recipe, onBack }: RecipeDetailsProps) {
 
           <div className={styles.instructions}>
             <h3 className={styles.subheading}>Instructions:</h3>
-            {parsedInstructions.length > 0 ? (
-              <ol>
-                {parsedInstructions.map((instr, i) => (
-                  <li key={i}>{instr}</li>
-                ))}
-              </ol>
-            ) : recipe.instructions ? (
-              <div dangerouslySetInnerHTML={{ __html: recipe.instructions }} />
+            {instructionGroups.length > 0 ? (
+              instructionGroups.map((group, i) => (
+                <section key={`${i}-${group.name}`}>
+                  {group.name && <h4>{group.name}</h4>}
+                  <ol>
+                    {group.steps.map((step) => (
+                      <li key={step.number}>{step.step}</li>
+                    ))}
+                  </ol>
+                </section>
+              ))
+            ) : recipe.sourceUrl ? (
+              <p>
+                Full instructions at{" "}
+                <a
+                  href={recipe.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {recipe.sourceName || "the original recipe"}
+                </a>
+                .
+              </p>
             ) : (
               <p>No instructions available.</p>
             )}

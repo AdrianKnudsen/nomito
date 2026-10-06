@@ -153,3 +153,17 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* Holder tittel og match-info i én kolonne ved siden av bildet. Ingen størrelser her:
+   de kommer som tokens i fase 4. */
+.recipeText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.recipeMatch {
+  font-family: var(--font-khand), sans-serif;
+  color: whitesmoke;
+}

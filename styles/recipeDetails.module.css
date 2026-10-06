@@ -130,6 +130,11 @@
   margin-bottom: 1.2rem;
 }
 
+/* Kildelenka er fallbacken når stegene mangler. Nettleserens blå forsvinner mot glasset. */
+.instructions a {
+  color: inherit;
+}
+
 .contentSection {
   display: flex;
   flex-direction: column;
