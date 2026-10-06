@@ -16,9 +16,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
   return (
     <>
-      {/* Feltet er ukontrollert og må monteres på nytt når URL-en endres, ellers står
-          forrige søk igjen etter tilbake-knappen. Nøkkelen må skille seg fra Suspense-
-          søskenets: like nøkler blant søsken etterlot gamle <main>-noder i DOM-en. */}
+      {/* The field is uncontrolled and must remount when the URL changes, or the previous
+          search stays after the back button. The key must differ from the Suspense
+          sibling's: equal keys among siblings left stale <main> nodes in the DOM. */}
       <SearchBar key={`search-${query}`} defaultValue={query} />
       {query && (
         <Suspense

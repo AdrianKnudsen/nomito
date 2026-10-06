@@ -8,7 +8,7 @@ interface Fact {
   value: string;
 }
 
-/** Bare feltene Spoonacular faktisk sendte; panelet faller bort om ingen finnes. */
+/** Only the fields Spoonacular actually sent; the panel drops out if there are none. */
 function recipeFacts(recipe: RecipeDetail): Fact[] {
   const facts: Fact[] = [];
   if (recipe.readyInMinutes !== undefined) {
@@ -100,8 +100,8 @@ export default function RecipeDetails({ recipe, backHref }: RecipeDetailsProps) 
                     </ol>
                   </section>
                 ))}
-                {/* Spoonacular-vilkårene krever at kilden krediteres med navn og lenke.
-                    Uten steg gjør fallbacken under det samme, så den vises bare her. */}
+                {/* Spoonacular's terms require crediting the source by name and link.
+                    Without steps the fallback below does that, so this only shows here. */}
                 {recipe.sourceUrl && (
                   <p className={styles.sourceCredit}>
                     Recipe from{" "}

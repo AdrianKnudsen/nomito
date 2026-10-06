@@ -1,9 +1,9 @@
 /**
- * Alle Spoonacular-kall samlet ett sted, ett per datatype.
+ * Every Spoonacular call in one place, one per data type.
  *
- * Kalles bare fra server components, så API-nøkkelen aldri når klienten. Grunnen til at
- * alt samles her er den samme som for GROQ-spørringer: når et kall skal endres, skal det
- * finnes én fil å endre det i.
+ * Only called from server components, so the API key never reaches the client. The
+ * reason for keeping it all here is the same as for GROQ queries: when a call has to
+ * change, there should be one file to change it in.
  */
 
 import { cache } from "react";
@@ -16,15 +16,15 @@ import type {
 const BASE = "https://api.spoonacular.com";
 
 /**
- * Maks er 100 per dokumentasjonen, og kostmodellen er 1 poeng + 0.01 per oppskrift.
- * 24 gir nok å bla i uten å brenne kvote eller dytte 100 kort inn i DOM-en.
+ * The documented maximum is 100, and the cost is 1 point + 0.01 per recipe. 24 is
+ * enough to browse without burning quota or pushing 100 cards into the DOM.
  */
 const RESULT_COUNT = 24;
 
 /**
- * Sidene fanger denne og viser `apiError.message`. De rendrer feilen selv i stedet for å
- * overlate den til `error.tsx`, fordi Next skjuler meldingen fra server components i
- * produksjon — og da forsvinner skillet mellom oppbrukt kvote og avvist nøkkel.
+ * Pages catch this and show `apiError.message`. They render the error themselves rather
+ * than leaving it to `error.tsx`, because Next hides server component error messages in
+ * production — and with it the difference between a spent quota and a rejected key.
  */
 export class SpoonacularError extends Error {
   readonly apiError: ApiError;
@@ -45,10 +45,10 @@ function apiKey(): string {
 }
 
 /**
- * Oversetter en feilet respons til noe UI-et kan skille på.
+ * Turns a failed response into something the UI can tell apart.
  *
- * Poenget er 402: oppbrukt kvote viste seg tidligere som «No recipes found», altså en
- * tom tilstand i stedet for en feil. Det er feilinformasjon, ikke en tom liste.
+ * The point is 402: a spent quota used to show up as "No recipes found", an empty state
+ * instead of an error. That is misinformation, not an empty list.
  */
 function toApiError(status: number): ApiError {
   if (status === 402) {
@@ -91,11 +91,11 @@ async function getJson<T>(url: string): Promise<T> {
 }
 
 /**
- * Søk på ingredienser du har hjemme.
+ * Search by the ingredients you have at home.
  *
- * `ranking: 2` minimerer manglende ingredienser framfor å maksimere brukte, og
- * `ignorePantry` holder vann, salt og mel utenfor regnestykket. Begge går rett i kjernen
- * av matsvinn-formålet, og begge lå ubrukt før.
+ * `ranking: 2` minimises missing ingredients rather than maximising used ones, and
+ * `ignorePantry` keeps water, salt and flour out of the count. Both go straight to the
+ * food-waste purpose, and both were unused before.
  */
 export async function findRecipesByIngredients(
   ingredients: string
@@ -113,14 +113,14 @@ export async function findRecipesByIngredients(
 }
 
 /**
- * Full oppskrift, inkludert stegene.
+ * The full recipe, steps included.
  *
- * `includeNutrition=true` koster ikke et ekstra kall, og er det som gjør datapanelet
- * mulig. `analyzedInstructions` kommer med i samme svar, så et eget kall mot
- * /analyzedInstructions ville bare brent ett kvotepoeng til per oppskrift.
+ * `includeNutrition=true` costs no extra call and is what makes the facts panel
+ * possible. `analyzedInstructions` comes in the same response, so a separate call to
+ * /analyzedInstructions would only burn another quota point per recipe.
  *
- * `cache` gjør at `generateMetadata` og siden deler ett kall per request i stedet for å
- * betale to kvotepoeng for samme oppskrift.
+ * `cache` lets `generateMetadata` and the page share one call per request instead of
+ * paying two quota points for the same recipe.
  */
 export const getRecipeDetail = cache(
   async (id: string): Promise<RecipeDetail> => {

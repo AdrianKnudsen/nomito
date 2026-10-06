@@ -2,14 +2,14 @@ import type { ReactNode } from "react";
 import styles from "../../styles/result.module.css";
 
 interface NoticeProps {
-  /** `status` for lasting, `alert` for feil, ingen for tomme tilstander. */
+  /** `status` for loading, `alert` for errors, none for empty states. */
   role?: "status" | "alert";
   children: ReactNode;
 }
 
 /**
- * Felles flate for laster, feil og tom tilstand. Låner `.loading` til fase 5b gir den
- * sin egen `.notice`-form.
+ * One surface for the loading, error and empty states. Borrows `.loading` until it gets
+ * its own `.notice` styles.
  */
 export default function Notice({ role, children }: NoticeProps) {
   return (

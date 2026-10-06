@@ -1,11 +1,11 @@
 /**
- * Forrige URL *inne i appen*, oppdatert av `UrlTracker` ved hver navigasjon.
+ * The previous URL *within the app*, updated by `UrlTracker` on every navigation.
  *
- * Finnes for at Back kan bruke `router.back()` — som henter siden fra router-cachen og
- * ikke koster et Spoonacular-kall — men bare når forrige side er nøyaktig der lenka
- * likevel peker. Nettleserhistorikken kan ikke spørres om forrige URL, derav egen logg.
- * Modulnivå framfor context: ingen komponent skal rendres på nytt når den endres, den
- * leses bare ved klikk.
+ * Exists so Back can use `router.back()` — which serves the page from the router cache
+ * and costs no Spoonacular call — but only when the previous page is exactly where the
+ * link points anyway. Browser history cannot be asked for the previous URL, hence this
+ * log. Module level rather than context: nothing should re-render when it changes; it is
+ * only read on click.
  */
 
 let current: string | null = null;
@@ -17,7 +17,7 @@ export function recordUrl(url: string): void {
   current = url;
 }
 
-/** Samme side og samme søk, uavhengig av hvordan søket er URL-kodet. */
+/** Same page and same search, however the search happens to be URL-encoded. */
 export function previousUrlMatches(href: string): boolean {
   if (previous === null) return false;
   const a = new URL(previous, window.location.origin);

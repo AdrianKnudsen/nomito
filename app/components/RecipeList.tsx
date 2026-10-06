@@ -19,7 +19,7 @@ export default async function RecipeList({ ingredients }: { ingredients: string 
   try {
     recipes = await findRecipesByIngredients(ingredients);
   } catch (error) {
-    // Bare upstream-feil vises som melding; alt annet er en bug og skal til Next.
+    // Only upstream errors become a message; anything else is a bug and goes to Next.
     if (!(error instanceof SpoonacularError)) throw error;
     return <Notice role="alert">{error.apiError.message}</Notice>;
   }
@@ -36,9 +36,9 @@ export default async function RecipeList({ ingredients }: { ingredients: string 
           <ul className={styles.recipeList}>
             {recipes.map((recipe) => (
               <li key={recipe.id} className={styles.recipeItem}>
-                {/* Ingen prefetch: Next forhåndshenter synlige lenker i produksjon, og for
-                    /recipe/[id] kjører det generateMetadata — ett kvotepoeng per synlig kort.
-                    Målt: 19 ekstra upstream-kall per visning av søkesiden. */}
+                {/* No prefetch: in production Next prefetches visible links, and for
+                    /recipe/[id] that runs generateMetadata — one quota point per visible
+                    card. Measured: 19 extra upstream calls per view of the search page. */}
                 <Link
                   href={`/recipe/${recipe.id}?${new URLSearchParams({ ingredients })}`}
                   prefetch={false}

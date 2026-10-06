@@ -8,7 +8,7 @@ import type { RecipeDetail } from "@/types/spoonacular";
 
 interface RecipePageProps {
   params: Promise<{ id: string }>;
-  /** Søket oppskriften ble åpnet fra, med fra resultatlista. Mangler ved direkte lenke. */
+  /** The search the recipe was opened from, passed on by the results. Absent on a direct link. */
   searchParams: Promise<{ ingredients?: string | string[] }>;
 }
 
@@ -20,7 +20,7 @@ export async function generateMetadata({
     const recipe = await getRecipeDetail(id);
     return { title: recipe.title };
   } catch (error) {
-    // Siden under viser feilen; tittelen faller bare tilbake til standarden.
+    // The page below shows the error; the title just falls back to the default.
     if (error instanceof SpoonacularError) return {};
     throw error;
   }
@@ -32,7 +32,8 @@ export default async function RecipePage({
 }: RecipePageProps) {
   const [{ id }, { ingredients }] = await Promise.all([params, searchParams]);
   const query = (Array.isArray(ingredients) ? ingredients[0] : ingredients)?.trim() ?? "";
-  // Back går til søkesiden, ikke dit brukeren kom fra: uten søk er /search start.
+  // Back goes to the search page, not wherever the user came from: without a search,
+  // /search is the start.
   const backHref = query ? `/search?${new URLSearchParams({ ingredients: query })}` : "/search";
 
   let recipe: RecipeDetail;

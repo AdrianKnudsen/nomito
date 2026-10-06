@@ -7,17 +7,17 @@ import { previousUrlMatches } from "./navigationHistory";
 import styles from "../../styles/recipeDetails.module.css";
 
 interface RecipeViewProps {
-  /** Søkesiden oppskriften hører til. Historikken er nettleserens tilbake-knapp sin jobb. */
+  /** The search page the recipe belongs to. History is the browser back button's job. */
   backHref: string;
-  /** Tittel, fakta og bilde — rendret på serveren, plassert over innholdet. */
+  /** Title, facts and image — rendered on the server, placed above the content. */
   header: ReactNode;
-  /** Ingredienser og steg — det lesemodusen gjelder. */
+  /** Ingredients and steps — what reading mode applies to. */
   children: ReactNode;
 }
 
 /**
- * Den eneste delen av oppskriftsvisningen som trenger klient-state. Innholdet kommer inn
- * ferdig rendret, så oppskriftsdataene ikke serialiseres til klienten.
+ * The only part of the recipe view that needs client state. The content arrives already
+ * rendered, so the recipe data is not serialised to the client.
  */
 export default function RecipeView({
   backHref,
@@ -27,9 +27,10 @@ export default function RecipeView({
   const router = useRouter();
   const [readableMode, setReadableMode] = useState(false);
 
-  // Samme destinasjon som lenka, men fra router-cachen: et nytt søk koster kvote, et steg
-  // tilbake gjør ikke. Bare når forrige side *er* det søket, så Back aldri sender noen
-  // et annet sted enn lenka viser. Cmd/Ctrl-klikk o.l. får lenkas vanlige oppførsel.
+  // Same destination as the link, but from the router cache: a new search costs quota, a
+  // step back does not. Only when the previous page *is* that search, so Back never sends
+  // anyone somewhere other than the link shows. Cmd/Ctrl-click etc. keep the link's
+  // normal behaviour.
   const handleBack = (event: MouseEvent<HTMLAnchorElement>) => {
     const modified =
       event.metaKey || event.ctrlKey || event.shiftKey || event.altKey;
@@ -41,8 +42,8 @@ export default function RecipeView({
   return (
     <>
       <div className={styles.buttonRow}>
-        {/* Ingen prefetch: lenka peker på søkeresultatet, og å forhåndshente det er et
-            nytt Spoonacular-søk ved hver visning av oppskriften. */}
+        {/* No prefetch: the link points at the search results, and prefetching them is
+            a new Spoonacular search on every view of the recipe. */}
         <Link
           href={backHref}
           prefetch={false}

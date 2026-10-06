@@ -5,11 +5,11 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { recordUrl } from "./navigationHistory";
 
 /**
- * Logger hver URL appen navigerer til. Rendrer ingenting.
+ * Logs every URL the app navigates to. Renders nothing.
  *
- * `useEffect` her synkroniserer mot en ekstern logg, ikke avledet state. Ligger i sin
- * egen `Suspense` i `layout` fordi `useSearchParams` ellers tvinger hele den statiske
- * forsiden over til klientrendring.
+ * `useEffect` here syncs with an external log, not derived state. It sits in its own
+ * `Suspense` in `layout` because `useSearchParams` would otherwise force the whole static
+ * home page into client rendering.
  */
 export default function UrlTracker() {
   const pathname = usePathname();

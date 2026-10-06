@@ -1,13 +1,13 @@
 /**
- * Typer for Spoonacular-responsene, definert ved API-grensen.
+ * Types for the Spoonacular responses, defined at the API boundary.
  *
- * Feltnavnene er verifisert mot spoonacular.com/food-api/docs, ikke gjettet.
- * Alt som er valgfritt her er valgfritt fordi Spoonacular faktisk utelater det for
- * enkelte oppskrifter — ikke fordi vi er usikre. Et felt vi ikke har bekreftet skal
- * ikke stå her; da hører det hjemme som `unknown` og narrowes på bruksstedet.
+ * Field names are checked against spoonacular.com/food-api/docs, not guessed. Anything
+ * optional here is optional because Spoonacular actually omits it for some recipes — not
+ * because we are unsure. A field we have not confirmed does not belong here; it belongs
+ * as `unknown`, narrowed where it is used.
  */
 
-/** Ingrediens slik den kommer fra findByIngredients. */
+/** An ingredient as findByIngredients returns it. */
 export interface SpoonacularIngredient {
   id: number;
   name: string;
@@ -22,10 +22,10 @@ export interface SpoonacularIngredient {
 }
 
 /**
- * Ett treff fra findByIngredients.
+ * One hit from findByIngredients.
  *
- * `usedIngredientCount` / `missedIngredients` er kjernen i matsvinn-formålet og var
- * årsaken til at denne typen finnes — appen hentet dem og kastet dem.
+ * `usedIngredientCount` / `missedIngredients` are the core of the food-waste purpose
+ * and the reason this type exists — the app fetched them and threw them away.
  */
 export interface RecipeSearchResult {
   id: number;
@@ -40,7 +40,7 @@ export interface RecipeSearchResult {
   unusedIngredients: SpoonacularIngredient[];
 }
 
-/** Utvidet ingrediens fra /information — har `original`, som er den vi viser. */
+/** Extended ingredient from /information — has `original`, which is what we show. */
 export interface ExtendedIngredient {
   id: number;
   name: string;
@@ -49,7 +49,7 @@ export interface ExtendedIngredient {
   unit: string;
 }
 
-/** Ett næringstall. Kommer bare når includeNutrition=true. */
+/** One nutrient figure. Only present with includeNutrition=true. */
 export interface Nutrient {
   name: string;
   amount: number;
@@ -64,21 +64,21 @@ export interface Nutrition {
 /**
  * /recipes/{id}/information.
  *
- * Feltene under `healthScore` og nedover er de fase 5c bruker i datapanelet. De koster
- * ingen ekstra kvote — de kommer i samme kall appen alt gjør.
+ * The fields from `healthScore` down feed the facts panel. They cost no extra quota —
+ * they come in the call the app already makes.
  */
 export interface RecipeDetail {
   id: number;
   title: string;
   image?: string;
   /**
-   * Stegene, i samme svar. Kan være tom — 716429 har verken steg eller `instructions`.
-   * Observert i et faktisk svar 2026-10-06, ikke bare lest i dokumentasjonen.
+   * The steps, in the same response. Can be empty — 716429 has neither steps nor
+   * `instructions`. Observed in a real response, not only read in the docs.
    */
   analyzedInstructions?: AnalyzedInstruction[];
-  /** HTML. Brukes ikke: stegene vises fra `analyzedInstructions`, ellers lenkes kilden. */
+  /** HTML. Not used: steps come from `analyzedInstructions`, otherwise the source is linked. */
   instructions?: string;
-  /** Originaloppskriften. Fallback når `analyzedInstructions` er tom. */
+  /** The original recipe. The fallback when `analyzedInstructions` is empty. */
   sourceUrl?: string;
   sourceName?: string;
   extendedIngredients?: ExtendedIngredient[];
@@ -90,26 +90,26 @@ export interface RecipeDetail {
   vegetarian?: boolean;
   vegan?: boolean;
   glutenFree?: boolean;
-  /** Bare til stede når includeNutrition=true. */
+  /** Only present with includeNutrition=true. */
   nutrition?: Nutrition;
 }
 
-/** Ett steg i `analyzedInstructions`. */
+/** One step in `analyzedInstructions`. */
 export interface InstructionStep {
   number: number;
   step: string;
 }
 
 /**
- * `analyzedInstructions` er en *liste* av grupper, ikke ett objekt. De fleste oppskrifter
- * har én gruppe med tomt navn; noen har flere navngitte deler (324694 har to).
+ * `analyzedInstructions` is a *list* of groups, not one object. Most recipes have a
+ * single group with an empty name; some have several named parts (324694 has two).
  */
 export interface AnalyzedInstruction {
   name: string;
   steps: InstructionStep[];
 }
 
-/** Feiltilstander vi skiller mellom i UI-et. Se fase 5b. */
+/** The error states the UI tells apart. */
 export type ApiErrorKind = "quota" | "auth" | "network" | "unknown";
 
 export interface ApiError {

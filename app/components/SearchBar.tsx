@@ -2,13 +2,13 @@ import Form from "next/form";
 import styles from "../../styles/searchBar.module.css";
 
 interface SearchBarProps {
-  /** Søket fra URL-en, så feltet viser det etter reload og tilbake-knappen. */
+  /** The search from the URL, so the field shows it after a reload and the back button. */
   defaultValue: string;
 }
 
 /**
- * Et vanlig GET-skjema mot /search. `next/form` gjør det til klientnavigasjon når JS er
- * lastet; uten JS fungerer det som et ordinært skjema.
+ * A plain GET form to /search. `next/form` makes it a client-side navigation once JS has
+ * loaded; without JS it works as an ordinary form.
  */
 export default function SearchBar({ defaultValue }: SearchBarProps) {
   return (
