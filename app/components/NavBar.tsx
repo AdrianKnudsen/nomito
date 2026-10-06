@@ -1,14 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import styles from "../../styles/nav.module.css";
 
-const ANIMATION_DURATION = 1000;
-
-/** Tittelen følger URL-en, så den stemmer også etter reload og tilbake-knappen. */
+/** The title follows the URL, so it is right after a reload and the back button too. */
 function titleFor(pathname: string): string {
   if (pathname.startsWith("/search") || pathname.startsWith("/recipe")) {
     return "Recipes by Ingredients";
@@ -19,28 +17,10 @@ function titleFor(pathname: string): string {
 export default function NavBar() {
   const pathname = usePathname();
   const [expanded, setExpanded] = useState(false);
-  const [showMenuContent, setShowMenuContent] = useState(false);
-
-  useEffect(() => {
-    let timeout: ReturnType<typeof setTimeout> | undefined;
-    if (expanded) {
-      setShowMenuContent(true);
-    } else {
-      timeout = setTimeout(() => setShowMenuContent(false), ANIMATION_DURATION);
-    }
-    return () => clearTimeout(timeout);
-  }, [expanded]);
 
   return (
     <nav className={styles.navContainer}>
-      <div
-        className={`${styles.nav} ${expanded ? styles.navExpanded : ""}`}
-        style={{
-          height: expanded ? "22rem" : "6.2em",
-          transition: "height 1s cubic-bezier(0.4, 0, 0.2, 1)",
-          overflow: "hidden",
-        }}
-      >
+      <div className={`${styles.nav} ${expanded ? styles.navExpanded : ""}`}>
         <Link
           href="/"
           className={styles.logoLink}
@@ -58,6 +38,8 @@ export default function NavBar() {
         <button
           className={styles.menuButton}
           aria-label="Open menu"
+          aria-expanded={expanded}
+          aria-controls="site-menu"
           onClick={() => setExpanded((prev) => !prev)}
         >
           <svg
@@ -76,17 +58,17 @@ export default function NavBar() {
             />
           </svg>
         </button>
-        {showMenuContent && (
-          <div className={styles.menuContent}>
-            <ul>
-              <li>
-                <Link href="/search" onClick={() => setExpanded(false)}>
-                  Recipes by Ingredients
-                </Link>
-              </li>
-            </ul>
-          </div>
-        )}
+        {/* Always in the DOM so the row can animate from 0fr; inert while collapsed so
+            its links are neither focusable nor announced. */}
+        <div id="site-menu" className={styles.menuContent} inert={!expanded}>
+          <ul>
+            <li>
+              <Link href="/search" onClick={() => setExpanded(false)}>
+                Recipes by Ingredients
+              </Link>
+            </li>
+          </ul>
+        </div>
       </div>
     </nav>
   );

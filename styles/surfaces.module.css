@@ -1,0 +1,109 @@
+/*
+ * Shared surfaces, consumed with `composes`. Vary them through custom properties, not by
+ * redeclaring: the order between a composed class and its consumer is a bundler detail.
+ * `composes` must come first in the rule, only works on single-class selectors, and not
+ * inside @media.
+ */
+
+/* The app's width. Put on the card itself or its outermost wrapper; the `width: 100%`
+   equivalent, never 100vw — that includes the scrollbar gutter. */
+.shell {
+  width: min(100% - 2 * var(--shell-gutter), var(--shell-max));
+  margin-inline: auto;
+}
+
+/*
+ * Shared glass recipe. Not used directly: compose `liquidGlass`, `liquidGlassBar` or
+ * `regularGlass`. A consumer must not set --glass-dim or --glass-blur itself — the
+ * variant does, and which of the two wins would be a bundler detail.
+ * Varied through custom properties, never by redeclaring:
+ *   --glass-radius  corners (default --radius-md)
+ *   --glass-dim     dimming layer under the sheen
+ *   --glass-blur    backdrop blur
+ *   --glass-sheen   the light film; hover/active swap it without touching background
+ * The specular rim (bright top edge, faint sides) is what reads as Liquid Glass rather
+ * than flat frosted glass; there is deliberately no noise texture.
+ */
+.glass {
+  border-radius: var(--glass-radius, var(--radius-md));
+  background:
+    var(
+      --glass-sheen,
+      linear-gradient(180deg, var(--glass-sheen-top), transparent 45%)
+    ),
+    var(--glass-dim);
+  border: 1px solid var(--glass-hairline);
+  box-shadow:
+    inset 0 1px 0 var(--glass-rim),
+    inset 1px 0 0 rgb(255 255 255 / 0.12),
+    inset -1px 0 0 rgb(255 255 255 / 0.06),
+    inset 0 -1px 0 rgb(255 255 255 / 0.05),
+    0 10px 30px rgb(2 6 23 / 0.45);
+  backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+}
+
+/* Functional layer: nav, search, buttons. Highly translucent over the photo. */
+.liquidGlass {
+  composes: glass;
+  --glass-dim: var(--glass-clear-dim);
+  --glass-blur: var(--glass-clear-blur);
+}
+
+/* Clear glass for the nav bar, dimmed further because of where it sits on the photo. */
+.liquidGlassBar {
+  composes: glass;
+  --glass-dim: var(--glass-bar-dim);
+  --glass-blur: var(--glass-clear-blur);
+}
+
+/* Content layer: cards with a lot of text. Denser so body text holds 4.5:1. */
+.regularGlass {
+  composes: glass;
+  --glass-dim: var(--glass-regular-dim);
+  --glass-blur: var(--glass-regular-blur);
+}
+
+/*
+ * The light streak that follows the scroll position (`--shimmer-shift`, set by
+ * ScrollShimmer). `position: relative` is what keeps the pseudo-elements inside the card
+ * — without it they resolved against the viewport. `isolation` gives ::after its own
+ * stacking context.
+ */
+.shimmer {
+  position: relative;
+  isolation: isolate;
+}
+
+.shimmer::before,
+.shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.shimmer::before {
+  z-index: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    rgb(255 255 255 / 0.4) calc(var(--shimmer-shift, 50%) - 5%),
+    rgb(255 255 255 / 0.25) var(--shimmer-shift, 50%),
+    transparent calc(var(--shimmer-shift, 50%) + 5%)
+  );
+  mix-blend-mode: screen;
+  opacity: 0.65;
+}
+
+.shimmer::after {
+  z-index: -1;
+  background: linear-gradient(180deg, transparent 70%, rgb(0 0 0 / 0.25));
+}
+
+/* Reading mode: a dark surface behind the text, independent of the photo. */
+.readableSurface {
+  background: var(--scrim);
+  border-radius: var(--radius-sm);
+}

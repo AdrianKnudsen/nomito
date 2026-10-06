@@ -5,7 +5,7 @@ const About = () => {
   return (
     <div className={styles.textWrapper}>
       <ScrollShimmer className={styles.scrollContainer}>
-        <div className={styles.textContent}>
+        <div>
           <h1 className={styles.head}>
             Nomito - Cook Smarter with What You Have.
           </h1>

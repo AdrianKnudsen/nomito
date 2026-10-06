@@ -1,99 +1,46 @@
 .navContainer {
-  position: relative;
-  top: 1.5rem;
-  left: 50%;
-  transform: translate(-50%);
-  width: 100vw;
+  composes: shell from "./surfaces.module.css";
+  flex: none;
   z-index: 10;
-  background: transparent;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  transition: height 0.1s;
 }
 
+/*
+ * Row 2 is the menu. 0fr → 1fr animates to the content's own height, so there is no
+ * hard-coded expanded height to break when a menu item is added.
+ */
 .nav {
-  width: 90%;
+  composes: liquidGlassBar shimmer from "./surfaces.module.css";
+  --glass-radius: var(--radius-lg);
   padding: 0.8rem;
   display: grid;
   grid-template-columns: auto 1fr auto;
+  grid-template-rows: auto 0fr;
   align-items: center;
-  border-radius: 10px;
-  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.06'/></svg>"),
-    linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.06),
-      rgba(255, 255, 255, 0.02)
-    );
-  border: solid 1px rgba(255, 255, 255, 0.35);
-  box-shadow:
-    0 10px 30px rgba(2, 6, 23, 0.6),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(20px) saturate(160%) contrast(102%);
-  -webkit-backdrop-filter: blur(20px) saturate(160%) contrast(102%);
-}
-
-.nav::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  z-index: 0;
-  background: linear-gradient(
-    115deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.4) calc(var(--shimmer-shift, 50%) - 5%),
-    rgba(255, 255, 255, 0.25) var(--shimmer-shift, 50%),
-    transparent calc(var(--shimmer-shift, 50%) + 5%)
-  );
-  mix-blend-mode: screen;
-  opacity: 0.65;
-  transition: background-position 0.2s ease-out;
-}
-
-.nav::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  z-index: -1;
-  background: linear-gradient(180deg, transparent 70%, rgba(0, 0, 0, 0.25));
+  transition: grid-template-rows 1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .navExpanded {
-  grid-template-rows: 2fr 1fr 1fr 1fr 1fr;
+  grid-template-rows: auto 1fr;
 }
 
 .logo {
-  justify-self: start;
   width: auto;
   height: 4.5em;
   margin-left: 0.5rem;
-  grid-row: 1;
-  cursor: pointer;
 }
 
-/* Logoen er pakket i en lenke, så det er lenka som er grid-elementet nå. Flex fjerner
-   linjehøyde-luften en inline-lenke ellers legger under bildet. */
+/* The logo is wrapped in a link, so the link is the grid item. Flex removes the
+   line-height gap an inline link would otherwise leave under the image. */
 .logoLink {
   grid-row: 1;
   justify-self: start;
   display: flex;
 }
+
 .title {
-  font-family: var(--font-khand), sans-serif;
   font-weight: 500;
   justify-self: center;
-  font-size: clamp(1.7rem, 6vw, 1.9rem);
-  color: whitesmoke;
+  font-size: var(--text-xl);
 }
 
 .menuButton {
@@ -102,43 +49,41 @@
   margin-right: 0.5rem;
   border: none;
   cursor: pointer;
-  box-shadow: none;
-  outline: none;
 }
 
 .menuButton svg {
-  width: 32px;
-  height: 32px;
+  width: 2rem;
+  height: 2rem;
   display: block;
 }
 
+/* Stretch makes the box follow the 0fr row; without it the nav's align-items: center
+   keeps the menu at content height, centred over the empty row and visible. The space
+   above the menu is padding on the list so the collapsed row is truly 0. */
 .menuContent {
   grid-column: 1 / -1;
-  margin-top: 1rem;
-  color: whitesmoke;
+  align-self: stretch;
+  min-height: 0;
+  overflow: hidden;
   text-align: center;
 }
 
 .menuContent ul {
   list-style: none;
-  padding: 0;
-  margin: 0;
+  padding-top: var(--space-md);
 }
 
 .menuContent li {
-  margin: 0.5rem 0;
-  font-family: var(--font-khand), sans-serif;
+  margin: var(--space-xs) 0;
   font-weight: 500;
-  font-size: clamp(1.8rem, 6vw, 2rem);
-  color: whitesmoke;
-  cursor: pointer;
+  font-size: var(--text-xl);
   transition: color 0.2s;
 }
 
 .menuContent a {
-  color: inherit;
   text-decoration: none;
 }
+
 .menuContent li:hover {
-  color: #85ec3c;
+  color: var(--color-accent);
 }
