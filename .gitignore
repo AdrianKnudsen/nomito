@@ -50,3 +50,6 @@ TODO.md
 
 # nullpunkt-skjermbilder, arbeidsmateriale
 baseline/
+
+# Editor config — not needed to build or run
+.vscode/
