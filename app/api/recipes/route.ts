@@ -1,4 +1,4 @@
-export async function GET(req) {
+export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const ingredients = searchParams.get("ingredients") || "chicken";
   const API_KEY = process.env.SPOONACULAR_KEY;

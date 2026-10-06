@@ -1,5 +1,8 @@
-export async function GET(req, { params }) {
-  const { id } = params;
+export async function GET(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
   const API_KEY = process.env.SPOONACULAR_KEY;
 
   const response = await fetch(
