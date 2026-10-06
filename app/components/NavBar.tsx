@@ -4,17 +4,24 @@ import Image from "next/image";
 
 const ANIMATION_DURATION = 1000;
 
+interface NavBarProps {
+  onShowSearchBar: () => void;
+  onSetTitle?: (title: string) => void;
+  navTitle: string;
+  onGoHome?: () => void;
+}
+
 export default function NavBar({
   onShowSearchBar,
   onSetTitle,
   navTitle,
   onGoHome,
-}) {
+}: NavBarProps) {
   const [expanded, setExpanded] = useState(false);
   const [showMenuContent, setShowMenuContent] = useState(false);
 
   useEffect(() => {
-    let timeout;
+    let timeout: ReturnType<typeof setTimeout> | undefined;
     if (expanded) {
       setShowMenuContent(true);
     } else {

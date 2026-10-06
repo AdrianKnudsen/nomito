@@ -5,16 +5,26 @@ import Image from "next/image";
 import { fetchRecipes } from "./api";
 import RecipeDetails from "./RecipeDetails";
 import styles from "../../styles/result.module.css";
+import type { RecipeDetail, RecipeSearchResult } from "@/types/spoonacular";
 
-export default function Result({ ingredients, resetTrigger }) {
-  const [recipes, setRecipes] = useState([]);
+interface ResultProps {
+  ingredients: string;
+  resetTrigger: boolean;
+}
+
+export default function Result({ ingredients, resetTrigger }: ResultProps) {
+  const [recipes, setRecipes] = useState<RecipeSearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
-  const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [selectedRecipe, setSelectedRecipe] = useState<RecipeDetail | null>(
+    null
+  );
   const [detailsLoading, setDetailsLoading] = useState(false);
 
   useEffect(() => {
-    const wrapper = document.querySelector(`.${styles.scrollContainer}`);
+    const wrapper = document.querySelector<HTMLElement>(
+      `.${styles.scrollContainer}`
+    );
     if (!wrapper) return;
 
     const handleScroll = () => {
@@ -61,10 +71,10 @@ export default function Result({ ingredients, resetTrigger }) {
     setSelectedRecipe(null);
   }, [resetTrigger]);
 
-  const handleRecipeClick = async (id) => {
+  const handleRecipeClick = async (id: number) => {
     setDetailsLoading(true);
     const res = await fetch(`/api/recipe/${id}`);
-    const data = await res.json();
+    const data = (await res.json()) as RecipeDetail;
     setSelectedRecipe(data);
     setDetailsLoading(false);
   };

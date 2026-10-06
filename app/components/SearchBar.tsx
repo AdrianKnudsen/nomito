@@ -3,7 +3,11 @@
 import { useState } from "react";
 import styles from "../../styles/searchBar.module.css";
 
-export default function SearchBar({ onSearch }) {
+interface SearchBarProps {
+  onSearch: (ingredients: string) => void;
+}
+
+export default function SearchBar({ onSearch }: SearchBarProps) {
   const [inputValue, setInputValue] = useState("");
 
   const handleSearch = () => {

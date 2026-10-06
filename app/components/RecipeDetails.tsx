@@ -1,12 +1,28 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import styles from "../../styles/recipeDetails.module.css";
+import type { InstructionStep, RecipeDetail } from "@/types/spoonacular";
 
-export default function RecipeDetails({ recipe, onBack }) {
-  const [analyzedSteps, setAnalyzedSteps] = useState([]);
+interface RecipeDetailsProps {
+  recipe: RecipeDetail | null;
+  onBack: () => void;
+}
+
+/** Første gruppes steg fra /instructions-ruta, eller tom liste om formen er en annen. */
+function firstGroupSteps(data: unknown): InstructionStep[] {
+  if (!Array.isArray(data)) return [];
+  const first: unknown = data[0];
+  if (typeof first !== "object" || first === null || !("steps" in first)) {
+    return [];
+  }
+  return Array.isArray(first.steps) ? (first.steps as InstructionStep[]) : [];
+}
+
+export default function RecipeDetails({ recipe, onBack }: RecipeDetailsProps) {
+  const [analyzedSteps, setAnalyzedSteps] = useState<InstructionStep[]>([]);
   const [readableMode, setReadableMode] = useState(false);
-  const [parsedIngredients, setParsedIngredients] = useState([]);
-  const [parsedInstructions, setParsedInstructions] = useState([]);
+  const [parsedIngredients, setParsedIngredients] = useState<string[]>([]);
+  const [parsedInstructions, setParsedInstructions] = useState<string[]>([]);
 
   useEffect(() => {
     async function fetchAnalyzedInstructions() {
@@ -15,21 +31,13 @@ export default function RecipeDetails({ recipe, onBack }) {
         const res = await fetch(`/api/recipe/${recipe.id}/instructions`);
         if (!res.ok) return;
         const text = await res.text();
-        let data = [];
+        let data: unknown = [];
         try {
           data = text ? JSON.parse(text) : [];
         } catch {
           data = [];
         }
-        if (
-          Array.isArray(data) &&
-          data.length > 0 &&
-          Array.isArray(data[0].steps)
-        ) {
-          setAnalyzedSteps(data[0].steps);
-        } else {
-          setAnalyzedSteps([]);
-        }
+        setAnalyzedSteps(firstGroupSteps(data));
       } catch (err) {
         console.error(err);
         setAnalyzedSteps([]);

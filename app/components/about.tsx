@@ -3,14 +3,16 @@ import styles from "../../styles/about.module.css";
 
 const About = () => {
   useEffect(() => {
-    const wrapper = document.querySelector(`.${styles.scrollContainer}`);
+    const wrapper = document.querySelector<HTMLElement>(
+      `.${styles.scrollContainer}`
+    );
     if (!wrapper) return;
     const handleScroll = () => {
       const scrollTop = wrapper.scrollTop;
       const scrollHeight = wrapper.scrollHeight - wrapper.clientHeight;
       const scrollRatio = scrollHeight > 0 ? scrollTop / scrollHeight : 0;
       const shimmerShift = scrollRatio * 100;
-      wrapper.parentElement.style.setProperty(
+      wrapper.parentElement?.style.setProperty(
         "--shimmer-shift",
         `${shimmerShift}%`
       );
