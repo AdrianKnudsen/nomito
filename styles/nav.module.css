@@ -81,6 +81,13 @@
   cursor: pointer;
 }
 
+/* Logoen er pakket i en lenke, så det er lenka som er grid-elementet nå. Flex fjerner
+   linjehøyde-luften en inline-lenke ellers legger under bildet. */
+.logoLink {
+  grid-row: 1;
+  justify-self: start;
+  display: flex;
+}
 .title {
   font-family: var(--font-khand), sans-serif;
   font-weight: 500;
@@ -128,6 +135,10 @@
   transition: color 0.2s;
 }
 
+.menuContent a {
+  color: inherit;
+  text-decoration: none;
+}
 .menuContent li:hover {
   color: #85ec3c;
 }

@@ -1,13 +1,5 @@
-import styles from "../styles/app.module.css";
+import About from "./components/about";
 
-function App() {
-  return (
-    <>
-      <main className={styles.background}>
-        <div className={styles.backgroundImg}></div>
-      </main>
-    </>
-  );
+export default function HomePage() {
+  return <About />;
 }
-
-export default App;

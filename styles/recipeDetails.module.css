@@ -64,7 +64,12 @@
   margin-bottom: 1rem;
 }
 
+/* Brukes på både <button> (Read) og <a> (Back). Skrift, display og understrek settes
+   eksplisitt så de to ser like ut — knapper arver ikke skrift, lenker gjør. */
 .actionButton {
+  font-family: var(--font-khand), sans-serif;
+  display: inline-block;
+  text-decoration: none;
   color: whitesmoke;
   border-radius: 8px;
   padding: 0.5rem 1.2rem;
@@ -130,9 +135,16 @@
   margin-bottom: 1.2rem;
 }
 
-/* Kildelenka er fallbacken når stegene mangler. Nettleserens blå forsvinner mot glasset. */
+/* Kildelenkene (kreditt under stegene, og fallback når de mangler). Nettleserens blå
+   forsvinner mot glasset. */
 .instructions a {
   color: inherit;
+}
+
+/* Diskret, men full tekstfarge: å dempe fargen ville gått på kontrasten. `smaller` til
+   typografi-tokens finnes (fase 4). */
+.sourceCredit {
+  font-size: smaller;
 }
 
 .contentSection {

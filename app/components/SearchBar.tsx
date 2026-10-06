@@ -1,37 +1,31 @@
-"use client";
-
-import { useState } from "react";
+import Form from "next/form";
 import styles from "../../styles/searchBar.module.css";
 
 interface SearchBarProps {
-  onSearch: (ingredients: string) => void;
+  /** Søket fra URL-en, så feltet viser det etter reload og tilbake-knappen. */
+  defaultValue: string;
 }
 
-export default function SearchBar({ onSearch }: SearchBarProps) {
-  const [inputValue, setInputValue] = useState("");
-
-  const handleSearch = () => {
-    onSearch(inputValue);
-  };
+/**
+ * Et vanlig GET-skjema mot /search. `next/form` gjør det til klientnavigasjon når JS er
+ * lastet; uten JS fungerer det som et ordinært skjema.
+ */
+export default function SearchBar({ defaultValue }: SearchBarProps) {
   return (
     <main className={styles.searchContainer}>
       <div className={styles.searchBox}>
-        <div className={styles.inputButtonBox}>
+        <Form action="/search" className={styles.inputButtonBox}>
           <input
             type="text"
-            name="search"
+            name="ingredients"
             placeholder="Add your ingredients here..."
             className={styles.searchInput}
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") handleSearch();
-            }}
+            defaultValue={defaultValue}
           />
           <button
+            type="submit"
             className={styles.searchButton}
             aria-label="Search"
-            onClick={handleSearch}
           >
             <svg
               width="32"
@@ -56,7 +50,7 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
               />
             </svg>
           </button>
-        </div>
+        </Form>
       </div>
     </main>
   );

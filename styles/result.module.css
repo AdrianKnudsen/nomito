@@ -154,6 +154,18 @@
   text-overflow: ellipsis;
 }
 
+/* Hele kortet er lenka. `li` beholder flex-plassen i lista, lenka tar over raden inni
+   og arver avstanden fra kortet. */
+.recipeLink {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: inherit;
+  color: inherit;
+  text-decoration: none;
+}
+
 /* Holder tittel og match-info i én kolonne ved siden av bildet. Ingen størrelser her:
    de kommer som tokens i fase 4. */
 .recipeText {

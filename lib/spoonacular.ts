@@ -1,14 +1,14 @@
 /**
  * Alle Spoonacular-kall samlet ett sted, ett per datatype.
  *
- * Route handlers under app/api/ skal være tynne og bare kalle hit. Grunnen er den samme
- * som for GROQ-spørringer: når et kall skal endres, skal det finnes én fil å endre det i.
+ * Kalles bare fra server components, så API-nøkkelen aldri når klienten. Grunnen til at
+ * alt samles her er den samme som for GROQ-spørringer: når et kall skal endres, skal det
+ * finnes én fil å endre det i.
  */
 
-import { SpoonacularError } from "@/lib/api-error";
+import { cache } from "react";
 import type {
   ApiError,
-  ApiErrorKind,
   RecipeDetail,
   RecipeSearchResult,
 } from "@/types/spoonacular";
@@ -22,15 +22,19 @@ const BASE = "https://api.spoonacular.com";
 const RESULT_COUNT = 24;
 
 /**
- * Kvote og nøkkel sendes videre med egen status, så klienten kan skille dem fra
- * «ingen treff». Nettverk og ukjent er upstream-feil sett fra klienten, derav 502.
+ * Sidene fanger denne og viser `apiError.message`. De rendrer feilen selv i stedet for å
+ * overlate den til `error.tsx`, fordi Next skjuler meldingen fra server components i
+ * produksjon — og da forsvinner skillet mellom oppbrukt kvote og avvist nøkkel.
  */
-const STATUS_BY_KIND: Record<ApiErrorKind, number> = {
-  quota: 402,
-  auth: 401,
-  network: 502,
-  unknown: 502,
-};
+export class SpoonacularError extends Error {
+  readonly apiError: ApiError;
+
+  constructor(apiError: ApiError, options?: { cause?: unknown }) {
+    super(apiError.message, options);
+    this.name = "SpoonacularError";
+    this.apiError = apiError;
+  }
+}
 
 function apiKey(): string {
   const key = process.env.SPOONACULAR_KEY;
@@ -87,18 +91,6 @@ async function getJson<T>(url: string): Promise<T> {
 }
 
 /**
- * Gjør en feil fra denne fila om til et svar en route handler kan returnere.
- * Alt annet kastes videre, så Next logger det som en ekte 500 i stedet for at det
- * forkles som en upstream-feil.
- */
-export function errorResponse(error: unknown): Response {
-  if (!(error instanceof SpoonacularError)) throw error;
-  return Response.json(error.apiError, {
-    status: STATUS_BY_KIND[error.apiError.kind],
-  });
-}
-
-/**
  * Søk på ingredienser du har hjemme.
  *
  * `ranking: 2` minimerer manglende ingredienser framfor å maksimere brukte, og
@@ -126,14 +118,19 @@ export async function findRecipesByIngredients(
  * `includeNutrition=true` koster ikke et ekstra kall, og er det som gjør datapanelet
  * mulig. `analyzedInstructions` kommer med i samme svar, så et eget kall mot
  * /analyzedInstructions ville bare brent ett kvotepoeng til per oppskrift.
+ *
+ * `cache` gjør at `generateMetadata` og siden deler ett kall per request i stedet for å
+ * betale to kvotepoeng for samme oppskrift.
  */
-export async function getRecipeDetail(id: string): Promise<RecipeDetail> {
-  const params = new URLSearchParams({
-    includeNutrition: "true",
-    metric: "true",
-    apiKey: apiKey(),
-  });
-  return getJson<RecipeDetail>(
-    `${BASE}/recipes/${encodeURIComponent(id)}/information?${params}`
-  );
-}
+export const getRecipeDetail = cache(
+  async (id: string): Promise<RecipeDetail> => {
+    const params = new URLSearchParams({
+      includeNutrition: "true",
+      metric: "true",
+      apiKey: apiKey(),
+    });
+    return getJson<RecipeDetail>(
+      `${BASE}/recipes/${encodeURIComponent(id)}/information?${params}`
+    );
+  }
+);

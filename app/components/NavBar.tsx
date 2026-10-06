@@ -1,22 +1,23 @@
+"use client";
+
 import { useState, useEffect } from "react";
-import styles from "../../styles/nav.module.css";
 import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import styles from "../../styles/nav.module.css";
 
 const ANIMATION_DURATION = 1000;
 
-interface NavBarProps {
-  onShowSearchBar: () => void;
-  onSetTitle?: (title: string) => void;
-  navTitle: string;
-  onGoHome?: () => void;
+/** Tittelen følger URL-en, så den stemmer også etter reload og tilbake-knappen. */
+function titleFor(pathname: string): string {
+  if (pathname.startsWith("/search") || pathname.startsWith("/recipe")) {
+    return "Recipes by Ingredients";
+  }
+  return "Home";
 }
 
-export default function NavBar({
-  onShowSearchBar,
-  onSetTitle,
-  navTitle,
-  onGoHome,
-}: NavBarProps) {
+export default function NavBar() {
+  const pathname = usePathname();
   const [expanded, setExpanded] = useState(false);
   const [showMenuContent, setShowMenuContent] = useState(false);
 
@@ -40,18 +41,20 @@ export default function NavBar({
           overflow: "hidden",
         }}
       >
-        <Image
-          className={styles.logo}
-          src="/images/NomitoLogo.png"
-          alt="logo-img"
-          width={100}
-          height={100}
-          onClick={() => {
-            if (onGoHome) onGoHome();
-            setExpanded(false);
-          }}
-        />
-        <div className={styles.title}>{navTitle}</div>
+        <Link
+          href="/"
+          className={styles.logoLink}
+          onClick={() => setExpanded(false)}
+        >
+          <Image
+            className={styles.logo}
+            src="/images/NomitoLogo.png"
+            alt="Nomito home"
+            width={100}
+            height={100}
+          />
+        </Link>
+        <div className={styles.title}>{titleFor(pathname)}</div>
         <button
           className={styles.menuButton}
           aria-label="Open menu"
@@ -76,37 +79,10 @@ export default function NavBar({
         {showMenuContent && (
           <div className={styles.menuContent}>
             <ul>
-              <li
-                onClick={() => {
-                  onShowSearchBar();
-                  setExpanded(false);
-                }}
-              >
-                Recipes by Ingredients
-              </li>
-              <li
-                onClick={() => {
-                  onSetTitle && onSetTitle("Placeholder");
-                  setExpanded(false);
-                }}
-              >
-                Placeholder
-              </li>
-              <li
-                onClick={() => {
-                  onSetTitle && onSetTitle("Placeholder");
-                  setExpanded(false);
-                }}
-              >
-                Placeholder
-              </li>
-              <li
-                onClick={() => {
-                  onSetTitle && onSetTitle("Placeholder");
-                  setExpanded(false);
-                }}
-              >
-                Placeholder
+              <li>
+                <Link href="/search" onClick={() => setExpanded(false)}>
+                  Recipes by Ingredients
+                </Link>
               </li>
             </ul>
           </div>
