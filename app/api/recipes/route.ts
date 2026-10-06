@@ -1,11 +1,12 @@
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const ingredients = searchParams.get("ingredients") || "chicken";
-  const API_KEY = process.env.SPOONACULAR_KEY;
+import { errorResponse, findRecipesByIngredients } from "@/lib/spoonacular";
 
-  const response = await fetch(
-    `https://api.spoonacular.com/recipes/findByIngredients?ingredients=${ingredients}&number=99999&apiKey=${API_KEY}`
-  );
-  const data = await response.json();
-  return Response.json(data);
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const ingredients = searchParams.get("ingredients") || "chicken";
+
+  try {
+    return Response.json(await findRecipesByIngredients(ingredients));
+  } catch (error) {
+    return errorResponse(error);
+  }
 }

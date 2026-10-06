@@ -71,8 +71,16 @@ export interface RecipeDetail {
   id: number;
   title: string;
   image?: string;
-  /** HTML fra Spoonacular. Skal ikke injiseres rått — se CLAUDE.md. */
+  /**
+   * Stegene, i samme svar. Kan være tom — 716429 har verken steg eller `instructions`.
+   * Observert i et faktisk svar 2026-10-06, ikke bare lest i dokumentasjonen.
+   */
+  analyzedInstructions?: AnalyzedInstruction[];
+  /** HTML. Brukes ikke: stegene vises fra `analyzedInstructions`, ellers lenkes kilden. */
   instructions?: string;
+  /** Originaloppskriften. Fallback når `analyzedInstructions` er tom. */
+  sourceUrl?: string;
+  sourceName?: string;
   extendedIngredients?: ExtendedIngredient[];
   healthScore?: number;
   readyInMinutes?: number;
@@ -86,15 +94,15 @@ export interface RecipeDetail {
   nutrition?: Nutrition;
 }
 
-/** Ett steg fra /analyzedInstructions. */
+/** Ett steg i `analyzedInstructions`. */
 export interface InstructionStep {
   number: number;
   step: string;
 }
 
 /**
- * /recipes/{id}/analyzedInstructions returnerer en *liste* av grupper, ikke ett objekt.
- * De fleste oppskrifter har én gruppe med tomt navn; noen har flere navngitte deler.
+ * `analyzedInstructions` er en *liste* av grupper, ikke ett objekt. De fleste oppskrifter
+ * har én gruppe med tomt navn; noen har flere navngitte deler (324694 har to).
  */
 export interface AnalyzedInstruction {
   name: string;

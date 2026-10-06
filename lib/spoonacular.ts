@@ -5,9 +5,10 @@
  * som for GROQ-spørringer: når et kall skal endres, skal det finnes én fil å endre det i.
  */
 
+import { SpoonacularError } from "@/lib/api-error";
 import type {
-  AnalyzedInstruction,
   ApiError,
+  ApiErrorKind,
   RecipeDetail,
   RecipeSearchResult,
 } from "@/types/spoonacular";
@@ -20,10 +21,21 @@ const BASE = "https://api.spoonacular.com";
  */
 const RESULT_COUNT = 24;
 
+/**
+ * Kvote og nøkkel sendes videre med egen status, så klienten kan skille dem fra
+ * «ingen treff». Nettverk og ukjent er upstream-feil sett fra klienten, derav 502.
+ */
+const STATUS_BY_KIND: Record<ApiErrorKind, number> = {
+  quota: 402,
+  auth: 401,
+  network: 502,
+  unknown: 502,
+};
+
 function apiKey(): string {
   const key = process.env.SPOONACULAR_KEY;
   if (!key) {
-    throw new Error("SPOONACULAR_KEY mangler i miljøet.");
+    throw new Error("SPOONACULAR_KEY is missing from the environment.");
   }
   return key;
 }
@@ -39,35 +51,21 @@ function toApiError(status: number): ApiError {
     return {
       kind: "quota",
       status,
-      message: "Dagens kvote mot Spoonacular er brukt opp.",
+      message: "Today's recipe quota is used up. Try again tomorrow.",
     };
   }
   if (status === 401 || status === 403) {
-    return { kind: "auth", status, message: "API-nøkkelen ble avvist." };
+    return {
+      kind: "auth",
+      status,
+      message: "The recipe service rejected our API key.",
+    };
   }
-  return { kind: "unknown", status, message: `Spoonacular svarte ${status}.` };
-}
-
-/**
- * Henter ut `ApiError` fra en kastet feil, eller `undefined` om feilen ikke kom herfra.
- *
- * Bor her fordi det er denne fila som fester `apiError` på feilen; formen skal bare
- * kjennes ett sted.
- */
-export function getApiError(error: unknown): ApiError | undefined {
-  if (typeof error !== "object" || error === null || !("apiError" in error)) {
-    return undefined;
-  }
-  const { apiError } = error;
-  if (
-    typeof apiError === "object" &&
-    apiError !== null &&
-    "kind" in apiError &&
-    "message" in apiError
-  ) {
-    return apiError as ApiError;
-  }
-  return undefined;
+  return {
+    kind: "unknown",
+    status,
+    message: `The recipe service responded with ${status}.`,
+  };
 }
 
 async function getJson<T>(url: string): Promise<T> {
@@ -75,19 +73,29 @@ async function getJson<T>(url: string): Promise<T> {
   try {
     response = await fetch(url);
   } catch (cause) {
-    const error: ApiError = {
-      kind: "network",
-      message: "Fikk ikke kontakt med Spoonacular.",
-    };
-    throw Object.assign(new Error(error.message), { apiError: error, cause });
+    throw new SpoonacularError(
+      { kind: "network", message: "Could not reach the recipe service." },
+      { cause }
+    );
   }
 
   if (!response.ok) {
-    const error = toApiError(response.status);
-    throw Object.assign(new Error(error.message), { apiError: error });
+    throw new SpoonacularError(toApiError(response.status));
   }
 
   return (await response.json()) as T;
+}
+
+/**
+ * Gjør en feil fra denne fila om til et svar en route handler kan returnere.
+ * Alt annet kastes videre, så Next logger det som en ekte 500 i stedet for at det
+ * forkles som en upstream-feil.
+ */
+export function errorResponse(error: unknown): Response {
+  if (!(error instanceof SpoonacularError)) throw error;
+  return Response.json(error.apiError, {
+    status: STATUS_BY_KIND[error.apiError.kind],
+  });
 }
 
 /**
@@ -113,10 +121,11 @@ export async function findRecipesByIngredients(
 }
 
 /**
- * Full oppskrift.
+ * Full oppskrift, inkludert stegene.
  *
  * `includeNutrition=true` koster ikke et ekstra kall, og er det som gjør datapanelet
- * mulig. Den sto på `false`, så næringsdataene ble aldri hentet.
+ * mulig. `analyzedInstructions` kommer med i samme svar, så et eget kall mot
+ * /analyzedInstructions ville bare brent ett kvotepoeng til per oppskrift.
  */
 export async function getRecipeDetail(id: string): Promise<RecipeDetail> {
   const params = new URLSearchParams({
@@ -126,20 +135,5 @@ export async function getRecipeDetail(id: string): Promise<RecipeDetail> {
   });
   return getJson<RecipeDetail>(
     `${BASE}/recipes/${encodeURIComponent(id)}/information?${params}`
-  );
-}
-
-/**
- * Stegvise instruksjoner.
- *
- * Dette er endepunktet route-fila aldri kalte, fordi den inneholdt en React-komponent
- * i stedet for en handler. Uten den faller oppskriftene tilbake til én tekstvegg.
- */
-export async function getAnalyzedInstructions(
-  id: string
-): Promise<AnalyzedInstruction[]> {
-  const params = new URLSearchParams({ apiKey: apiKey() });
-  return getJson<AnalyzedInstruction[]>(
-    `${BASE}/recipes/${encodeURIComponent(id)}/analyzedInstructions?${params}`
   );
 }
