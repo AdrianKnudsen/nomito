@@ -33,3 +33,8 @@
   max-inline-size: var(--measure);
   margin-inline: auto;
 }
+
+/* One blank line between paragraphs, the gap the old double <br /> gave. */
+.infoText + .infoText {
+  margin-block-start: 1lh;
+}

@@ -7,27 +7,27 @@ const About = () => {
       <ScrollShimmer className={styles.scrollContainer}>
         <div>
           <h1 className={styles.head}>
-            Nomito - Cook Smarter with What You Have.
+            Nomito — Cook Smarter with What You Have
           </h1>
           <p className={styles.infoText}>
-            Welcome to Nomito, your personal cooking companion that helps you
-            make the most out of what’s already in your kitchen.
-            <br />
-            <br />
-            Just tell Nomito what ingredients you have, and it will instantly
-            suggest delicious recipes you can make — no wasted food, no
-            last-minute grocery runs, and no stress.
-            <br />
-            <br />
-            Nomito is all about simplicity, creativity, and sustainability.
-            <br />
+            Nomito helps you cook with what’s already in your kitchen, so less
+            food ends up in the bin and more of it ends up on your plate.
+          </p>
+          <p className={styles.infoText}>
+            Tell Nomito what you have, and it finds recipes that need as few
+            extra ingredients as possible. Staples like salt, flour and water
+            are taken for granted, and every recipe you open marks what you’re
+            still missing.
+          </p>
+          <p className={styles.infoText}>
+            Using up food is half of it. The other half is eating well, so each
+            recipe shows its nutrition per serving and how much of your daily
+            needs it covers.
+          </p>
+          <p className={styles.infoText}>
             Whether you’re a student, a busy professional, or just someone who
-            hates throwing away food, Nomito helps you turn everyday ingredients
-            into something special.
-            <br />
-            <br />
-            Start exploring, experiment with flavors, and discover new ways to
-            cook smarter — all with Nomito.
+            hates throwing food away, start with what’s in your fridge and see
+            where it takes you.
           </p>
         </div>
       </ScrollShimmer>
