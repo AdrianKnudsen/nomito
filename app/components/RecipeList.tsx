@@ -1,6 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
 import Notice from "./Notice";
+import RecipeImage from "./RecipeImage";
 import ScrollShimmer from "./ScrollShimmer";
 import styles from "../../styles/result.module.css";
 import {
@@ -9,9 +9,12 @@ import {
 } from "@/lib/spoonacular";
 import type { RecipeSearchResult } from "@/types/spoonacular";
 
+// The count comes first because the list is cut to two lines on the card, and how much
+// is missing is what decides whether the recipe uses up what you have.
 function missingText(recipe: RecipeSearchResult): string {
   if (recipe.missedIngredientCount === 0) return "Nothing missing";
-  return `Missing: ${recipe.missedIngredients.map((i) => i.name).join(", ")}`;
+  const names = recipe.missedIngredients.map((i) => i.name).join(", ");
+  return `Missing ${recipe.missedIngredientCount}: ${names}`;
 }
 
 export default async function RecipeList({ ingredients }: { ingredients: string }) {
@@ -44,21 +47,25 @@ export default async function RecipeList({ ingredients }: { ingredients: string 
                   prefetch={false}
                   className={styles.recipeLink}
                 >
-                  {recipe.image && (
-                    <Image
-                      className={styles.recipeImage}
-                      src={recipe.image}
-                      alt=""
-                      width={80}
-                      height={80}
-                    />
-                  )}
+                  {/* The box holds the thumbnail's place and colour if the image 404s. */}
+                  <span className={styles.thumb}>
+                    {recipe.image && (
+                      <RecipeImage
+                        className={styles.recipeImage}
+                        src={recipe.image}
+                        alt=""
+                        width={312}
+                        height={231}
+                        sizes="6rem"
+                      />
+                    )}
+                  </span>
                   <div className={styles.recipeText}>
                     <span className={styles.recipeTitle}>{recipe.title}</span>
                     <span className={styles.recipeMatch}>
                       Uses {recipe.usedIngredientCount} of your ingredients
                     </span>
-                    <span className={styles.recipeMatch}>
+                    <span className={styles.recipeMissing}>
                       {missingText(recipe)}
                     </span>
                   </div>

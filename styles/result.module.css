@@ -45,11 +45,13 @@
   list-style: none;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+  /* Every row as tall as the tallest card, so all cards match. Bounded because title and
+     "Missing" are cut to two lines each, not by a fixed height that would clip text at
+     larger font sizes. */
+  grid-auto-rows: 1fr;
   gap: var(--space-md);
 }
 
-/* No height cap: two-line titles and long "Missing:" lists grow the card instead of
-   being clipped. */
 .recipeItem {
   display: flex;
   border-radius: var(--radius-sm);
@@ -57,34 +59,42 @@
   box-shadow: 0 2px 8px 0 rgb(0 0 0 / 0.04);
 }
 
-/* The whole card is the link, so the padding lives here to make all of it clickable. */
+/* The whole card is the link, so all of it is clickable. overflow clips the thumbnail to
+   the card's rounded corners. */
 .recipeLink {
   flex: 1;
   min-width: 0;
   display: flex;
-  align-items: center;
   gap: 1.2rem;
-  padding: var(--space-md);
+  padding-inline-end: var(--space-md);
   border-radius: inherit;
+  overflow: hidden;
   text-decoration: none;
 }
 
-.recipeImage {
+/* A full-height strip along the card's edge. Cards share one height, so the strips do
+   too. The box keeps its place and placeholder colour if the image 404s. */
+.thumb {
   flex: none;
-  width: 5rem;
-  aspect-ratio: 1;
-  height: auto;
-  border-radius: var(--radius-sm);
-  object-fit: cover;
+  width: 6rem;
   background: var(--color-canvas);
 }
 
-/* Title and match info stacked in one column beside the image. */
+.recipeImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Title and match info stacked in one column beside the image, top-aligned so every
+   title starts at the same height whatever the amount of text. */
 .recipeText {
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
+  padding-block: var(--space-md);
 }
 
 .recipeTitle {
@@ -95,4 +105,19 @@
 
 .recipeMatch {
   font-size: var(--text-sm);
+}
+
+.recipeMissing {
+  composes: recipeMatch;
+}
+
+/* Cut with an ellipsis rather than clipped: the full text stays in the DOM for screen
+   readers, and the missing count is written before the list so it survives the cut. */
+.recipeTitle,
+.recipeMissing {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
 }
