@@ -1,7 +1,7 @@
 /*
  * The token layer. One level, semantic names. Breakpoints cannot be custom properties
- * (they do not work in the @media condition), so they are written literally: 48rem
- * and 80rem — see CLAUDE.md.
+ * (they do not work in the @media condition), so it is written literally: 48rem — see
+ * CLAUDE.md.
  */
 
 :root {
@@ -13,6 +13,11 @@
   /* The accent lightened for small text on glass. The full accent measured below 4.5:1
      under the glass's bright top edge; this tint held it at every width. */
   --color-accent-soft: #ecfccb;
+  /* Where a recipe's calories come from. Distinct hues that hold 3:1 against the glass;
+     the legend repeats the numbers as text, so colour is never the only carrier. */
+  --color-protein: #85ec3c;
+  --color-fat: #fbbf24;
+  --color-carbs: #7dd3fc;
 
   /*
    * Two materials, following Apple's Liquid Glass guidance: clear glass for the
@@ -65,18 +70,12 @@
   /*
    * Measured, not chosen: the recipe spread at its widest — ingredients 22rem + gap
    * 1.5rem + --measure at --text-base max (28.96rem) + the sheet's padding 2 × 1.5rem.
-   * The 80rem step below is still a starting value until the data column has a width.
+   * One value for the whole app, so every card shares its edges on every width.
    */
   --shell-max: 55.5rem;
   --shell-gutter: clamp(0.75rem, 3vw, 2rem);
 
   background-color: var(--color-canvas);
-}
-
-@media (min-width: 80rem) {
-  :root {
-    --shell-max: 100rem;
-  }
 }
 
 /* The CSS counterparts of the system settings Apple's glass responds to. */

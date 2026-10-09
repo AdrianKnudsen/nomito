@@ -1,4 +1,5 @@
 import BackLink from "./BackLink";
+import NutritionPanel from "./NutritionPanel";
 import RecipeImage from "./RecipeImage";
 import { largestRecipeImage } from "@/lib/spoonacular";
 import styles from "../../styles/recipeDetails.module.css";
@@ -30,12 +31,30 @@ function recipeFacts(recipe: RecipeDetail): Fact[] {
 interface RecipeDetailsProps {
   recipe: RecipeDetail;
   backHref: string;
+  /** What the search reported missing. null on a direct link: nothing to compare with. */
+  missingIds: Set<number> | null;
 }
 
-export default function RecipeDetails({ recipe, backHref }: RecipeDetailsProps) {
-  const ingredients =
-    recipe.extendedIngredients?.map((ing) => ing.original || ing.name || "") ??
-    [];
+/** Ingredient count for the heading: only once we know what the user has. */
+function missingSummary(count: number): string {
+  return count === 0 ? "you have everything" : `missing ${count}`;
+}
+
+export default function RecipeDetails({
+  recipe,
+  backHref,
+  missingIds,
+}: RecipeDetailsProps) {
+  const ingredients = (recipe.extendedIngredients ?? []).map((ing) => ({
+    text: ing.original || ing.name || "",
+    missing: missingIds?.has(ing.id) ?? false,
+  }));
+  // Distinct ids, as the card counts them: a recipe can list the same ingredient twice.
+  const missingCount = new Set(
+    (recipe.extendedIngredients ?? [])
+      .filter((ing) => missingIds?.has(ing.id))
+      .map((ing) => ing.id)
+  ).size;
   const instructionGroups = (recipe.analyzedInstructions ?? []).filter(
     (group) => group.steps.length > 0
   );
@@ -71,7 +90,7 @@ export default function RecipeDetails({ recipe, backHref }: RecipeDetailsProps) 
               alt={recipe.title}
               width={636}
               height={393}
-              sizes="(min-width: 80rem) 100rem, 100vw"
+              sizes="(min-width: 48rem) 54rem, 100vw"
             />
           )}
         </figure>
@@ -83,11 +102,23 @@ export default function RecipeDetails({ recipe, backHref }: RecipeDetailsProps) 
           >
             <h2 id="ingredients-heading" className={styles.subheading}>
               Ingredients
+              {missingIds && (
+                <span className={styles.missingSummary}>
+                  {" · "}
+                  {missingSummary(missingCount)}
+                </span>
+              )}
             </h2>
             {ingredients.length > 0 ? (
               <ul className={styles.ingredientList}>
                 {ingredients.map((ing, i) => (
-                  <li key={i}>{ing}</li>
+                  <li key={i}>
+                    {ing.text}
+                    {/* Text, not just colour, so the mark survives without colour vision. */}
+                    {ing.missing && (
+                      <span className={styles.missingTag}>missing</span>
+                    )}
+                  </li>
                 ))}
               </ul>
             ) : (
@@ -148,6 +179,10 @@ export default function RecipeDetails({ recipe, backHref }: RecipeDetailsProps) 
             )}
           </section>
         </div>
+
+        {/* Outside the spread: the sticky ingredients would otherwise slide down over it,
+            since sticky follows the grid container, not the grid cell. */}
+        {recipe.nutrition && <NutritionPanel nutrition={recipe.nutrition} />}
       </article>
     </main>
   );

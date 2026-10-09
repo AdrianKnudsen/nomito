@@ -17,6 +17,19 @@ function missingText(recipe: RecipeSearchResult): string {
   return `Missing ${recipe.missedIngredientCount}: ${names}`;
 }
 
+/**
+ * The search goes along for Back, and the missing ingredients by id so the recipe can
+ * mark them: /information has no idea what the user has at home, and asking it again
+ * would cost quota. The ids match the recipe's own ingredient ids (checked).
+ */
+function recipeHref(recipe: RecipeSearchResult, ingredients: string): string {
+  const params = new URLSearchParams({
+    ingredients,
+    missing: recipe.missedIngredients.map((i) => i.id).join(","),
+  });
+  return `/recipe/${recipe.id}?${params}`;
+}
+
 export default async function RecipeList({ ingredients }: { ingredients: string }) {
   let recipes: RecipeSearchResult[];
   try {
@@ -43,7 +56,7 @@ export default async function RecipeList({ ingredients }: { ingredients: string 
                     /recipe/[id] that runs generateMetadata — one quota point per visible
                     card. Measured: 19 extra upstream calls per view of the search page. */}
                 <Link
-                  href={`/recipe/${recipe.id}?${new URLSearchParams({ ingredients })}`}
+                  href={recipeHref(recipe, ingredients)}
                   prefetch={false}
                   className={styles.recipeLink}
                 >

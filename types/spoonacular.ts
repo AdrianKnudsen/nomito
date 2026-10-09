@@ -57,8 +57,17 @@ export interface Nutrient {
   percentOfDailyNeeds?: number;
 }
 
+/** Where the calories come from, in percent. Observed in a real /information response. */
+export interface CaloricBreakdown {
+  percentProtein: number;
+  percentFat: number;
+  percentCarbs: number;
+}
+
+/** Per serving, according to the docs. */
 export interface Nutrition {
   nutrients: Nutrient[];
+  caloricBreakdown?: CaloricBreakdown;
 }
 
 /**

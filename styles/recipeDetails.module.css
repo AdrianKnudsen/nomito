@@ -112,6 +112,21 @@
   margin-bottom: var(--space-xs);
 }
 
+.missingSummary {
+  font-size: var(--text-sm);
+  font-weight: 400;
+}
+
+/* A pill after the ingredient. Plain text colour: the word carries the meaning. */
+.missingTag {
+  margin-inline-start: 0.5em;
+  padding: 0 0.5em;
+  border: 1px solid var(--glass-hairline);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+}
+
 .ingredientList {
   padding-left: 1.2em;
   font-size: var(--text-base);
@@ -156,6 +171,107 @@
   text-align: right;
 }
 
+/*
+ * The bottom bun: the hero on top, the spread in the middle, nutrition underneath at the
+ * same width. From 48rem it uses the spread's two tracks, so the breakdown sits under the
+ * ingredients and the table under the steps.
+ */
+.nutrition {
+  display: grid;
+  gap: var(--space-md) var(--space-lg);
+  align-items: start;
+}
+
+.nutrition > h2 {
+  grid-column: 1 / -1;
+}
+
+.macroFigure {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+/* Segments grow by their share; the gap separates hues that sit side by side. */
+.macroBar {
+  display: flex;
+  gap: 0.125rem;
+  min-height: 0.75rem;
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.macroBar span {
+  flex: var(--share) 0 0;
+  background: var(--macro);
+}
+
+.macroLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-md);
+  font-size: var(--text-sm);
+}
+
+.macroLegendTitle {
+  inline-size: 100%;
+}
+
+.macroKey {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+}
+
+.macroKey::before {
+  content: "";
+  inline-size: 0.75em;
+  aspect-ratio: 1;
+  border-radius: var(--radius-pill);
+  background: var(--macro);
+}
+
+.macroProtein {
+  --macro: var(--color-protein);
+}
+
+.macroFat {
+  --macro: var(--color-fat);
+}
+
+.macroCarbs {
+  --macro: var(--color-carbs);
+}
+
+.nutrientTable {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.nutrientTable th,
+.nutrientTable td {
+  padding-block: var(--space-xs);
+  text-align: end;
+  border-block-end: 1px solid var(--glass-hairline);
+}
+
+.nutrientTable thead th {
+  font-weight: 500;
+}
+
+.nutrientTable th:first-child {
+  text-align: start;
+}
+
+.nutrientTable tbody th {
+  font-weight: 400;
+}
+
+.subRow th {
+  padding-inline-start: 1em;
+}
+
 /* Discreet but full text colour: dimming it would cost contrast. */
 .sourceCredit {
   margin-top: var(--space-md);
@@ -168,6 +284,9 @@
     /* The spread's widest extent. The hero is capped to it so the photo lines up with
        the text, and isn't stretched across the whole sheet from a 636px source. */
     --spread-max: calc(var(--ingredients-max) + var(--space-lg) + var(--measure));
+    /* Shared by the spread and the nutrition panel. Fixed min/max only, so both grids
+       resolve to the same tracks whatever their content. */
+    --spread-columns: minmax(16rem, var(--ingredients-max)) minmax(0, var(--measure));
     padding: var(--space-lg);
   }
 
@@ -180,7 +299,7 @@
 
   /* Two columns: the ingredients stay in view (sticky) while the steps scroll. */
   .spread {
-    grid-template-columns: minmax(16rem, var(--ingredients-max)) minmax(0, var(--measure));
+    grid-template-columns: var(--spread-columns);
     justify-content: center;
     align-items: start;
   }
@@ -188,5 +307,10 @@
   .ingredients {
     position: sticky;
     top: 0;
+  }
+
+  .nutrition {
+    grid-template-columns: var(--spread-columns);
+    justify-content: center;
   }
 }
