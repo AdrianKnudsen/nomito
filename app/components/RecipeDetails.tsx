@@ -61,7 +61,7 @@ export default function RecipeDetails({
   const facts = recipeFacts(recipe);
 
   return (
-    <main className={styles.resultDetailsWrapper}>
+    <div className={styles.resultDetailsWrapper}>
       <article className={styles.sheet}>
         <div className={styles.buttonRow}>
           <BackLink href={backHref} className={styles.actionButton} />
@@ -184,6 +184,6 @@ export default function RecipeDetails({
             since sticky follows the grid container, not the grid cell. */}
         {recipe.nutrition && <NutritionPanel nutrition={recipe.nutrition} />}
       </article>
-    </main>
+    </div>
   );
 }

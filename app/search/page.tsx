@@ -18,7 +18,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     <>
       {/* The field is uncontrolled and must remount when the URL changes, or the previous
           search stays after the back button. The key must differ from the Suspense
-          sibling's: equal keys among siblings left stale <main> nodes in the DOM. */}
+          sibling's: equal keys among siblings left stale nodes in the DOM. */}
       <SearchBar key={`search-${query}`} defaultValue={query} />
       {query && (
         <Suspense

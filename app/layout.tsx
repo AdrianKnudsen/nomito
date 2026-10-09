@@ -24,7 +24,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className={khand.variable}>
         <div className={styles.backgroundImg} aria-hidden="true" />
         <NavBar />
-        {children}
+        {/* The one main landmark for every page; the nav stays outside it. */}
+        <main className={styles.main}>{children}</main>
         <Suspense fallback={null}>
           <UrlTracker />
         </Suspense>

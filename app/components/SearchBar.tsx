@@ -12,7 +12,7 @@ interface SearchBarProps {
  */
 export default function SearchBar({ defaultValue }: SearchBarProps) {
   return (
-    <main className={styles.searchContainer}>
+    <search className={styles.searchContainer}>
       <div className={styles.searchBox}>
         <Form action="/search" className={styles.inputButtonBox}>
           <input
@@ -52,6 +52,6 @@ export default function SearchBar({ defaultValue }: SearchBarProps) {
           </button>
         </Form>
       </div>
-    </main>
+    </search>
   );
 }

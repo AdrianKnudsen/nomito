@@ -28,6 +28,8 @@
 
 .scrollContainer {
   overflow: auto;
+  /* Focus scrolls a card into view; this keeps its ring inside the clipped area. */
+  scroll-padding-block: calc(var(--focus-ring-width) + var(--focus-ring-offset));
   min-height: 0;
   position: relative;
   z-index: 1;
@@ -50,6 +52,8 @@
      larger font sizes. */
   grid-auto-rows: 1fr;
   gap: var(--space-md);
+  /* Room for the cards' focus ring: the scroll container clips anything outside it. */
+  padding: calc(var(--focus-ring-width) + var(--focus-ring-offset));
 }
 
 .recipeItem {

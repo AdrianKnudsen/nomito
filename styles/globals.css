@@ -60,6 +60,11 @@
   --radius-lg: 0.875rem;
   --radius-pill: 999rem;
 
+  /* The focus ring's footprint outside an element; a scroll container that clips needs
+     this much room around anything focusable. */
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+
   /*
    * A reading line of about 66 characters. In ch so it follows the font, but 1ch is
    * Khand's "0", which is wider than an average letter, so 66 characters is 52ch
@@ -103,9 +108,9 @@
 }
 
 /*
- * One view at a time fills the height below the nav (and the search bar). The view
- * shrinks with `min-height: 0` and scrolls itself — so nothing has to guess the nav
- * height with calc().
+ * One view at a time fills the height below the nav (and the search bar), through
+ * <main>, which continues this flex column. The view shrinks with `min-height: 0` and
+ * scrolls itself — so nothing has to guess the nav height with calc().
  */
 body {
   height: 100dvh;
@@ -131,8 +136,8 @@ a {
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
+  outline: var(--focus-ring-width) solid var(--color-accent);
+  outline-offset: var(--focus-ring-offset);
 }
 
 @media (prefers-reduced-motion: reduce) {
