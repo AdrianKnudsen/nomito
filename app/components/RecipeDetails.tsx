@@ -1,5 +1,6 @@
-import Image from "next/image";
-import RecipeView from "./RecipeView";
+import BackLink from "./BackLink";
+import RecipeImage from "./RecipeImage";
+import { largestRecipeImage } from "@/lib/spoonacular";
 import styles from "../../styles/recipeDetails.module.css";
 import type { RecipeDetail } from "@/types/spoonacular";
 
@@ -40,65 +41,80 @@ export default function RecipeDetails({ recipe, backHref }: RecipeDetailsProps) 
   );
   const facts = recipeFacts(recipe);
 
-  const header = (
-    <>
-      <h2 className={styles.heading}>{recipe.title}</h2>
-
-      {facts.length > 0 && (
-        <dl className={styles.facts}>
-          {facts.map((fact) => (
-            <div key={fact.label}>
-              <dt>{fact.label}</dt>
-              <dd>{fact.value}</dd>
-            </div>
-          ))}
-        </dl>
-      )}
-
-      {recipe.image && (
-        <Image
-          className={styles.recipeImage}
-          src={recipe.image}
-          alt={recipe.title}
-          width={320}
-          height={480}
-        />
-      )}
-    </>
-  );
-
   return (
     <main className={styles.resultDetailsWrapper}>
-      <div className={styles.detailsBox}>
-        <RecipeView backHref={backHref} header={header}>
-          <ul className={styles.ingredientList}>
-            <h3 className={styles.subheading}>Ingredients:</h3>
-            {ingredients.length > 0 ? (
-              ingredients.map((ing, i) => (
-                <li key={i} className={styles.ingredientItem}>
-                  {ing}
-                </li>
-              ))
-            ) : (
-              <li className={styles.ingredientItem}>
-                No ingredient list available.
-              </li>
-            )}
-          </ul>
+      <article className={styles.sheet}>
+        <div className={styles.buttonRow}>
+          <BackLink href={backHref} className={styles.actionButton} />
+        </div>
 
-          <div className={styles.instructions}>
-            <h3 className={styles.subheading}>Instructions:</h3>
+        <h1 className={styles.heading}>{recipe.title}</h1>
+
+        {facts.length > 0 && (
+          <dl className={styles.facts}>
+            {facts.map((fact) => (
+              <div key={fact.label}>
+                <dt>{fact.label}</dt>
+                <dd>{fact.value}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
+
+        {/* The figure keeps its aspect ratio and placeholder surface even when the image
+            fails, so the sheet's layout never depends on Spoonacular's CDN. */}
+        <figure className={styles.hero}>
+          {recipe.image && (
+            <RecipeImage
+              className={styles.heroImage}
+              src={largestRecipeImage(recipe.image)}
+              alt={recipe.title}
+              width={636}
+              height={393}
+              sizes="(min-width: 80rem) 100rem, 100vw"
+            />
+          )}
+        </figure>
+
+        <div className={styles.spread}>
+          <section
+            className={styles.ingredients}
+            aria-labelledby="ingredients-heading"
+          >
+            <h2 id="ingredients-heading" className={styles.subheading}>
+              Ingredients
+            </h2>
+            {ingredients.length > 0 ? (
+              <ul className={styles.ingredientList}>
+                {ingredients.map((ing, i) => (
+                  <li key={i}>{ing}</li>
+                ))}
+              </ul>
+            ) : (
+              <p>No ingredient list available.</p>
+            )}
+          </section>
+
+          <section
+            className={styles.instructions}
+            aria-labelledby="instructions-heading"
+          >
+            <h2 id="instructions-heading" className={styles.subheading}>
+              Instructions
+            </h2>
             {instructionGroups.length > 0 ? (
               <>
                 {instructionGroups.map((group, i) => (
-                  <section key={`${i}-${group.name}`}>
-                    {group.name && <h4>{group.name}</h4>}
-                    <ol>
+                  <div key={`${i}-${group.name}`} className={styles.stepGroup}>
+                    {group.name && (
+                      <h3 className={styles.groupHeading}>{group.name}</h3>
+                    )}
+                    <ol className={styles.steps}>
                       {group.steps.map((step) => (
                         <li key={step.number}>{step.step}</li>
                       ))}
                     </ol>
-                  </section>
+                  </div>
                 ))}
                 {/* Spoonacular's terms require crediting the source by name and link.
                     Without steps the fallback below does that, so this only shows here. */}
@@ -130,9 +146,9 @@ export default function RecipeDetails({ recipe, backHref }: RecipeDetailsProps) 
             ) : (
               <p>No instructions available.</p>
             )}
-          </div>
-        </RecipeView>
-      </div>
+          </section>
+        </div>
+      </article>
     </main>
   );
 }

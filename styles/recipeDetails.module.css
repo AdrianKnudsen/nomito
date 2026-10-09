@@ -1,5 +1,4 @@
-/* The view below the search bar: shrinks to the space left, the card scrolls inside.
-   Replaces the calc(Xdvh - 9rem) pair that guessed the nav height. */
+/* The view below the search bar: shrinks to the space left, the sheet scrolls inside. */
 .resultDetailsWrapper {
   composes: shell from "./surfaces.module.css";
   flex: 0 1 auto;
@@ -8,40 +7,29 @@
   flex-direction: column;
 }
 
-.detailsBox {
+/*
+ * The recipe sheet and the only scroll owner in the view. Nothing inside has a
+ * max-height, so content can never spill out of the card.
+ */
+.sheet {
   composes: regularGlass from "./surfaces.module.css";
+  /* The body size of the recipe. Set here so --measure (in ch) resolves against the
+     text it measures, in the grid track and the hero cap alike. */
+  font-size: var(--text-base);
   min-height: 0;
-  padding: 0.8rem;
-  overflow: auto;
-  display: block;
-}
-
-.heading {
-  text-align: center;
-  font-size: var(--text-xl);
-  margin: 2rem 0 0.5rem 0;
-  letter-spacing: 0.03em;
-}
-
-.recipeImage {
-  display: block;
-  margin: 0 auto 1.5rem auto;
-  border-radius: var(--radius-sm);
-  object-fit: cover;
-  object-position: center;
-  width: 100%;
-  max-width: 100%;
-  height: 250px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-md);
 }
 
 .buttonRow {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 1rem;
+  gap: var(--space-md);
 }
 
-/* Used on both <button> (Read) and <a> (Back); display and underline are set so the
-   two look the same. */
+/* A link styled as a glass button: display and underline are reset for the <a>. */
 .actionButton {
   composes: liquidGlass from "./surfaces.module.css";
   --glass-radius: var(--radius-pill);
@@ -49,157 +37,156 @@
   text-decoration: none;
   padding: 0.5em 1.2em;
   font-size: var(--text-sm);
-  cursor: pointer;
   min-width: 5.625rem;
   text-align: center;
   transition: transform 0.2s ease;
 }
 
-/* Glass lights up under the pointer and swells slightly when pressed. */
+/* Glass lights up under the pointer. */
 .actionButton:hover {
   --glass-sheen: linear-gradient(180deg, rgb(255 255 255 / 0.28), transparent 70%);
 }
 
+/* Swells slightly when pressed. */
 .actionButton:active {
   transform: scale(1.04);
 }
 
+.heading {
+  text-align: center;
+  font-size: var(--text-xl);
+  letter-spacing: 0.03em;
+}
+
+/* Compact metadata row under the title. The full facts panel is a later step. */
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-xs) var(--space-lg);
+  font-size: var(--text-sm);
+}
+
+.facts div {
+  display: flex;
+  gap: 0.4em;
+}
+
+/* Accent-tinted so the values read as data at a glance. The soft accent, not the full
+   one: this row sits under the glass's bright top edge. */
+.facts dd {
+  font-weight: 500;
+  color: var(--color-accent-soft);
+}
+
+/*
+ * Spoonacular's recipe images are landscape (the hero uses 636×393). The fixed ratio
+ * sits on the figure, not the image, so the shape holds whatever loads — including
+ * nothing.
+ * flex-shrink: 0 because the sheet is a flex column and overflow: hidden drops the
+ * figure's min-height to 0: without it the image shrinks instead of the sheet scrolling.
+ */
+.hero {
+  flex-shrink: 0;
+  aspect-ratio: 3 / 2;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--surface-inset);
+}
+
+.heroImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Ingredients and steps as one reading spread. Stacked on small screens. */
+.spread {
+  display: grid;
+  gap: var(--space-lg);
+}
+
 .subheading {
-  font-size: var(--text-base);
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
+  font-size: var(--text-lg);
+  margin-bottom: var(--space-xs);
 }
 
 .ingredientList {
-  padding-left: 1.2rem;
-  margin-bottom: 2.5rem;
-}
-
-.ingredientItem {
+  padding-left: 1.2em;
   font-size: var(--text-base);
-  margin-bottom: 0.4rem;
+  line-height: var(--leading-prose);
 }
 
 .instructions {
-  position: relative;
   font-size: var(--text-base);
-  margin-bottom: 2rem;
   line-height: var(--leading-prose);
-  border-radius: var(--radius-sm);
-  transition: background 0.3s ease;
-  background: rgba(0, 0, 0, 0);
-  padding: 1px 1.2rem 0.5rem 1.2rem;
+  max-inline-size: var(--measure);
 }
 
-.instructions li {
-  margin-bottom: 1.2rem;
+.stepGroup + .stepGroup {
+  margin-top: var(--space-lg);
 }
 
-.instructions p {
-  margin-bottom: 1.2rem;
+.groupHeading {
+  font-size: var(--text-base);
+  font-weight: 700;
+  margin-bottom: var(--space-xs);
+}
+
+/* Numbered with a counter so the number can carry the accent colour. */
+.steps {
+  list-style: none;
+  counter-reset: step;
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.steps li {
+  counter-increment: step;
+  display: grid;
+  grid-template-columns: 2ch 1fr;
+  gap: var(--space-sm);
+}
+
+.steps li::before {
+  content: counter(step);
+  color: var(--color-accent);
+  font-weight: 700;
+  text-align: right;
 }
 
 /* Discreet but full text colour: dimming it would cost contrast. */
 .sourceCredit {
+  margin-top: var(--space-md);
   font-size: var(--text-sm);
 }
 
-.contentSection {
-  display: flex;
-  flex-direction: column;
-  padding: 1.2rem;
-}
-
-.readable {
-  composes: readableSurface from "./surfaces.module.css";
-  padding: 1.2rem;
-  grid-column: span 2;
-}
-
-@media (min-width: 900px) {
-  .detailsBox {
-    display: grid;
-    grid-template-columns: 320px 1fr 1fr;
-    grid-template-rows: auto auto 1fr;
-    grid-template-areas:
-      "buttonRow buttonRow buttonRow"
-      "heading   heading   heading"
-      "image     ingredients instructions";
-    column-gap: 1.5rem;
-    row-gap: 0.8rem;
-    align-items: stretch;
-    padding: 1rem 1.2rem;
-    grid-auto-rows: minmax(0, 1fr);
+@media (min-width: 48rem) {
+  .sheet {
+    --ingredients-max: 22rem;
+    /* The spread's widest extent. The hero is capped to it so the photo lines up with
+       the text, and isn't stretched across the whole sheet from a 636px source. */
+    --spread-max: calc(var(--ingredients-max) + var(--space-lg) + var(--measure));
+    padding: var(--space-lg);
   }
 
-  .buttonRow {
-    grid-area: buttonRow;
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-  }
-
-  .heading {
-    grid-area: heading;
-    width: 100%;
-    text-align: center;
-    margin: 0.4rem 0 0.6rem 0;
+  .hero {
+    aspect-ratio: 21 / 9;
+    max-height: 20rem;
+    width: min(100%, var(--spread-max));
     align-self: center;
   }
 
-  .recipeImage {
-    grid-area: image;
-    width: 100%;
-    max-width: 320px;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-    border-radius: var(--radius-sm);
-    align-self: stretch;
-    justify-self: start;
-    overflow: hidden;
-  }
-
-  .contentSection {
-    grid-column: span 2;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
+  /* Two columns: the ingredients stay in view (sticky) while the steps scroll. */
+  .spread {
+    grid-template-columns: minmax(16rem, var(--ingredients-max)) minmax(0, var(--measure));
+    justify-content: center;
     align-items: start;
-    max-width: 50rem;
-    margin: 0 auto;
   }
 
-  .ingredientList {
-    padding-left: 1.2rem;
-    margin-bottom: 0;
-    max-height: calc(65dvh - 6rem);
-    align-self: start;
-    margin-bottom: 3rem;
-  }
-
-  .ingredientItem {
-    text-align: left;
-  }
-
-  .instructions {
-    max-height: calc(65dvh - 6rem);
-    padding: 0 0.6rem;
-    text-align: left;
-    align-self: start;
-    margin-bottom: 3rem;
-  }
-
-  .subheading {
-    margin-top: 0;
-    margin-bottom: 0.6rem;
-  }
-
-  .subheading,
-  .ingredientList,
-  .instructions,
-  .ingredientItem {
-    text-align: left;
+  .ingredients {
+    position: sticky;
+    top: 0;
   }
 }

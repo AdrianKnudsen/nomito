@@ -101,9 +101,3 @@
   z-index: -1;
   background: linear-gradient(180deg, transparent 70%, rgb(0 0 0 / 0.25));
 }
-
-/* Reading mode: a dark surface behind the text, independent of the photo. */
-.readableSurface {
-  background: var(--scrim);
-  border-radius: var(--radius-sm);
-}

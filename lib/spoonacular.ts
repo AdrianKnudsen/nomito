@@ -134,3 +134,12 @@ export const getRecipeDetail = cache(
     );
   }
 );
+
+/**
+ * The image URL names its size, and /information returns 556x370. 636x393 is the largest
+ * size Spoonacular serves and existed for every recipe checked on the CDN, so the hero
+ * asks for it. Any other URL shape is returned unchanged.
+ */
+export function largestRecipeImage(url: string): string {
+  return url.replace(/-556x370\.(\w+)$/, "-636x393.$1");
+}

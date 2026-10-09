@@ -1,7 +1,7 @@
 /*
  * The token layer. One level, semantic names. Breakpoints cannot be custom properties
- * (they do not work in the @media condition), so they are written literally: 48rem,
- * 64rem, 80rem — see CLAUDE.md.
+ * (they do not work in the @media condition), so they are written literally: 48rem
+ * and 80rem — see CLAUDE.md.
  */
 
 :root {
@@ -10,6 +10,9 @@
   --color-canvas: #0b0f14; /* under the photo — if it fails to load, the text stays readable */
   --color-text: #f5f5f5;
   --color-accent: #85ec3c;
+  /* The accent lightened for small text on glass. The full accent measured below 4.5:1
+     under the glass's bright top edge; this tint held it at every width. */
+  --color-accent-soft: #ecfccb;
 
   /*
    * Two materials, following Apple's Liquid Glass guidance: clear glass for the
@@ -28,8 +31,6 @@
   --glass-sheen-top: rgb(255 255 255 / 0.14);
   --glass-rim: rgb(255 255 255 / 0.5);
   --glass-hairline: rgb(255 255 255 / 0.22);
-  --scrim: rgb(11 15 20 / 0.55);
-  --scrim-strong: rgb(11 15 20 / 0.82);
   /* Cards that sit *on* the glass, like the result cards. */
   --surface-inset: rgb(30 30 30 / 0.18);
 
@@ -54,11 +55,20 @@
   --radius-lg: 0.875rem;
   --radius-pill: 999rem;
 
-  /* Starting values, not derived. --measure is in ch so it follows the font;
-     --shell-max has to be judged against it. */
-  --shell-max: 72rem;
+  /*
+   * A reading line of about 66 characters. In ch so it follows the font, but 1ch is
+   * Khand's "0", which is wider than an average letter, so 66 characters is 52ch
+   * (measured). ch resolves against the font-size of the element that uses it, so it
+   * has to be used where the text's own size is set.
+   */
+  --measure: 52ch;
+  /*
+   * Measured, not chosen: the recipe spread at its widest — ingredients 22rem + gap
+   * 1.5rem + --measure at --text-base max (28.96rem) + the sheet's padding 2 × 1.5rem.
+   * The 80rem step below is still a starting value until the data column has a width.
+   */
+  --shell-max: 55.5rem;
   --shell-gutter: clamp(0.75rem, 3vw, 2rem);
-  --measure: 66ch;
 
   background-color: var(--color-canvas);
 }
