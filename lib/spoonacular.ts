@@ -9,8 +9,11 @@
 import { cache } from "react";
 import type {
   ApiError,
+  ComplexSearchResponse,
   RecipeDetail,
+  RecipeFilters,
   RecipeSearchResult,
+  RecipeSummary,
 } from "@/types/spoonacular";
 
 const BASE = "https://api.spoonacular.com";
@@ -65,6 +68,13 @@ function toApiError(status: number): ApiError {
       message: "The recipe service rejected our API key.",
     };
   }
+  if (status === 429) {
+    return {
+      kind: "rateLimit",
+      status,
+      message: "Too many requests right now. Try again in a minute.",
+    };
+  }
   return {
     kind: "unknown",
     status,
@@ -110,6 +120,44 @@ export async function findRecipesByIngredients(
   return getJson<RecipeSearchResult[]>(
     `${BASE}/recipes/findByIngredients?${params}`
   );
+}
+
+/**
+ * A filtered search, for every entry point except the leftovers search.
+ *
+ * `instructionsRequired` keeps recipes without steps out, so every card opens to something that
+ * can be cooked from the page. No addRecipeInformation or fillIngredients: the cards show id,
+ * title and image, and each of those flags costs extra per recipe.
+ */
+export async function searchRecipes(
+  filters: RecipeFilters,
+  options: { count?: number; addRecipeNutrition?: boolean } = {}
+): Promise<RecipeSummary[]> {
+  const params = new URLSearchParams({
+    number: String(options.count ?? RESULT_COUNT),
+    instructionsRequired: "true",
+  });
+  if (filters.type) params.set("type", filters.type);
+  if (filters.diet?.length) params.set("diet", filters.diet.join(","));
+  if (filters.intolerances?.length) {
+    params.set("intolerances", filters.intolerances.join(","));
+  }
+  if (filters.maxReadyTime !== undefined) {
+    params.set("maxReadyTime", String(filters.maxReadyTime));
+  }
+  if (filters.minCalories !== undefined) params.set("minCalories", String(filters.minCalories));
+  if (filters.maxCalories !== undefined) params.set("maxCalories", String(filters.maxCalories));
+  if (filters.minProtein !== undefined) params.set("minProtein", String(filters.minProtein));
+  if (filters.minCarbs !== undefined) params.set("minCarbs", String(filters.minCarbs));
+  if (filters.sort) params.set("sort", filters.sort);
+  if (filters.sortDirection) params.set("sortDirection", filters.sortDirection);
+  if (options.addRecipeNutrition) params.set("addRecipeNutrition", "true");
+  params.set("apiKey", apiKey());
+
+  const response = await getJson<ComplexSearchResponse>(
+    `${BASE}/recipes/complexSearch?${params}`
+  );
+  return response.results;
 }
 
 /**

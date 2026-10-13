@@ -1,5 +1,5 @@
 /**
- * Types for the Spoonacular responses, defined at the API boundary.
+ * Types for the Spoonacular requests and responses, defined at the API boundary.
  *
  * Field names are checked against spoonacular.com/food-api/docs, not guessed. Anything
  * optional here is optional because Spoonacular actually omits it for some recipes — not
@@ -118,8 +118,53 @@ export interface AnalyzedInstruction {
   steps: InstructionStep[];
 }
 
+/**
+ * One hit from /recipes/complexSearch without addRecipeInformation, from the docs' example
+ * response. `image` is optional for the same reason as on RecipeDetail: a recipe without a photo
+ * comes back without it, and `imageType` goes with it. Not yet seen in a real complexSearch
+ * response, so check it against the first real calls.
+ */
+export interface RecipeSummary {
+  id: number;
+  title: string;
+  image?: string;
+  imageType?: string;
+}
+
+/** /recipes/complexSearch. */
+export interface ComplexSearchResponse {
+  offset: number;
+  number: number;
+  totalResults: number;
+  results: RecipeSummary[];
+}
+
+/** The Spoonacular values the app sends. Spoonacular has more of each. */
+export type MealType = "main course" | "breakfast" | "snack" | "soup" | "salad";
+export type Diet = "vegetarian" | "vegan";
+export type Intolerance = "gluten" | "dairy";
+export type SortOption = "healthiness" | "popularity" | "price" | "random";
+export type SortDirection = "asc" | "desc";
+
+/**
+ * What searchRecipes sends to complexSearch. Lists are joined with commas; for `diet` a comma
+ * means AND (docs). Setting a nutrient filter adds to the call's quota cost (docs).
+ */
+export interface RecipeFilters {
+  type?: MealType;
+  diet?: Diet[];
+  intolerances?: Intolerance[];
+  maxReadyTime?: number;
+  minCalories?: number;
+  maxCalories?: number;
+  minProtein?: number;
+  minCarbs?: number;
+  sort?: SortOption;
+  sortDirection?: SortDirection;
+}
+
 /** The error states the UI tells apart. */
-export type ApiErrorKind = "quota" | "auth" | "network" | "unknown";
+export type ApiErrorKind = "quota" | "auth" | "rateLimit" | "network" | "unknown";
 
 export interface ApiError {
   kind: ApiErrorKind;
