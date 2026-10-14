@@ -1,0 +1,74 @@
+/*
+ * The pages behind the menu. The h1 comes first and carries its own glass: Next focuses the
+ * first element of the segment that changes, and a wrapper there would make that a no-op.
+ */
+.title {
+  composes: shell regularGlass from "./surfaces.module.css";
+  flex: none;
+  padding: var(--space-sm) var(--space-md);
+  text-align: center;
+  font-size: var(--text-xl);
+  font-weight: 500;
+  letter-spacing: 0.03em;
+}
+
+/* Everything between the h1 and the results. Shrinks and scrolls itself when it does not fit. */
+.panel {
+  composes: shell regularGlass from "./surfaces.module.css";
+  flex: 0 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  /* Padding leaves room around the fields at rest. Scroll padding keeps a focused element's
+     ring inside the panel when focus scrolls it: the browser aligns the border box only. */
+  padding: var(--space-md);
+  scroll-padding-block: calc(var(--focus-ring-width) + var(--focus-ring-offset));
+  font-size: var(--text-base);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.fieldset {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-lg);
+  border: 1px solid var(--glass-hairline);
+  border-radius: var(--radius-sm);
+  padding: var(--space-sm) var(--space-md);
+}
+
+.legend {
+  padding-inline: var(--space-xs);
+  font-weight: 500;
+}
+
+.choice {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.note {
+  font-size: var(--text-sm);
+}
+
+.answers {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-md);
+}

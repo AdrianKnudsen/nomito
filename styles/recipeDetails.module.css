@@ -36,27 +36,9 @@
   display: flex;
 }
 
-/* A link styled as a glass button: display and underline are reset for the <a>. */
+/* The recipe's Back, drawn like every other glass button. */
 .actionButton {
-  composes: liquidGlass from "./surfaces.module.css";
-  --glass-radius: var(--radius-pill);
-  display: inline-block;
-  text-decoration: none;
-  padding: 0.5em 1.2em;
-  font-size: var(--text-sm);
-  min-width: 5.625rem;
-  text-align: center;
-  transition: transform 0.2s ease;
-}
-
-/* Glass lights up under the pointer. */
-.actionButton:hover {
-  --glass-sheen: linear-gradient(180deg, rgb(255 255 255 / 0.28), transparent 70%);
-}
-
-/* Swells slightly when pressed. */
-.actionButton:active {
-  transform: scale(1.04);
+  composes: button from "./controls.module.css";
 }
 
 .heading {

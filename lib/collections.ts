@@ -1,0 +1,256 @@
+/**
+ * The ready-made collections. Server only: nothing with "use client" imports this file.
+ *
+ * Each list is what one complexSearch with the collection's filters, and searchRecipes' fixed
+ * parameters, returned when it was picked. Adrian approved every list before it went in. Only
+ * id, title and image are stored, because that is what Spoonacular's terms allow keeping, and the
+ * image URL is kept exactly as received. Whether a list chosen by a Spoonacular sort counts as
+ * "derived" data the terms do not say; keeping it is an accepted risk.
+ */
+
+import type { RecipeFilters } from "../types/spoonacular";
+
+export interface StoredRecipe {
+  id: number;
+  title: string;
+  image: string;
+}
+
+export interface Collection {
+  slug: string;
+  title: string;
+  description: string;
+  /** sortDirection is always explicit: the docs give no default. */
+  filters: RecipeFilters;
+  recipes: StoredRecipe[];
+}
+
+export const COLLECTIONS = [
+  {
+    slug: "healthy-dinners",
+    title: "Healthy dinners",
+    description: "Main courses with the highest health score.",
+    filters: { type: "main course", sort: "healthiness", sortDirection: "desc" },
+    recipes: [
+      { id: 640338, title: "Cracked Wheat Salad with Dates & Tahini Yogurt", image: "https://img.spoonacular.com/recipes/640338-312x231.jpg" },
+      { id: 660926, title: "Spice-Rubbed Lemon Barbecue Salmon", image: "https://img.spoonacular.com/recipes/660926-312x231.jpg" },
+      { id: 646043, title: "Gujarati Dry Mung Bean Curry", image: "https://img.spoonacular.com/recipes/646043-312x231.jpg" },
+      { id: 639957, title: "Colorful Tomato and Spinach Seafood Pasta", image: "https://img.spoonacular.com/recipes/639957-312x231.jpg" },
+      { id: 646738, title: "Herbivoracious' White Bean and Kale Soup", image: "https://img.spoonacular.com/recipes/646738-312x231.jpg" },
+      { id: 642121, title: "Easy Tabouleh", image: "https://img.spoonacular.com/recipes/642121-312x231.jpg" },
+      { id: 1095806, title: "Spanish style salmon fillets", image: "https://img.spoonacular.com/recipes/1095806-312x231.jpg" },
+      { id: 657679, title: "Quinoa Salad With Avocado, Asparagus and Sun Dried Tomatoes", image: "https://img.spoonacular.com/recipes/657679-312x231.jpg" },
+      { id: 659135, title: "Salmon with roasted vegetables", image: "https://img.spoonacular.com/recipes/659135-312x231.jpg" },
+      { id: 716004, title: "Quinoa and Chickpea Salad with Sun-Dried Tomatoes and Dried Cherries", image: "https://img.spoonacular.com/recipes/716004-312x231.jpg" },
+      { id: 649946, title: "Lentil, Sweet Potato and Spinach Soup", image: "https://img.spoonacular.com/recipes/649946-312x231.jpg" },
+      { id: 649405, title: "Lebanese Lentil Soup", image: "https://img.spoonacular.com/recipes/649405-312x231.jpg" },
+      { id: 663559, title: "Tomato and lentil soup", image: "https://img.spoonacular.com/recipes/663559-312x231.jpg" },
+      { id: 1697553, title: "Pan-Seared Honey Glazed Salmon with Collard Greens", image: "https://img.spoonacular.com/recipes/1697553-312x231.jpg" },
+      { id: 642602, title: "Farro salad with parsley pesto", image: "https://img.spoonacular.com/recipes/642602-312x231.jpg" },
+      { id: 660405, title: "Smoky Black Bean Soup With Sweet Potato & Kale", image: "https://img.spoonacular.com/recipes/660405-312x231.jpg" },
+      { id: 635055, title: "Black Bean and Cheese Stuffed Bell Peppers", image: "https://img.spoonacular.com/recipes/635055-312x231.jpg" },
+      { id: 641387, title: "Delicious Creamy Lentils and Chestnuts Soup", image: "https://img.spoonacular.com/recipes/641387-312x231.jpg" },
+      { id: 649944, title: "Lentil Mango Salad", image: "https://img.spoonacular.com/recipes/649944-312x231.jpg" },
+      { id: 660306, title: "Slow Cooker: Pork and Garbanzo Beans", image: "https://img.spoonacular.com/recipes/660306-312x231.jpg" },
+      { id: 1095753, title: "Roasted Cauliflower Detox Bowl with Tahini Sauce", image: "https://img.spoonacular.com/recipes/1095753-312x231.jpg" },
+      { id: 648279, title: "Italian Tuna Pasta", image: "https://img.spoonacular.com/recipes/648279-312x231.jpg" },
+      { id: 659927, title: "Shrimp and Avocado Salad", image: "https://img.spoonacular.com/recipes/659927-312x231.jpg" },
+      { id: 641072, title: "Curried Chickpeas and Vegetables", image: "https://img.spoonacular.com/recipes/641072-312x231.jpg" },
+    ],
+  },
+  {
+    slug: "quick-easy",
+    title: "Quick & easy",
+    description: "Popular main courses ready in 30 minutes or less.",
+    filters: { type: "main course", maxReadyTime: 30, sort: "popularity", sortDirection: "desc" },
+    recipes: [
+      { id: 776505, title: "Sausage & Pepperoni Stromboli", image: "https://img.spoonacular.com/recipes/776505-312x231.jpg" },
+      { id: 715421, title: "Cheesy Chicken Enchilada Quinoa Casserole", image: "https://img.spoonacular.com/recipes/715421-312x231.jpg" },
+      { id: 715523, title: "Chorizo and Beef Quinoa Stuffed Pepper", image: "https://img.spoonacular.com/recipes/715523-312x231.jpg" },
+      { id: 716408, title: "Greek-Style Baked Fish: Fresh, Simple, and Delicious", image: "https://img.spoonacular.com/recipes/716408-312x231.jpg" },
+      { id: 715769, title: "Broccolini Quinoa Pilaf", image: "https://img.spoonacular.com/recipes/715769-312x231.jpg" },
+      { id: 1000566, title: "Easy Instant Pot Beef Tips and Rice", image: "https://img.spoonacular.com/recipes/1000566-312x231.jpg" },
+      { id: 982365, title: "Instant Pot Hawaiian Chicken", image: "https://img.spoonacular.com/recipes/982365-312x231.jpg" },
+      { id: 632874, title: "Asian Salmon Burgers With Tangy Ginger Lime Sauce", image: "https://img.spoonacular.com/recipes/632874-312x231.jpg" },
+      { id: 732255, title: "Cheesy Cowboy Quesadillas", image: "https://img.spoonacular.com/recipes/732255-312x231.jpg" },
+      { id: 1098350, title: "Light Greek Lemon Chicken Orzo Soup", image: "https://img.spoonacular.com/recipes/1098350-312x231.jpg" },
+      { id: 652417, title: "Moroccan chickpea and lentil stew", image: "https://img.spoonacular.com/recipes/652417-312x231.jpg" },
+      { id: 1070648, title: "Easy Tomato Basil Chicken – One Pot Meal", image: "https://img.spoonacular.com/recipes/1070648-312x231.jpg" },
+      { id: 1098387, title: "Quinoa Salad with Barberries & Nuts", image: "https://img.spoonacular.com/recipes/1098387-312x231.jpg" },
+      { id: 642585, title: "Farfalle with fresh tomatoes, basil and mozzarella", image: "https://img.spoonacular.com/recipes/642585-312x231.jpg" },
+      { id: 1098354, title: "Rotisserie Chicken and Bean Tostadas", image: "https://img.spoonacular.com/recipes/1098354-312x231.jpg" },
+      { id: 637569, title: "Cheese Pork Chops", image: "https://img.spoonacular.com/recipes/637569-312x231.jpg" },
+      { id: 986003, title: "Instant Pot Chicken Tacos", image: "https://img.spoonacular.com/recipes/986003-312x231.jpg" },
+      { id: 1502523, title: "Instant Pot Chicken Thighs", image: "https://img.spoonacular.com/recipes/1502523-312x231.jpg" },
+      { id: 991010, title: "Chicken Ranch Burgers", image: "https://img.spoonacular.com/recipes/991010-312x231.jpg" },
+      { id: 1160166, title: "How to Make an Amazing Chicken Salad with Apples and Celery", image: "https://img.spoonacular.com/recipes/1160166-312x231.jpg" },
+      { id: 639722, title: "Coconut and Whole Wheat Chicken Tenders", image: "https://img.spoonacular.com/recipes/639722-312x231.jpg" },
+      { id: 645384, title: "Greek Yogurt Chicken Salad", image: "https://img.spoonacular.com/recipes/645384-312x231.jpg" },
+    ],
+  },
+  {
+    slug: "vegetarian",
+    title: "Vegetarian",
+    description: "Popular vegetarian main courses.",
+    filters: { type: "main course", diet: ["vegetarian"], sort: "popularity", sortDirection: "desc" },
+    recipes: [
+      { id: 716627, title: "Easy Homemade Rice and Beans", image: "https://img.spoonacular.com/recipes/716627-312x231.jpg" },
+      { id: 715595, title: "How to Make the Cheesiest Bowtie Mac and Cheese", image: "https://img.spoonacular.com/recipes/715595-312x231.jpg" },
+      { id: 716429, title: "Pasta with Garlic, Scallions, Cauliflower & Breadcrumbs", image: "https://img.spoonacular.com/recipes/716429-312x231.jpg" },
+      { id: 715769, title: "Broccolini Quinoa Pilaf", image: "https://img.spoonacular.com/recipes/715769-312x231.jpg" },
+      { id: 634873, title: "Best Baked Macaroni and Cheese", image: "https://img.spoonacular.com/recipes/634873-312x231.jpg" },
+      { id: 642540, title: "Falafel Burgers", image: "https://img.spoonacular.com/recipes/642540-312x231.jpg" },
+      { id: 657939, title: "Ratatouille With Brie", image: "https://img.spoonacular.com/recipes/657939-312x231.jpg" },
+      { id: 643859, title: "Frittata with Mushrooms, Thyme, and Parmigiano Cheese", image: "https://img.spoonacular.com/recipes/643859-312x231.jpg" },
+      { id: 782601, title: "Red Kidney Bean Jambalaya", image: "https://img.spoonacular.com/recipes/782601-312x231.jpg" },
+      { id: 642332, title: "Eggs Florentine", image: "https://img.spoonacular.com/recipes/642332-312x231.jpg" },
+      { id: 716004, title: "Quinoa and Chickpea Salad with Sun-Dried Tomatoes and Dried Cherries", image: "https://img.spoonacular.com/recipes/716004-312x231.jpg" },
+      { id: 664147, title: "Tuscan White Bean Soup with Olive Oil and Rosemary", image: "https://img.spoonacular.com/recipes/664147-312x231.jpg" },
+      { id: 636589, title: "Butternut Squash Frittata", image: "https://img.spoonacular.com/recipes/636589-312x231.jpg" },
+      { id: 646930, title: "Homemade Broccoli Cheddar Soup", image: "https://img.spoonacular.com/recipes/646930-312x231.jpg" },
+      { id: 645265, title: "Great Greek Salad", image: "https://img.spoonacular.com/recipes/645265-312x231.jpg" },
+      { id: 647830, title: "Indian Lentil Dahl", image: "https://img.spoonacular.com/recipes/647830-312x231.jpg" },
+      { id: 639629, title: "Classic Macaroni and Cheese", image: "https://img.spoonacular.com/recipes/639629-312x231.jpg" },
+      { id: 632925, title: "Asparagus and Asiago Frittata", image: "https://img.spoonacular.com/recipes/632925-312x231.jpg" },
+      { id: 642272, title: "Eggplant & Artichoke Heart Galettes", image: "https://img.spoonacular.com/recipes/642272-312x231.jpg" },
+      { id: 637067, title: "Caramelized Tofu & Gala Apple Salad", image: "https://img.spoonacular.com/recipes/637067-312x231.jpg" },
+      { id: 663559, title: "Tomato and lentil soup", image: "https://img.spoonacular.com/recipes/663559-312x231.jpg" },
+      { id: 652417, title: "Moroccan chickpea and lentil stew", image: "https://img.spoonacular.com/recipes/652417-312x231.jpg" },
+      { id: 650239, title: "Loaded Veggie Omelet", image: "https://img.spoonacular.com/recipes/650239-312x231.jpg" },
+    ],
+  },
+  {
+    slug: "budget-meals",
+    title: "Budget meals",
+    description: "Main courses sorted by estimated price, cheapest first.",
+    filters: { type: "main course", sort: "price", sortDirection: "asc" },
+    recipes: [
+      { id: 635856, title: "Braised Pork: Filipino Humba", image: "https://img.spoonacular.com/recipes/635856-312x231.jpg" },
+      { id: 663157, title: "Thai Street Vendor Salmon Skewers", image: "https://img.spoonacular.com/recipes/663157-312x231.jpg" },
+      { id: 652335, title: "Mongolian Beef", image: "https://img.spoonacular.com/recipes/652335-312x231.jpg" },
+      { id: 656817, title: "Pork Schnitzel And Apple Salad", image: "https://img.spoonacular.com/recipes/656817-312x231.jpg" },
+      { id: 632815, title: "Asian Chicken Noodle Soup", image: "https://img.spoonacular.com/recipes/632815-312x231.jpg" },
+      { id: 650878, title: "Maple and Mustard-Glazed Salmon", image: "https://img.spoonacular.com/recipes/650878-312x231.jpg" },
+      { id: 157399, title: "Crispy-Crowned Guacamole Fish Fillets", image: "https://img.spoonacular.com/recipes/157399-312x231.jpg" },
+      { id: 635217, title: "Blackberry Grilled Cheese Sandwich", image: "https://img.spoonacular.com/recipes/635217-312x231.jpg" },
+      { id: 1095873, title: "Cheesy Tortellini Casserole", image: "https://img.spoonacular.com/recipes/1095873-312x231.jpg" },
+      { id: 660275, title: "Slow Cooker Beef Barley Soup", image: "https://img.spoonacular.com/recipes/660275-312x231.jpg" },
+      { id: 644149, title: "Game Day Jerk Wings", image: "https://img.spoonacular.com/recipes/644149-312x231.jpg" },
+      { id: 157375, title: "Steamy Creamy Mushroom Risotto", image: "https://img.spoonacular.com/recipes/157375-312x231.jpg" },
+      { id: 663669, title: "Tonkatsu", image: "https://img.spoonacular.com/recipes/663669-312x231.jpg" },
+      { id: 654463, title: "Pan-Roasted Beef and Sesame Seeds", image: "https://img.spoonacular.com/recipes/654463-312x231.jpg" },
+      { id: 644828, title: "Gluten Free Fruit Stuffed Turkey Breast with Hibiscus Sauce", image: "https://img.spoonacular.com/recipes/644828-312x231.jpg" },
+      { id: 1153778, title: "Instant Pot Black Bean Soup", image: "https://img.spoonacular.com/recipes/1153778-312x231.jpg" },
+      { id: 637670, title: "Cheesy Pasta in a Pot", image: "https://img.spoonacular.com/recipes/637670-312x231.jpg" },
+      { id: 157018, title: "Couscous with fried vegetables", image: "https://img.spoonacular.com/recipes/157018-312x231.jpg" },
+      { id: 643669, title: "Fried Bee Hoon/ Vermicelli", image: "https://img.spoonacular.com/recipes/643669-312x231.jpg" },
+      { id: 648155, title: "Italian Kale and Potato Soup", image: "https://img.spoonacular.com/recipes/648155-312x231.jpg" },
+      { id: 632847, title: "Asian Lettuce Wraps", image: "https://img.spoonacular.com/recipes/632847-312x231.jpg" },
+      { id: 1165029, title: "Instant Pot Curried Lentil Soup", image: "https://img.spoonacular.com/recipes/1165029-312x231.jpg" },
+      { id: 634629, title: "Beef Lo Mein Noodles", image: "https://img.spoonacular.com/recipes/634629-312x231.jpg" },
+      { id: 638385, title: "Chicken thighs wrapped in prosciutto", image: "https://img.spoonacular.com/recipes/638385-312x231.jpg" },
+    ],
+  },
+  {
+    // Spoonacular has no stew type, so in practice this is soups.
+    slug: "soups-stews",
+    title: "Soups & stews",
+    description: "Popular soups.",
+    filters: { type: "soup", sort: "popularity", sortDirection: "desc" },
+    recipes: [
+      { id: 715562, title: "Loaded Baked Potato Soup", image: "https://img.spoonacular.com/recipes/715562-312x231.jpg" },
+      { id: 715391, title: "Slow Cooker Chicken Taco Soup", image: "https://img.spoonacular.com/recipes/715391-312x231.jpg" },
+      { id: 715415, title: "Red Lentil Soup with Chicken and Turnips", image: "https://img.spoonacular.com/recipes/715415-312x231.jpg" },
+      { id: 715392, title: "Easy Slow Cooker Chicken Tortilla Soup", image: "https://img.spoonacular.com/recipes/715392-312x231.jpg" },
+      { id: 716406, title: "Asparagus and Pea Soup: Real Convenience Food", image: "https://img.spoonacular.com/recipes/716406-312x231.jpg" },
+      { id: 716437, title: "Chilled Cucumber Avocado Soup with Yogurt and Kefir", image: "https://img.spoonacular.com/recipes/716437-312x231.jpg" },
+      { id: 769754, title: "Beef Carrot Stew", image: "https://img.spoonacular.com/recipes/769754-312x231.jpg" },
+      { id: 715447, title: "Easy Vegetable Beef Soup", image: "https://img.spoonacular.com/recipes/715447-312x231.jpg" },
+      { id: 724324, title: "Creamy Cauliflower Chowder", image: "https://img.spoonacular.com/recipes/724324-312x231.jpg" },
+      { id: 657579, title: "Quick Chicken Enchilada Soup", image: "https://img.spoonacular.com/recipes/657579-312x231.jpg" },
+      { id: 632250, title: "Alouette Sundried Tomato and Basil Bisque", image: "https://img.spoonacular.com/recipes/632250-312x231.jpg" },
+      { id: 715446, title: "Slow Cooker Beef Stew", image: "https://img.spoonacular.com/recipes/715446-312x231.jpg" },
+      { id: 660297, title: "Slow Cooker Poblano Corn Chowder with Chicken and Chorizo", image: "https://img.spoonacular.com/recipes/660297-312x231.jpg" },
+      { id: 633263, title: "Bacon & Potato Soup, Gluten & Dairy Free", image: "https://img.spoonacular.com/recipes/633263-312x231.jpg" },
+      { id: 640713, title: "Creamy Tomato Soup", image: "https://img.spoonacular.com/recipes/640713-312x231.jpg" },
+      { id: 638741, title: "Chipotle Black Bean Soup with Avocado Cream", image: "https://img.spoonacular.com/recipes/638741-312x231.jpg" },
+      { id: 638199, title: "Chicken Mulligatawny Soup", image: "https://img.spoonacular.com/recipes/638199-312x231.jpg" },
+      { id: 650231, title: "Loaded Baked Potato Soup with Crispy-Fried Potato Skins", image: "https://img.spoonacular.com/recipes/650231-312x231.jpg" },
+      { id: 640077, title: "Corn Chowder with Potatoes, Poblanos, and Smoked Gouda", image: "https://img.spoonacular.com/recipes/640077-312x231.jpg" },
+      { id: 664147, title: "Tuscan White Bean Soup with Olive Oil and Rosemary", image: "https://img.spoonacular.com/recipes/664147-312x231.jpg" },
+      { id: 646930, title: "Homemade Broccoli Cheddar Soup", image: "https://img.spoonacular.com/recipes/646930-312x231.jpg" },
+      { id: 639616, title: "Classic Matzo Ball Soup", image: "https://img.spoonacular.com/recipes/639616-312x231.jpg" },
+      { id: 648709, title: "Kale & chickpea stew with cumin, smoked paprika and lime", image: "https://img.spoonacular.com/recipes/648709-312x231.jpg" },
+      { id: 658024, title: "Minestrone Soup", image: "https://img.spoonacular.com/recipes/658024-312x231.jpg" },
+    ],
+  },
+  {
+    slug: "high-protein",
+    title: "High protein",
+    description: "Popular main courses with at least 30 g of protein per serving.",
+    filters: { type: "main course", minProtein: 30, sort: "popularity", sortDirection: "desc" },
+    recipes: [
+      { id: 776505, title: "Sausage & Pepperoni Stromboli", image: "https://img.spoonacular.com/recipes/776505-312x231.jpg" },
+      { id: 997285, title: "Shrimp and Asparagus Foil Packs with Garlic Lemon Butter Sauce", image: "https://img.spoonacular.com/recipes/997285-312x231.jpg" },
+      { id: 715421, title: "Cheesy Chicken Enchilada Quinoa Casserole", image: "https://img.spoonacular.com/recipes/715421-312x231.jpg" },
+      { id: 715437, title: "Homemade King Ranch Chicken Casserole", image: "https://img.spoonacular.com/recipes/715437-312x231.jpg" },
+      { id: 715392, title: "Easy Slow Cooker Chicken Tortilla Soup", image: "https://img.spoonacular.com/recipes/715392-312x231.jpg" },
+      { id: 715397, title: "Cheesy Chicken and Rice Casserole", image: "https://img.spoonacular.com/recipes/715397-312x231.jpg" },
+      { id: 715523, title: "Chorizo and Beef Quinoa Stuffed Pepper", image: "https://img.spoonacular.com/recipes/715523-312x231.jpg" },
+      { id: 735820, title: "Crock-Pot: Asian-Style Country Ribs with Black Bean Garlic Sauce", image: "https://img.spoonacular.com/recipes/735820-312x231.jpg" },
+      { id: 715573, title: "Simple Skillet Lasagna", image: "https://img.spoonacular.com/recipes/715573-312x231.jpg" },
+      { id: 641893, title: "Easy Cheesy Pizza Casserole", image: "https://img.spoonacular.com/recipes/641893-312x231.jpg" },
+      { id: 638035, title: "Chicken Cordon Bleu", image: "https://img.spoonacular.com/recipes/638035-312x231.jpg" },
+      { id: 715447, title: "Easy Vegetable Beef Soup", image: "https://img.spoonacular.com/recipes/715447-312x231.jpg" },
+      { id: 640886, title: "Crockpot Chicken and Dumplings", image: "https://img.spoonacular.com/recipes/640886-312x231.jpg" },
+      { id: 730914, title: "Basil Infused Balsamic Oven Baked Chicken", image: "https://img.spoonacular.com/recipes/730914-312x231.jpg" },
+      { id: 645978, title: "Ground Turkey Stuffed Peppers", image: "https://img.spoonacular.com/recipes/645978-312x231.jpg" },
+      { id: 657579, title: "Quick Chicken Enchilada Soup", image: "https://img.spoonacular.com/recipes/657579-312x231.jpg" },
+      { id: 658357, title: "Rigatoni With Sweet Sausages In Creamy Tomato Sauce", image: "https://img.spoonacular.com/recipes/658357-312x231.jpg" },
+      { id: 716427, title: "Roasted Butterflied Chicken w. Onions & Carrots", image: "https://img.spoonacular.com/recipes/716427-312x231.jpg" },
+      { id: 662535, title: "Sweet Mustard BBQ Pork Chops", image: "https://img.spoonacular.com/recipes/662535-312x231.jpg" },
+      { id: 729531, title: "Roasted Lemon Pepper Pork Tenderloin with Cornbread Stuffing", image: "https://img.spoonacular.com/recipes/729531-312x231.jpg" },
+      { id: 654663, title: "Parmesan chicken nuggets", image: "https://img.spoonacular.com/recipes/654663-312x231.jpg" },
+      { id: 638248, title: "Chicken Piccata With Angel Hair Pasta", image: "https://img.spoonacular.com/recipes/638248-312x231.jpg" },
+      { id: 660736, title: "Soy Ginger Glazed Halibut with Ginger Peach Relish", image: "https://img.spoonacular.com/recipes/660736-312x231.jpg" },
+      { id: 715446, title: "Slow Cooker Beef Stew", image: "https://img.spoonacular.com/recipes/715446-312x231.jpg" },
+    ],
+  },
+  {
+    // Salads only: the docs do not say whether `type` takes more than one value.
+    slug: "light-lunches",
+    title: "Light lunches",
+    description: "Popular salads under 500 kcal per serving.",
+    filters: { type: "salad", maxCalories: 500, sort: "popularity", sortDirection: "desc" },
+    recipes: [
+      { id: 716430, title: "Roasted Cabbage Wedge Salad with Yogurt Gorgonzola Dressing", image: "https://img.spoonacular.com/recipes/716430-312x231.jpg" },
+      { id: 716416, title: "Tomato, Cucumber & Onion Salad with Feta Cheese: Real Convenience Food", image: "https://img.spoonacular.com/recipes/716416-312x231.jpg" },
+      { id: 661925, title: "Strawberry-Mango Quinoa Salad", image: "https://img.spoonacular.com/recipes/661925-312x231.jpg" },
+      { id: 642660, title: "Fennel and Orange Salad With Toasted Hazelnuts and Cranberries", image: "https://img.spoonacular.com/recipes/642660-312x231.jpg" },
+      { id: 661340, title: "Spinach Salad with Strawberry Vinaigrette", image: "https://img.spoonacular.com/recipes/661340-312x231.jpg" },
+      { id: 645265, title: "Great Greek Salad", image: "https://img.spoonacular.com/recipes/645265-312x231.jpg" },
+      { id: 637067, title: "Caramelized Tofu & Gala Apple Salad", image: "https://img.spoonacular.com/recipes/637067-312x231.jpg" },
+      { id: 1098388, title: "Watermelon Salad with Feta, Walnut & Nigella Seeds", image: "https://img.spoonacular.com/recipes/1098388-312x231.jpg" },
+      { id: 1098387, title: "Quinoa Salad with Barberries & Nuts", image: "https://img.spoonacular.com/recipes/1098387-312x231.jpg" },
+      { id: 639672, title: "Coastal Avocado Salad with Grapes and Shrimp", image: "https://img.spoonacular.com/recipes/639672-312x231.jpg" },
+      { id: 658655, title: "Roasted red peppers and tomatoes salad", image: "https://img.spoonacular.com/recipes/658655-312x231.jpg" },
+      { id: 665041, title: "Watermelon, Feta And Mint Salad", image: "https://img.spoonacular.com/recipes/665041-312x231.jpg" },
+      { id: 643505, title: "Fresh Green Bean and Tomato Salad with Creamy Garlic Dressing", image: "https://img.spoonacular.com/recipes/643505-312x231.jpg" },
+      { id: 639512, title: "Citrus Arugula Salad with Seared Scallops", image: "https://img.spoonacular.com/recipes/639512-312x231.png" },
+      { id: 660146, title: "Simple Squash Salad", image: "https://img.spoonacular.com/recipes/660146-312x231.jpg" },
+      { id: 660685, title: "Southern 7 Layer Salad in a Mason Jar", image: "https://img.spoonacular.com/recipes/660685-312x231.jpg" },
+      { id: 651823, title: "Middle Eastern Chopped Salad", image: "https://img.spoonacular.com/recipes/651823-312x231.jpg" },
+      { id: 632269, title: "Amaranth and Roast Veggie Salad", image: "https://img.spoonacular.com/recipes/632269-312x231.jpg" },
+      { id: 651426, title: "Mediterranean Orzo Salad", image: "https://img.spoonacular.com/recipes/651426-312x231.jpg" },
+      { id: 637162, title: "Carrot and Cabbage Salad With Coriander+cumin Dry Rub", image: "https://img.spoonacular.com/recipes/637162-312x231.jpg" },
+      { id: 659143, title: "Salmon, Watercress, Fennel and Baby Beetroot Salad With Lemony \"Caviar\" Dressing", image: "https://img.spoonacular.com/recipes/659143-312x231.jpg" },
+      { id: 657686, title: "Quinoa Tabbouleh Salad", image: "https://img.spoonacular.com/recipes/657686-312x231.jpg" },
+      { id: 664997, title: "Water-Cado Salad", image: "https://img.spoonacular.com/recipes/664997-312x231.png" },
+    ],
+  },
+] satisfies Collection[];
+
+/** An array lookup, not an object one: the slug comes from the URL. */
+export function findCollection(slug: string): Collection | undefined {
+  return COLLECTIONS.find((collection) => collection.slug === slug);
+}

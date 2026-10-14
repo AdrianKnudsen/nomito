@@ -4,6 +4,8 @@
  */
 
 import type { ViaOrigin } from "../types/filters";
+import { collectionPairs, withQuery, type QueryPairs } from "./filters";
+import { lookupVia } from "./routes";
 
 /**
  * The search goes along for Back, and the missing ingredients by id so the recipe can mark
@@ -19,8 +21,31 @@ export function leftoversRecipeHref(
   return `/recipe/${id}?${params}`;
 }
 
-/** Back from a recipe: the origin page's canonical URL, built from the parsed origin. */
+/** The origin's canonical parameters, as its own page writes them. */
+function originPairs(origin: ViaOrigin): QueryPairs {
+  switch (origin.via) {
+    case "collection":
+      return [["slug", origin.slug], ...collectionPairs(origin)];
+    default:
+      throw new Error(`No parameters for via=${origin.via} yet`);
+  }
+}
+
+/** A recipe link that carries its origin, so the recipe can go Back there. */
+export function recipeHrefVia(id: number, origin: ViaOrigin): string {
+  return withQuery(`/recipe/${id}`, [["via", origin.via], ...originPairs(origin)]);
+}
+
+/**
+ * Back from a recipe: built from the parsed origin with the origin page's own builder, so it is
+ * canonical by construction. The path comes from VIA, never from the URL.
+ */
 export function originBackHref(origin: ViaOrigin): string {
-  // Each origin gets its case in the commit that builds its route.
-  throw new Error(`No Back target for via=${origin.via} yet`);
+  const { backPath } = lookupVia(origin.via);
+  switch (origin.via) {
+    case "collection":
+      return withQuery(`${backPath}/${origin.slug}`, collectionPairs(origin));
+    default:
+      throw new Error(`No Back target for via=${origin.via} yet`);
+  }
 }

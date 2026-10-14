@@ -17,6 +17,7 @@ interface RouteEntry {
 export const ROUTES: readonly RouteEntry[] = [
   { prefix: "/", title: "Home", inMenu: false },
   { prefix: "/search", title: "Use up leftovers", inMenu: true },
+  { prefix: "/collections", title: "Collections", inMenu: true },
 ];
 
 /** Whole segments: /collections matches /collections/quick-easy, not /collectionsx. */
@@ -38,7 +39,9 @@ export interface ViaEntry {
  * list of valid `via` values. A Map, not an object: `via` comes from the URL, and `__proto__`
  * and `constructor` exist on every object.
  */
-export const VIA: ReadonlyMap<Via, ViaEntry> = new Map<Via, ViaEntry>([]);
+export const VIA: ReadonlyMap<Via, ViaEntry> = new Map<Via, ViaEntry>([
+  ["collection", { backPath: "/collections", title: "Collections" }],
+]);
 
 export function isVia(value: string): value is Via {
   return (VIA as ReadonlyMap<string, ViaEntry>).has(value);

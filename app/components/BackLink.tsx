@@ -6,7 +6,10 @@ import { useRouter } from "next/navigation";
 import { previousUrlMatches } from "./navigationHistory";
 
 interface BackLinkProps {
-  /** The search page the recipe belongs to. History is the browser back button's job. */
+  /**
+   * The recipe's Back target: the search, or the page it was opened from. History is the browser
+   * back button's job.
+   */
   href: string;
   className?: string;
 }
@@ -27,8 +30,8 @@ export default function BackLink({ href, className }: BackLinkProps) {
     router.back();
   };
 
-  // No prefetch: the link points at the search results, and prefetching them is a new
-  // Spoonacular search on every view of the recipe.
+  // No prefetch: the link points at the recipe's Back target (the search, or the page it was
+  // opened from), and prefetching it can be a new Spoonacular search on every view of the recipe.
   return (
     <Link
       href={href}
