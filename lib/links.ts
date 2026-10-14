@@ -4,7 +4,7 @@
  */
 
 import type { ViaOrigin } from "../types/filters";
-import { collectionPairs, withQuery, type QueryPairs } from "./filters";
+import { collectionPairs, guidePairs, withQuery, type QueryPairs } from "./filters";
 import { lookupVia } from "./routes";
 
 /**
@@ -26,6 +26,8 @@ function originPairs(origin: ViaOrigin): QueryPairs {
   switch (origin.via) {
     case "collection":
       return [["slug", origin.slug], ...collectionPairs(origin)];
+    case "guide":
+      return guidePairs(origin);
     default:
       throw new Error(`No parameters for via=${origin.via} yet`);
   }
@@ -45,6 +47,8 @@ export function originBackHref(origin: ViaOrigin): string {
   switch (origin.via) {
     case "collection":
       return withQuery(`${backPath}/${origin.slug}`, collectionPairs(origin));
+    case "guide":
+      return withQuery(backPath, guidePairs(origin));
     default:
       throw new Error(`No Back target for via=${origin.via} yet`);
   }

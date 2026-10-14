@@ -5,7 +5,17 @@
  * tests can run the compiled output with plain Node.
  */
 
-import type { AvoidValue, CollectionAdjustment, CollectionTime, ViaOrigin } from "../types/filters";
+import type {
+  AvoidValue,
+  CollectionAdjustment,
+  CollectionTime,
+  CompleteGuideAnswers,
+  GoalAnswer,
+  GuideAnswers,
+  MealAnswer,
+  TimeAnswer,
+  ViaOrigin,
+} from "../types/filters";
 import type { Diet, Intolerance, RecipeFilters } from "../types/spoonacular";
 import { findCollection, type Collection } from "./collections";
 import { isVia } from "./routes";
@@ -203,6 +213,139 @@ function firstCollection(param: Param): Collection | undefined {
   return undefined;
 }
 
+export const MEAL_OPTIONS: readonly Option<MealAnswer>[] = [
+  { value: "breakfast", label: "Breakfast" },
+  { value: "lunch", label: "Lunch" },
+  { value: "dinner", label: "Dinner" },
+  { value: "snack", label: "Snack" },
+];
+
+/** "any" is a real answer here and stays in the URL; collections do not offer it. */
+export const GUIDE_TIME_OPTIONS: readonly Option<TimeAnswer>[] = [
+  ...TIME_OPTIONS,
+  { value: "any", label: "Doesn't matter" },
+];
+
+export const GOAL_OPTIONS: readonly Option<GoalAnswer>[] = [
+  { value: "healthy", label: "Something healthy" },
+  { value: "good", label: "Something good" },
+  { value: "surprise", label: "Surprise me" },
+];
+
+export type GuideStep = 1 | 2 | 3 | 4;
+
+const GUIDE_QUESTIONS = [
+  "Which meal?",
+  "How much time?",
+  "What are you after?",
+  "Anything to avoid?",
+] as const;
+
+export function guideQuestion(step: GuideStep): string {
+  return GUIDE_QUESTIONS[step - 1];
+}
+
+export function parseGuideAnswers(params: SearchParams): GuideAnswers {
+  const answers: GuideAnswers = { avoid: parseAvoid(params.avoid) };
+  const meal = firstOf(params.meal, valuesOf(MEAL_OPTIONS));
+  const time = firstOf(params.time, valuesOf(GUIDE_TIME_OPTIONS));
+  const goal = firstOf(params.goal, valuesOf(GOAL_OPTIONS));
+  if (meal) answers.meal = meal;
+  if (time) answers.time = time;
+  if (goal) answers.goal = goal;
+  return answers;
+}
+
+/**
+ * Every valid answer stays, including answers to later steps than the one shown. Dropping them
+ * gave double redirects; keeping them means no valid state redirects again.
+ */
+export function guidePairs(answers: GuideAnswers): QueryPairs {
+  const pairs: QueryPairs = [];
+  if (answers.meal) pairs.push(["meal", answers.meal]);
+  if (answers.time) pairs.push(["time", answers.time]);
+  if (answers.goal) pairs.push(["goal", answers.goal]);
+  return [...pairs, ...avoidPairs(answers.avoid)];
+}
+
+export function completeGuideAnswers(answers: GuideAnswers): CompleteGuideAnswers | null {
+  const { meal, time, goal, avoid } = answers;
+  return meal && time && goal ? { meal, time, goal, avoid } : null;
+}
+
+/** The first of questions 1-3 without an answer; 4 (avoid, optional) once all three have one. */
+export function guideStep(answers: GuideAnswers): GuideStep {
+  if (!answers.meal) return 1;
+  if (!answers.time) return 2;
+  if (!answers.goal) return 3;
+  return 4;
+}
+
+/** Back one question: the answer to step k−1 goes, every other answer stays. */
+export function withoutPreviousAnswer(answers: GuideAnswers, step: 2 | 3 | 4): GuideAnswers {
+  const previous = { ...answers };
+  if (step === 2) delete previous.meal;
+  if (step === 3) delete previous.time;
+  if (step === 4) delete previous.goal;
+  return previous;
+}
+
+export function guideChoices(
+  answers: GuideAnswers,
+  step: 1 | 2 | 3
+): { value: string; label: string; next: GuideAnswers }[] {
+  switch (step) {
+    case 1:
+      return MEAL_OPTIONS.map((o) => ({ ...o, next: { ...answers, meal: o.value } }));
+    case 2:
+      return GUIDE_TIME_OPTIONS.map((o) => ({ ...o, next: { ...answers, time: o.value } }));
+    case 3:
+      return GOAL_OPTIONS.map((o) => ({ ...o, next: { ...answers, goal: o.value } }));
+  }
+}
+
+function mealFilters(meal: MealAnswer): RecipeFilters {
+  switch (meal) {
+    case "breakfast":
+      return { type: "breakfast" };
+    case "lunch":
+      // A light main course is our own definition: "lunch" is no type in the docs, only a
+      // dishTypes value.
+      return { type: "main course", maxCalories: 600 };
+    case "dinner":
+      return { type: "main course" };
+    case "snack":
+      return { type: "snack" };
+  }
+}
+
+function goalSort(goal: GoalAnswer): RecipeFilters {
+  switch (goal) {
+    case "healthy":
+      return { sort: "healthiness", sortDirection: "desc" };
+    case "good":
+      return { sort: "popularity", sortDirection: "desc" };
+    case "surprise":
+      return { sort: "random" };
+  }
+}
+
+export function guideFilters(answers: CompleteGuideAnswers): RecipeFilters {
+  const filters: RecipeFilters = { ...mealFilters(answers.meal), ...goalSort(answers.goal) };
+  if (answers.time !== "any") filters.maxReadyTime = Number(answers.time);
+  return applyAvoid(filters, answers.avoid);
+}
+
+export function guideSummary(answers: CompleteGuideAnswers): string {
+  const time = answers.time === "any" ? "Any time" : labelOf(GUIDE_TIME_OPTIONS, answers.time);
+  return [
+    labelOf(MEAL_OPTIONS, answers.meal),
+    time,
+    labelOf(GOAL_OPTIONS, answers.goal),
+    ...avoidSummary(answers.avoid),
+  ].join(" · ");
+}
+
 /**
  * The origin a recipe was opened from, or null to behave as the leftovers search.
  *
@@ -218,6 +361,10 @@ export function parseVia(params: SearchParams): ViaOrigin | null {
       const collection = firstCollection(params.slug);
       if (!collection) return null;
       return { via, slug: collection.slug, ...parseCollectionAdjustment(collection, params) };
+    }
+    case "guide": {
+      const answers = completeGuideAnswers(parseGuideAnswers(params));
+      return answers ? { via, ...answers } : null;
     }
     default:
       // Each origin gets its case in the commit that builds its route, together with its VIA row.
