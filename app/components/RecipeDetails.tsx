@@ -2,6 +2,7 @@ import BackLink from "./BackLink";
 import Disclaimer from "./Disclaimer";
 import NutritionPanel from "./NutritionPanel";
 import RecipeImage from "./RecipeImage";
+import Substitutes from "./Substitutes";
 import { largestRecipeImage } from "@/lib/spoonacular";
 import styles from "../../styles/recipeDetails.module.css";
 import type { RecipeDetail } from "@/types/spoonacular";
@@ -46,16 +47,22 @@ export default function RecipeDetails({
   backHref,
   missingIds,
 }: RecipeDetailsProps) {
-  const ingredients = (recipe.extendedIngredients ?? []).map((ing) => ({
-    text: ing.original || ing.name || "",
-    missing: missingIds?.has(ing.id) ?? false,
-  }));
-  // Distinct ids, as the card counts them: a recipe can list the same ingredient twice.
-  const missingCount = new Set(
-    (recipe.extendedIngredients ?? [])
-      .filter((ing) => missingIds?.has(ing.id))
-      .map((ing) => ing.id)
-  ).size;
+  // Distinct ids, as the card counts them: a recipe can list the same ingredient twice. The
+  // first listing of each gets the Substitutes button, so one id is looked up once.
+  const missingSeen = new Set<number>();
+  const ingredients = (recipe.extendedIngredients ?? []).map((ing) => {
+    const missing = missingIds?.has(ing.id) ?? false;
+    const firstMissing = missing && !missingSeen.has(ing.id);
+    if (firstMissing) missingSeen.add(ing.id);
+    return {
+      id: ing.id,
+      text: ing.original || ing.name || "",
+      name: ing.name || ing.original || "",
+      missing,
+      substitutes: firstMissing,
+    };
+  });
+  const missingCount = missingSeen.size;
   const instructionGroups = (recipe.analyzedInstructions ?? []).filter(
     (group) => group.steps.length > 0
   );
@@ -122,6 +129,9 @@ export default function RecipeDetails({
                     {/* Text, not just colour, so the mark survives without colour vision. */}
                     {ing.missing && (
                       <span className={styles.missingTag}>missing</span>
+                    )}
+                    {ing.substitutes && (
+                      <Substitutes key={`subs-${ing.id}`} id={ing.id} name={ing.name} />
                     )}
                   </li>
                 ))}

@@ -163,6 +163,17 @@ export interface RecipeFilters {
   sortDirection?: SortDirection;
 }
 
+/**
+ * /food/ingredients/{id}/substitutes. Free-text lines. Both fields with data are absent when
+ * nothing is known: Spoonacular then answers 200 with status "failure" and only a message.
+ */
+export interface IngredientSubstitutes {
+  status: string;
+  ingredient?: string;
+  substitutes?: string[];
+  message: string;
+}
+
 /** The error states the UI tells apart. */
 export type ApiErrorKind = "quota" | "auth" | "rateLimit" | "network" | "unknown";
 

@@ -116,6 +116,25 @@
   white-space: nowrap;
 }
 
+/* Next to the missing pill, drawn like the other glass buttons. */
+.substitutesButton {
+  composes: button from "./controls.module.css";
+  margin-inline-start: 0.5em;
+}
+
+.substitutes {
+  font-size: var(--text-sm);
+}
+
+/* Space only above what is shown: the region stays in the layout, empty, while closed. */
+.substitutes > :not(:empty) {
+  padding-block-start: var(--space-xs);
+}
+
+.substitutes ul {
+  padding-inline-start: 1.2em;
+}
+
 .ingredientList {
   padding-left: 1.2em;
   font-size: var(--text-base);

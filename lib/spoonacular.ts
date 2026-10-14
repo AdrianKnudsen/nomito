@@ -10,6 +10,7 @@ import { cache } from "react";
 import type {
   ApiError,
   ComplexSearchResponse,
+  IngredientSubstitutes,
   RecipeDetail,
   RecipeFilters,
   RecipeSearchResult,
@@ -182,6 +183,21 @@ export const getRecipeDetail = cache(
     );
   }
 );
+
+/**
+ * Substitutes for one ingredient, as free text («1 cup = 7/8 cup shortening …»). Only called
+ * from the recipe's Server Action, so one call per opened panel and none on render.
+ *
+ * When nothing is known Spoonacular still answers 200, but without the list (measured), so a
+ * response without `substitutes` means no match and an empty array is returned.
+ */
+export async function getIngredientSubstitutes(id: number): Promise<string[]> {
+  const params = new URLSearchParams({ apiKey: apiKey() });
+  const response = await getJson<IngredientSubstitutes>(
+    `${BASE}/food/ingredients/${encodeURIComponent(String(id))}/substitutes?${params}`
+  );
+  return response.substitutes ?? [];
+}
 
 /**
  * The image URL names its size, and /information returns 556x370. 636x393 is the largest
