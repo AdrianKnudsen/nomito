@@ -23,7 +23,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       <SearchBar key={`search-${query}`} defaultValue={query} />
       {query && (
         <Suspense
-          key={query}
+          key={`results-${query}`}
           fallback={<Notice role="status">Loading recipes...</Notice>}
         >
           <RecipeList ingredients={query} />

@@ -98,7 +98,19 @@ async function getJson<T>(url: string): Promise<T> {
     throw new SpoonacularError(toApiError(response.status));
   }
 
-  return (await response.json()) as T;
+  try {
+    return (await response.json()) as T;
+  } catch (cause) {
+    // A body that breaks off or is not JSON is upstream's failure, not a bug here.
+    throw new SpoonacularError(
+      {
+        kind: "unknown",
+        status: response.status,
+        message: "The recipe service sent a response we could not read.",
+      },
+      { cause }
+    );
+  }
 }
 
 /**
