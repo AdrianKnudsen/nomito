@@ -3,8 +3,9 @@ import { Suspense } from "react";
 import Notice from "../components/Notice";
 import RecipeList from "../components/RecipeList";
 import SearchBar from "../components/SearchBar";
+import { titleFor } from "@/lib/routes";
 
-export const metadata: Metadata = { title: "Recipes by Ingredients" };
+export const metadata: Metadata = { title: titleFor("/search") };
 
 interface SearchPageProps {
   searchParams: Promise<{ ingredients?: string | string[] }>;

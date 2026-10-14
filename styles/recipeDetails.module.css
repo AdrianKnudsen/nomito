@@ -29,6 +29,13 @@
   gap: var(--space-md);
 }
 
+/* Back on the error branch, where there is no sheet around it. */
+.errorBack {
+  composes: shell from "./surfaces.module.css";
+  flex: none;
+  display: flex;
+}
+
 /* A link styled as a glass button: display and underline are reset for the <a>. */
 .actionButton {
   composes: liquidGlass from "./surfaces.module.css";

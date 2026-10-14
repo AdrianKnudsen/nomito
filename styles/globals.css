@@ -135,6 +135,12 @@ a {
   color: inherit;
 }
 
+/* `hidden` wins over any display a module sets. Substitutes hides its button until hydration,
+   and a composed `display` would otherwise show a button that does nothing without JS. */
+[hidden] {
+  display: none !important;
+}
+
 :focus-visible {
   outline: var(--focus-ring-width) solid var(--color-accent);
   outline-offset: var(--focus-ring-offset);

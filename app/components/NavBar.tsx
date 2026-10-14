@@ -1,18 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { navTitle, ROUTES } from "@/lib/routes";
+import NavTitle from "./NavTitle";
 import styles from "../../styles/nav.module.css";
-
-/** The title follows the URL, so it is right after a reload and the back button too. */
-function titleFor(pathname: string): string {
-  if (pathname.startsWith("/search") || pathname.startsWith("/recipe")) {
-    return "Recipes by Ingredients";
-  }
-  return "Home";
-}
 
 export default function NavBar() {
   const pathname = usePathname();
@@ -34,7 +28,13 @@ export default function NavBar() {
             height={100}
           />
         </Link>
-        <div className={styles.title}>{titleFor(pathname)}</div>
+        <div className={styles.title}>
+          {/* The fallback is the title from the pathname alone. On static pages it is what the
+              HTML carries, and it equals the finished title there. */}
+          <Suspense fallback={navTitle(pathname, [])}>
+            <NavTitle />
+          </Suspense>
+        </div>
         <button
           className={styles.menuButton}
           aria-label="Open menu"
@@ -62,11 +62,13 @@ export default function NavBar() {
             its links are neither focusable nor announced. */}
         <div id="site-menu" className={styles.menuContent} inert={!expanded}>
           <ul>
-            <li>
-              <Link href="/search" onClick={() => setExpanded(false)}>
-                Recipes by Ingredients
-              </Link>
-            </li>
+            {ROUTES.filter((route) => route.inMenu).map((route) => (
+              <li key={`menu-${route.prefix}`}>
+                <Link href={route.prefix} onClick={() => setExpanded(false)}>
+                  {route.title}
+                </Link>
+              </li>
+            ))}
           </ul>
         </div>
       </div>

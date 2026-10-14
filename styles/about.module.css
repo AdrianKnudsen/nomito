@@ -18,6 +18,10 @@
 
 .scrollContainer {
   overflow: auto;
+  /* The scroll container clips the focus ring: padding gives it room, scroll padding keeps
+     it in view when scrolled to. */
+  padding: calc(var(--focus-ring-width) + var(--focus-ring-offset));
+  scroll-padding-block: calc(var(--focus-ring-width) + var(--focus-ring-offset));
   min-height: 0;
   position: relative;
   z-index: 1;
@@ -36,5 +40,9 @@
 
 /* One blank line between paragraphs, the gap the old double <br /> gave. */
 .infoText + .infoText {
+  margin-block-start: 1lh;
+}
+
+.disclaimer {
   margin-block-start: 1lh;
 }

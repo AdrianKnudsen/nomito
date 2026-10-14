@@ -1,0 +1,8 @@
+/* Small and set apart from the content it qualifies. The look is settled in the visual round. */
+.disclaimer {
+  font-size: var(--text-sm);
+  text-align: center;
+  /* In ch, so it resolves against this element's own size. */
+  max-inline-size: var(--measure);
+  margin-inline: auto;
+}

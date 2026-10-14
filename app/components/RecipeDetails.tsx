@@ -1,4 +1,5 @@
 import BackLink from "./BackLink";
+import Disclaimer from "./Disclaimer";
 import NutritionPanel from "./NutritionPanel";
 import RecipeImage from "./RecipeImage";
 import { largestRecipeImage } from "@/lib/spoonacular";
@@ -79,6 +80,10 @@ export default function RecipeDetails({
             ))}
           </dl>
         )}
+
+        {/* Its own element after the facts, always: a <p> inside the <dl> could not be moved
+            out with CSS, and the disclaimer applies whether or not there are facts. */}
+        <Disclaimer />
 
         {/* The figure keeps its aspect ratio and placeholder surface even when the image
             fails, so the sheet's layout never depends on Spoonacular's CDN. */}
