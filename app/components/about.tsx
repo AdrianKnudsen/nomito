@@ -20,6 +20,13 @@ const About = () => {
             still missing.
           </p>
           <p className={styles.infoText}>
+            Short on ideas? Collections are ready-made lists, like quick dinners
+            or budget meals, that you can narrow down by time or diet. Help me
+            choose asks four quick questions and suggests recipes that fit. Day
+            plan suggests recipes for a day of meals around a rough calorie
+            target — a starting point, not a nutrition plan.
+          </p>
+          <p className={styles.infoText}>
             Using up food is half of it. The other half is eating well, so each
             recipe shows its nutrition per serving and how much of your daily
             needs it covers.
