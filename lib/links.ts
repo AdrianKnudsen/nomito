@@ -4,7 +4,13 @@
  */
 
 import type { ViaOrigin } from "../types/filters";
-import { collectionPairs, guidePairs, withQuery, type QueryPairs } from "./filters";
+import {
+  collectionPairs,
+  guidePairs,
+  planRequestPairs,
+  withQuery,
+  type QueryPairs,
+} from "./filters";
 import { lookupVia } from "./routes";
 
 /**
@@ -28,8 +34,8 @@ function originPairs(origin: ViaOrigin): QueryPairs {
       return [["slug", origin.slug], ...collectionPairs(origin)];
     case "guide":
       return guidePairs(origin);
-    default:
-      throw new Error(`No parameters for via=${origin.via} yet`);
+    case "plan":
+      return planRequestPairs(origin);
   }
 }
 
@@ -49,7 +55,7 @@ export function originBackHref(origin: ViaOrigin): string {
       return withQuery(`${backPath}/${origin.slug}`, collectionPairs(origin));
     case "guide":
       return withQuery(backPath, guidePairs(origin));
-    default:
-      throw new Error(`No Back target for via=${origin.via} yet`);
+    case "plan":
+      return withQuery(backPath, planRequestPairs(origin));
   }
 }

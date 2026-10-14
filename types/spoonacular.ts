@@ -49,7 +49,10 @@ export interface ExtendedIngredient {
   unit: string;
 }
 
-/** One nutrient figure. Only present with includeNutrition=true. */
+/**
+ * One nutrient figure. On /information only with includeNutrition=true; on complexSearch hits
+ * with a nutrient filter or addRecipeNutrition.
+ */
 export interface Nutrient {
   name: string;
   amount: number;
@@ -121,14 +124,17 @@ export interface AnalyzedInstruction {
 /**
  * One hit from /recipes/complexSearch without addRecipeInformation, from the docs' example
  * response. `image` is optional for the same reason as on RecipeDetail: a recipe without a photo
- * comes back without it, and `imageType` goes with it. Not yet seen in a real complexSearch
- * response, so check it against the first real calls.
+ * comes back without it, and `imageType` goes with it. Every hit in the real collection picks had
+ * an image, so whether complexSearch ever omits it is unconfirmed; optional costs nothing, since
+ * the card has a placeholder.
  */
 export interface RecipeSummary {
   id: number;
   title: string;
   image?: string;
   imageType?: string;
+  /** With a nutrient filter or addRecipeNutrition (both measured). */
+  nutrition?: { nutrients: Nutrient[] };
 }
 
 /** /recipes/complexSearch. */

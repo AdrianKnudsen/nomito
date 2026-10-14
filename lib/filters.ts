@@ -7,16 +7,20 @@
 
 import type {
   AvoidValue,
+  CalorieTarget,
   CollectionAdjustment,
   CollectionTime,
   CompleteGuideAnswers,
   GoalAnswer,
   GuideAnswers,
   MealAnswer,
+  PlanChoices,
+  PlanMeal,
+  PlanRequest,
   TimeAnswer,
   ViaOrigin,
 } from "../types/filters";
-import type { Diet, Intolerance, RecipeFilters } from "../types/spoonacular";
+import type { Diet, Intolerance, MealType, RecipeFilters } from "../types/spoonacular";
 import { findCollection, type Collection } from "./collections";
 import { isVia } from "./routes";
 
@@ -346,6 +350,161 @@ export function guideSummary(answers: CompleteGuideAnswers): string {
   ].join(" · ");
 }
 
+interface PlanMealInfo {
+  label: string;
+  weight: number;
+  type: MealType;
+  snack: boolean;
+}
+
+/**
+ * Per unit of weight, a main meal's calorie ceiling. Without it a lone main meal's share gets
+ * so large that its window finds no recipes. Anchored on a dinner window measured to return
+ * many hits; breakfast and lunch follow the weight, and their windows were measured too. All
+ * were measured without avoid filters, which narrow them further.
+ */
+const MAIN_CAP_KCAL_PER_WEIGHT = 830 / 35;
+
+/** Weights approved by Adrian. Snacks keep a fixed share; the main meals split the rest. */
+const PLAN_MEALS: ReadonlyMap<PlanMeal, PlanMealInfo> = new Map<PlanMeal, PlanMealInfo>([
+  ["breakfast", { label: "Breakfast", weight: 25, type: "breakfast", snack: false }],
+  // The share keeps lunch light, so the guide's maxCalories for lunch is not used here.
+  ["lunch", { label: "Lunch", weight: 30, type: "main course", snack: false }],
+  ["dinner", { label: "Dinner", weight: 35, type: "main course", snack: false }],
+  ["evening-snack", { label: "Evening snack", weight: 10, type: "snack", snack: true }],
+  ["before-training", { label: "Before training", weight: 10, type: "snack", snack: true }],
+]);
+
+function mealInfo(meal: PlanMeal): PlanMealInfo {
+  const info = PLAN_MEALS.get(meal);
+  // Meals are parsed against this map, so a miss is a bug.
+  if (!info) throw new Error(`No plan meal ${meal}`);
+  return info;
+}
+
+/** In the map's order, which is the form's order and the canonical order. */
+export const PLAN_MEAL_OPTIONS: readonly Option<PlanMeal>[] = [...PLAN_MEALS].map(
+  ([value, info]) => ({ value, label: info.label })
+);
+export const DEFAULT_PLAN_MEALS: readonly PlanMeal[] = ["breakfast", "lunch", "dinner"];
+
+export const CALORIE_OPTIONS: readonly Option<CalorieTarget>[] = [
+  { value: "1600", label: "1600 kcal" },
+  { value: "2000", label: "2000 kcal" },
+  { value: "2500", label: "2500 kcal" },
+  { value: "3000", label: "3000 kcal" },
+];
+export const DEFAULT_CALORIES: CalorieTarget = "2000";
+
+export function planLabel(meal: PlanMeal): string {
+  return mealInfo(meal).label;
+}
+
+/** /plan preselects its form from these. It fills in nothing, so the bare /plan is canonical. */
+export function parsePlanChoices(params: SearchParams): PlanChoices {
+  const choices: PlanChoices = {
+    meals: allOf(params.meals, valuesOf(PLAN_MEAL_OPTIONS)),
+    avoid: parseAvoid(params.avoid),
+  };
+  const calories = firstOf(params.calories, valuesOf(CALORIE_OPTIONS));
+  if (calories) choices.calories = calories;
+  return choices;
+}
+
+export function planChoicesPairs(choices: PlanChoices): QueryPairs {
+  const pairs: QueryPairs = choices.meals.map((meal): [string, string] => ["meals", meal]);
+  if (choices.calories) pairs.push(["calories", choices.calories]);
+  return [...pairs, ...avoidPairs(choices.avoid)];
+}
+
+/**
+ * Strict: Number and parseInt accept "+2", "2abc" and "0x10". 1 is not a valid value, so
+ * repeated rounds take the first in 2-99, and the first plan never writes one.
+ */
+function parseRound(param: Param): number {
+  for (const value of values(param)) {
+    if (/^[1-9][0-9]?$/.test(value) && Number(value) >= 2) return Number(value);
+  }
+  return 1;
+}
+
+/** The default meals belong to the form only, never here: no meals is its own state. */
+export function parsePlanRequest(params: SearchParams): PlanRequest {
+  return {
+    meals: allOf(params.meals, valuesOf(PLAN_MEAL_OPTIONS)),
+    calories: firstOf(params.calories, valuesOf(CALORIE_OPTIONS)) ?? DEFAULT_CALORIES,
+    avoid: parseAvoid(params.avoid),
+    round: parseRound(params.round),
+  };
+}
+
+/** The only builder that fills in a default: calories. */
+export function planRequestPairs(request: PlanRequest): QueryPairs {
+  const pairs: QueryPairs = [
+    ...request.meals.map((meal): [string, string] => ["meals", meal]),
+    ["calories", request.calories],
+    ...avoidPairs(request.avoid),
+  ];
+  // A round only means something for a plan; the empty state has none.
+  if (request.round > 1 && request.meals.length > 0) {
+    pairs.push(["round", String(request.round)]);
+  }
+  return pairs;
+}
+
+export interface MealTarget {
+  meal: PlanMeal;
+  /** The meal's share of the target, rounded. Shown as approximate. */
+  kcal: number;
+  filters: RecipeFilters;
+}
+
+/**
+ * One random search per meal, within ±25 % of its share. Bounds round to whole kcal and grams.
+ * A main meal's share is capped by its weight, and what the cap cuts is not moved to other meals.
+ */
+export function planTargets(request: PlanRequest): MealTarget[] {
+  const total = Number(request.calories);
+  const snackShare = (meal: PlanMeal) => (total * mealInfo(meal).weight) / 100;
+  const snacks = request.meals.filter((meal) => mealInfo(meal).snack);
+  const mains = request.meals.filter((meal) => !mealInfo(meal).snack);
+  const rest = total - snacks.reduce((sum, meal) => sum + snackShare(meal), 0);
+  const mainWeight = mains.reduce((sum, meal) => sum + mealInfo(meal).weight, 0);
+
+  return request.meals.map((meal) => {
+    const info = mealInfo(meal);
+    let share = info.snack ? snackShare(meal) : (rest * info.weight) / mainWeight;
+    if (!info.snack) share = Math.min(share, Math.round(MAIN_CAP_KCAL_PER_WEIGHT * info.weight));
+    const filters: RecipeFilters = {
+      type: info.type,
+      sort: "random",
+      minCalories: Math.round(share * 0.75),
+      maxCalories: Math.round(share * 1.25),
+    };
+    // Half the energy from carbohydrate, at 4 kcal per gram. Our own definition.
+    if (meal === "before-training") filters.minCarbs = Math.round((share * 0.5) / 4);
+    return { meal, kcal: Math.round(share), filters: applyAvoid(filters, request.avoid) };
+  });
+}
+
+/** Only called with at least one meal. */
+export function planHeading(request: PlanRequest): string {
+  const targets = planTargets(request);
+  const covered = targets.reduce((sum, target) => sum + target.kcal, 0);
+  if (targets.every((target) => mealInfo(target.meal).snack)) {
+    return `Snacks only — this plan covers ≈ ${covered} of ${request.calories} kcal`;
+  }
+  // The caps can leave a plan short of its target, and the heading says so instead of claiming it.
+  const short = covered < 0.98 * Number(request.calories);
+  return [
+    short
+      ? `This plan covers ≈ ${covered} of ${request.calories} kcal`
+      : `≈ ${request.calories} kcal`,
+    targets.map((target) => planLabel(target.meal)).join(", "),
+    ...avoidSummary(request.avoid),
+  ].join(" · ");
+}
+
 /**
  * The origin a recipe was opened from, or null to behave as the leftovers search.
  *
@@ -366,8 +525,9 @@ export function parseVia(params: SearchParams): ViaOrigin | null {
       const answers = completeGuideAnswers(parseGuideAnswers(params));
       return answers ? { via, ...answers } : null;
     }
-    default:
-      // Each origin gets its case in the commit that builds its route, together with its VIA row.
-      throw new Error(`via=${via} is in VIA but parseVia has no case for it`);
+    case "plan": {
+      const request = parsePlanRequest(params);
+      return request.meals.length > 0 ? { via, ...request } : null;
+    }
   }
 }

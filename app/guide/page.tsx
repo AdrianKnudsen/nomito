@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Form from "next/form";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import SubmitOnce from "../components/SubmitOnce";
 import controls from "../../styles/controls.module.css";
 import page from "../../styles/page.module.css";
 import {
@@ -104,9 +105,7 @@ function AvoidForm({ answers }: { answers: CompleteGuideAnswers }) {
           </label>
         ))}
       </fieldset>
-      <button type="submit" className={controls.button}>
-        Show recipes
-      </button>
+      <SubmitOnce className={controls.button}>Show recipes</SubmitOnce>
     </Form>
   );
 }

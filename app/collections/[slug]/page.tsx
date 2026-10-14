@@ -8,6 +8,7 @@ import FilteredResults from "../../components/FilteredResults";
 import Notice from "../../components/Notice";
 import RecipeCards, { type RecipeCardData } from "../../components/RecipeCards";
 import ResultPanel from "../../components/ResultPanel";
+import SubmitOnce from "../../components/SubmitOnce";
 import controls from "../../../styles/controls.module.css";
 import page from "../../../styles/page.module.css";
 import { COLLECTIONS, findCollection, type Collection } from "@/lib/collections";
@@ -156,9 +157,7 @@ function AdjustForm({ collection, adjustment }: AdjustFormProps) {
         ))}
       </fieldset>
       <div className={page.actions}>
-        <button type="submit" className={controls.button}>
-          Apply
-        </button>
+        <SubmitOnce className={controls.button}>Apply</SubmitOnce>
         {isAdjusted(adjustment) && (
           <Link href={path} className={controls.button}>
             Reset

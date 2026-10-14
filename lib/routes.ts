@@ -19,6 +19,7 @@ export const ROUTES: readonly RouteEntry[] = [
   { prefix: "/search", title: "Use up leftovers", inMenu: true },
   { prefix: "/collections", title: "Collections", inMenu: true },
   { prefix: "/guide", title: "Help me choose", inMenu: true },
+  { prefix: "/plan", title: "Day plan", inMenu: true },
 ];
 
 /** Whole segments: /collections matches /collections/quick-easy, not /collectionsx. */
@@ -43,6 +44,7 @@ export interface ViaEntry {
 export const VIA: ReadonlyMap<Via, ViaEntry> = new Map<Via, ViaEntry>([
   ["collection", { backPath: "/collections", title: "Collections" }],
   ["guide", { backPath: "/guide/results", title: "Help me choose" }],
+  ["plan", { backPath: "/plan/results", title: "Day plan" }],
 ]);
 
 export function isVia(value: string): value is Via {
