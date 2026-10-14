@@ -12,11 +12,12 @@
   letter-spacing: 0.03em;
 }
 
-/* Everything between the h1 and the results. Shrinks and scrolls itself when it does not fit. */
+/* Everything between the h1 and the results. Keeps its full height so Apply is always
+   reachable; the results below shrink instead (see the next rule), and when not even one row
+   fits, the page scrolls. */
 .panel {
   composes: shell regularGlass from "./surfaces.module.css";
-  flex: 0 1 auto;
-  min-height: 0;
+  flex: none;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -25,6 +26,14 @@
      ring inside the panel when focus scrolls it: the browser aligns the border box only. */
   padding: var(--space-md);
   scroll-padding-block: calc(var(--focus-ring-width) + var(--focus-ring-offset));
+  font-size: var(--text-base);
+}
+
+/* The result panel that follows a form keeps one row of cards. Set as a custom property,
+   not by redeclaring min-height: the order between this module and result.module.css is a
+   bundler detail. font-size is the card title's, so the token's lh measures a title line. */
+.panel + * {
+  --result-floor: var(--result-min-block);
   font-size: var(--text-base);
 }
 

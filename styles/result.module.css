@@ -9,11 +9,12 @@
   font-size: var(--text-2xl);
 }
 
-/* The view below the search bar: shrinks to the space left, the list scrolls inside. */
+/* The view below the search bar: shrinks to the space left, the list scrolls inside. A page
+   with a form above sets --result-floor; the default 0 keeps /search as it was. */
 .resultWrapper {
   composes: shell from "./surfaces.module.css";
   flex: 0 1 auto;
-  min-height: 0;
+  min-height: var(--result-floor, 0);
   display: flex;
   flex-direction: column;
 }

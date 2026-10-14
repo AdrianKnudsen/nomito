@@ -65,6 +65,13 @@
   --focus-ring-width: 2px;
   --focus-ring-offset: 2px;
 
+  /* The least a result list keeps below a form: one row of cards. A card is its block
+     padding (--space-md each side) plus a two-line title, so the title lines are in lh and
+     resolve where the token is used; the consumer sets the title's font size there. The
+     result box's padding, border and the list's focus-ring room are rounded up to
+     --space-lg each side. */
+  --result-min-block: calc(2 * var(--space-md) + 2lh + 2 * var(--space-lg));
+
   /*
    * A reading line of about 66 characters. In ch so it follows the font, but 1ch is
    * Khand's "0", which is wider than an average letter, so 66 characters is 52ch
