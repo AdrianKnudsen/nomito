@@ -5,7 +5,7 @@ import RecipeDetails from "../../components/RecipeDetails";
 import BackLink from "../../components/BackLink";
 import SearchBar from "../../components/SearchBar";
 import { parseVia, type SearchParams } from "@/lib/filters";
-import { originBackHref } from "@/lib/links";
+import { originBackTargets, type BackTargets } from "@/lib/links";
 import { getRecipeDetail, SpoonacularError } from "@/lib/spoonacular";
 import styles from "../../../styles/recipeDetails.module.css";
 import type { RecipeDetail } from "@/types/spoonacular";
@@ -51,17 +51,18 @@ export async function generateMetadata({
 export default async function RecipePage({ params, searchParams }: RecipePageProps) {
   const [{ id }, search] = await Promise.all([params, searchParams]);
   // A valid origin replaces the leftovers search: no search field, no missing marks, and Back
-  // goes to the origin's canonical URL.
+  // goes to the origin (originBackTargets has the rule).
   const origin = parseVia(search);
   const ingredients = origin ? "" : (first(search.ingredients)?.trim() ?? "");
   const missingIds = origin ? null : parseMissing(first(search.missing));
   // Without an origin, Back goes to the search page, not wherever the user came from: without a
-  // search, /search is the start.
-  const backHref = origin
-    ? originBackHref(origin)
-    : ingredients
-      ? `/search?${new URLSearchParams({ ingredients })}`
-      : "/search";
+  // search, /search is the start. The search is not random, so history and link are one URL.
+  const searchHref = ingredients
+    ? `/search?${new URLSearchParams({ ingredients })}`
+    : "/search";
+  const back: BackTargets = origin
+    ? originBackTargets(origin)
+    : { href: searchHref, historyHref: searchHref };
   const searchBar = origin ? null : (
     <SearchBar key={`search-${ingredients}`} defaultValue={ingredients} />
   );
@@ -76,7 +77,7 @@ export default async function RecipePage({ params, searchParams }: RecipePagePro
       <>
         {searchBar}
         <div className={styles.errorBack}>
-          <BackLink href={backHref} className={styles.actionButton} />
+          <BackLink href={back.href} historyHref={back.historyHref} className={styles.actionButton} />
         </div>
         <Notice role="alert">{error.apiError.message}</Notice>
       </>
@@ -86,7 +87,7 @@ export default async function RecipePage({ params, searchParams }: RecipePagePro
   return (
     <>
       {searchBar}
-      <RecipeDetails recipe={recipe} backHref={backHref} missingIds={missingIds} />
+      <RecipeDetails recipe={recipe} back={back} missingIds={missingIds} />
     </>
   );
 }

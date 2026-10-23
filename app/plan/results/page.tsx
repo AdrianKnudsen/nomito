@@ -25,7 +25,7 @@ import {
   type SearchParams,
 } from "@/lib/filters";
 import { recipeHrefVia } from "@/lib/links";
-import { titleFor } from "@/lib/routes";
+import { PLAN_FORM_PATH, titleFor } from "@/lib/routes";
 import { searchRecipes, SpoonacularError } from "@/lib/spoonacular";
 import type { PlanRequest, ViaOrigin } from "@/types/filters";
 import type { ApiErrorKind, RecipeSummary } from "@/types/spoonacular";
@@ -55,7 +55,7 @@ export default async function PlanResultsPage({ searchParams }: PlanResultsPageP
   const query = toQuery(pairs);
   if (query !== receivedQuery(search)) redirect(withQuery("/plan/results", pairs));
 
-  const changeHref = withQuery("/plan", planChoicesPairs(request));
+  const changeHref = withQuery(PLAN_FORM_PATH, planChoicesPairs(request));
 
   if (request.meals.length === 0) {
     return (

@@ -4,6 +4,7 @@ import NutritionPanel from "./NutritionPanel";
 import RecipeImage from "./RecipeImage";
 import Substitutes from "./Substitutes";
 import { largestRecipeImage } from "@/lib/spoonacular";
+import type { BackTargets } from "@/lib/links";
 import styles from "../../styles/recipeDetails.module.css";
 import type { RecipeDetail } from "@/types/spoonacular";
 
@@ -32,7 +33,8 @@ function recipeFacts(recipe: RecipeDetail): Fact[] {
 
 interface RecipeDetailsProps {
   recipe: RecipeDetail;
-  backHref: string;
+  /** Back's link and history targets, from the recipe page. */
+  back: BackTargets;
   /** What the search reported missing. null on a direct link: nothing to compare with. */
   missingIds: Set<number> | null;
 }
@@ -44,7 +46,7 @@ function missingSummary(count: number): string {
 
 export default function RecipeDetails({
   recipe,
-  backHref,
+  back,
   missingIds,
 }: RecipeDetailsProps) {
   // Distinct ids, as the card counts them: a recipe can list the same ingredient twice. The
@@ -72,7 +74,7 @@ export default function RecipeDetails({
     <div className={styles.resultDetailsWrapper}>
       <article className={styles.sheet}>
         <div className={styles.buttonRow}>
-          <BackLink href={backHref} className={styles.actionButton} />
+          <BackLink href={back.href} historyHref={back.historyHref} className={styles.actionButton} />
         </div>
 
         <h1 className={styles.heading}>{recipe.title}</h1>

@@ -2,10 +2,10 @@
  * The previous URL *within the app*, updated by `UrlTracker` on every navigation.
  *
  * Exists so Back can use `router.back()` — which serves the page from the router cache
- * and costs no Spoonacular call — but only when the previous page is exactly where the
- * link points anyway. Browser history cannot be asked for the previous URL, hence this
- * log. Module level rather than context: nothing should re-render when it changes; it is
- * only read on click.
+ * and costs no Spoonacular call — but only when the previous page is exactly the list the
+ * recipe was opened from (BackLink's `historyHref`). Browser history cannot be asked for the
+ * previous URL, hence this log. Module level rather than context: nothing should re-render
+ * when it changes; it is only read on click.
  */
 
 let current: string | null = null;

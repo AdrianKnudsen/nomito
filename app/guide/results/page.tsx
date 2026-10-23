@@ -21,7 +21,7 @@ import {
   withQuery,
   type SearchParams,
 } from "@/lib/filters";
-import { titleFor } from "@/lib/routes";
+import { GUIDE_FORM_PATH, titleFor } from "@/lib/routes";
 
 interface GuideResultsPageProps {
   searchParams: Promise<SearchParams>;
@@ -56,7 +56,7 @@ export default async function GuideResultsPage({ searchParams }: GuideResultsPag
       </h1>
       <div className={page.panel}>
         <div className={page.actions}>
-          <Link href={withQuery("/guide", pairs)} className={controls.button}>
+          <Link href={withQuery(GUIDE_FORM_PATH, pairs)} className={controls.button}>
             Change answers
           </Link>
           <Link href="/guide" className={controls.button}>

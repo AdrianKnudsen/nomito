@@ -12,6 +12,7 @@ import {
   guidePairs,
   guideQuestion,
   guideStep,
+  guideSummary,
   parseGuideAnswers,
   receivedQuery,
   toQuery,
@@ -50,6 +51,9 @@ export default async function GuidePage({ searchParams }: GuidePageProps) {
       </h1>
       <div className={page.panel}>
         <p className={page.note}>Step {step} of 4</p>
+        {/* The earlier answers, so someone who lands here from Back in a new tab sees what
+            "Show recipes" will search for. Avoid is the question below, so it is left out. */}
+        {complete && <p>{guideSummary({ ...complete, avoid: [] })}</p>}
         {/* Without a complete set the step is 1-3; `step !== 4` says so to TypeScript too. */}
         {complete ? (
           <AvoidForm key={`form-${query}`} answers={complete} />
