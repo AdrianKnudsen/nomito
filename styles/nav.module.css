@@ -6,7 +6,8 @@
 
 /*
  * Row 2 is the menu. 0fr → 1fr animates to the content's own height, so there is no
- * hard-coded expanded height to break when a menu item is added.
+ * hard-coded expanded height to break when a menu item is added. Only the opening animates:
+ * a closed details hides its content at once, and the row falls to 0 with it.
  */
 .nav {
   composes: liquidGlassBar shimmer from "./surfaces.module.css";
@@ -19,7 +20,7 @@
   transition: grid-template-rows 1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.navExpanded {
+.nav:has(.menu[open]) {
   grid-template-rows: auto 1fr;
 }
 
@@ -43,12 +44,24 @@
   font-size: var(--text-xl);
 }
 
+/* No box of its own: the summary and the content become the nav's grid items. */
+.menu {
+  display: contents;
+}
+
 .menuButton {
+  grid-column: 3;
   justify-self: end;
   background: none;
   margin-right: 0.5rem;
   border: none;
   cursor: pointer;
+  list-style: none;
+}
+
+/* Safari draws its own marker on a summary, which list-style does not reach. */
+.menuButton::-webkit-details-marker {
+  display: none;
 }
 
 .menuButton svg {
@@ -57,14 +70,23 @@
   display: block;
 }
 
-/* Stretch makes the box follow the 0fr row; without it the nav's align-items: center
-   keeps the menu at content height, centred over the empty row and visible. The space
-   above the menu is padding on the list so the collapsed row is truly 0. */
-.menuContent {
+/*
+ * The content box is the grid item in row 2. Stretch makes it follow the 0fr row as it grows;
+ * without it the nav's align-items: center gives the box its full height from the first frame of
+ * an opening, centred over the growing row, so the links show over the logo row (measured). A
+ * closed menu is hidden by the browser either way. No transition here: when `open` goes, the
+ * browser hides the content at once, also halfway through an opening, so a closed menu's links
+ * are never reachable.
+ */
+.menu::details-content {
   grid-column: 1 / -1;
   align-self: stretch;
   min-height: 0;
   overflow: hidden;
+}
+
+/* The space above the menu is padding inside the list, so it opens and closes with the menu. */
+.menuContent {
   text-align: center;
 }
 
@@ -86,4 +108,26 @@
 
 .menuContent li:hover {
   color: var(--color-accent);
+}
+
+/*
+ * Without ::details-content (older Safari and Firefox) the content box cannot be placed, and the
+ * grid puts it in the logo's column. A wrapping flex row gives the list a line of its own at the
+ * nav's full width instead. The menu opens without the animation there.
+ */
+@supports not selector(::details-content) {
+  .nav {
+    display: flex;
+    flex-wrap: wrap;
+    container-type: inline-size;
+  }
+
+  .title {
+    flex: 1;
+    text-align: center;
+  }
+
+  .menuContent {
+    inline-size: 100cqi;
+  }
 }
