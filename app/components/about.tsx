@@ -16,20 +16,21 @@ const About = () => {
           <p className={styles.infoText}>
             Tell Nomito what you have, and it finds recipes that need as few
             extra ingredients as possible. Staples like salt, flour and water
-            are taken for granted, and every recipe you open marks what you’re
-            still missing.
+            are taken for granted, and every recipe you open from that search
+            marks what you’re still missing.
           </p>
           <p className={styles.infoText}>
-            Short on ideas? Collections are ready-made lists, like quick dinners
-            or budget meals, that you can narrow down by time or diet. Help me
-            choose asks four quick questions and suggests recipes that fit. Day
-            plan suggests recipes for a day of meals around a rough calorie
-            target — a starting point, not a nutrition plan.
+            Short on ideas? Collections are ready-made lists, like quick & easy
+            meals or budget meals, that you can adjust by time or by what you
+            avoid. Help me choose asks four quick questions and suggests recipes
+            that fit. Day plan suggests recipes for each meal you pick, sized
+            from a rough calorie target — a starting point, not a nutrition
+            plan.
           </p>
           <p className={styles.infoText}>
             Using up food is half of it. The other half is eating well, so each
-            recipe shows its nutrition per serving and how much of your daily
-            needs it covers.
+            recipe shows its nutrition per serving, with an estimated daily
+            value based on a 2,000 kcal reference diet.
           </p>
           <p className={styles.infoText}>
             Whether you’re a student, a busy professional, or just someone who

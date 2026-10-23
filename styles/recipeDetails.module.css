@@ -276,6 +276,11 @@
   font-weight: 400;
 }
 
+/* The note reads as text, not as a figure in the last column. Size and colour are the table's. */
+.nutrientTable tfoot td {
+  text-align: start;
+}
+
 .subRow th {
   padding-inline-start: 1em;
 }

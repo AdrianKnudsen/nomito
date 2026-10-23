@@ -87,7 +87,9 @@ export default function NutritionPanel({ nutrition }: { nutrition: Nutrition }) 
             <tr>
               <th scope="col">Nutrient</th>
               <th scope="col">Amount</th>
-              <th scope="col">Daily value</th>
+              <th scope="col" aria-describedby="daily-value-note">
+                Daily value
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -103,6 +105,15 @@ export default function NutritionPanel({ nutrition }: { nutrition: Nutrition }) 
               </tr>
             ))}
           </tbody>
+          {/* A footer row, not a caption: a caption would become the table's name. The column
+              heading points here, so the note is read with it. */}
+          <tfoot>
+            <tr>
+              <td id="daily-value-note" colSpan={3}>
+                Daily value is Spoonacular’s estimate against a 2,000 kcal reference diet.
+              </td>
+            </tr>
+          </tfoot>
         </table>
       )}
     </section>
