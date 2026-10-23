@@ -74,6 +74,12 @@
   font-size: var(--text-sm);
 }
 
+/* A line under a fieldset's choices, on a row of its own. */
+.fieldNote {
+  flex-basis: 100%;
+  font-size: var(--text-sm);
+}
+
 .answers {
   list-style: none;
   display: flex;

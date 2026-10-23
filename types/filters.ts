@@ -19,9 +19,10 @@ export type PlanMeal =
   | "breakfast"
   | "lunch"
   | "dinner"
+  | "supper"
   | "evening-snack"
   | "before-training";
-export type CalorieTarget = "1600" | "2000" | "2500" | "3000";
+export type CalorieTarget = "1800" | "2000" | "2200" | "2500" | "3000";
 export type Via = "collection" | "guide" | "plan";
 
 export interface CollectionAdjustment {

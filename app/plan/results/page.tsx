@@ -20,6 +20,7 @@ import {
   planTargets,
   receivedQuery,
   toQuery,
+  withoutRepeats,
   withQuery,
   type SearchParams,
 } from "@/lib/filters";
@@ -179,14 +180,15 @@ async function PlanResults({ request, searches }: PlanResultsProps) {
   }
 
   const origin: ViaOrigin = { via: "plan", ...request };
+  const meals = withoutRepeats(found);
   return targets.map((target, i) => (
     <section key={`meal-${target.meal}`}>
       <h2 className={result.heading}>
         {planLabel(target.meal)} · ≈ {target.kcal} kcal
       </h2>
-      {found[i].length > 0 ? (
+      {meals[i].length > 0 ? (
         <RecipeCards
-          recipes={found[i].map((recipe) => ({
+          recipes={meals[i].map((recipe) => ({
             id: recipe.id,
             title: recipe.title,
             image: recipe.image,

@@ -70,7 +70,7 @@ function PlanForm({ choices }: { choices: PlanChoices }) {
           </label>
         ))}
       </fieldset>
-      <fieldset className={page.fieldset}>
+      <fieldset className={page.fieldset} aria-describedby="calorie-note">
         <legend className={page.legend}>Daily calories</legend>
         {CALORIE_OPTIONS.map((option) => (
           <label key={`calories-${option.value}`} className={page.choice}>
@@ -83,6 +83,9 @@ function PlanForm({ choices }: { choices: PlanChoices }) {
             {option.label}
           </label>
         ))}
+        <p id="calorie-note" className={page.fieldNote}>
+          A general guide for adults; needs vary.
+        </p>
       </fieldset>
       <fieldset className={page.fieldset}>
         <legend className={page.legend}>Avoid</legend>

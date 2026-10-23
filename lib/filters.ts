@@ -20,7 +20,7 @@ import type {
   TimeAnswer,
   ViaOrigin,
 } from "../types/filters";
-import type { Diet, Intolerance, MealType, RecipeFilters } from "../types/spoonacular";
+import type { Diet, Intolerance, MealType, RecipeFilters, RecipeSummary } from "../types/spoonacular";
 import { findCollection, type Collection } from "./collections";
 import { isVia } from "./routes";
 
@@ -352,27 +352,37 @@ export function guideSummary(answers: CompleteGuideAnswers): string {
 
 interface PlanMealInfo {
   label: string;
-  weight: number;
+  /** Percent of the day's target. */
+  share: number;
   type: MealType;
-  snack: boolean;
+  /** A ceiling in kcal, where one was measured. */
+  cap?: number;
 }
 
-/**
- * Per unit of weight, a main meal's calorie ceiling. Without it a lone main meal's share gets
- * so large that its window finds no recipes. Anchored on a dinner window measured to return
- * many hits; breakfast and lunch follow the weight, and their windows were measured too. All
- * were measured without avoid filters, which narrow them further.
+/*
+ * Ceilings for breakfast, lunch and dinner, kept from the earlier model: windows at these values
+ * were measured to return plenty of recipes, and a share only passes them at the highest targets.
+ * Measured without avoid filters, which narrow the windows further.
  */
-const MAIN_CAP_KCAL_PER_WEIGHT = 830 / 35;
+const BREAKFAST_CAP_KCAL = 593;
+const LUNCH_CAP_KCAL = 711;
+const DINNER_CAP_KCAL = 830;
 
-/** Weights approved by Adrian. Snacks keep a fixed share; the main meals split the rest. */
+/**
+ * Fixed shares of the day, approved by Adrian, in the form's order. Breakfast, lunch, dinner and
+ * supper add up to the whole day; a snack comes on top, and planTargets scales the plan down when
+ * it goes over.
+ */
 const PLAN_MEALS: ReadonlyMap<PlanMeal, PlanMealInfo> = new Map<PlanMeal, PlanMealInfo>([
-  ["breakfast", { label: "Breakfast", weight: 25, type: "breakfast", snack: false }],
-  // The share keeps lunch light, so the guide's maxCalories for lunch is not used here.
-  ["lunch", { label: "Lunch", weight: 30, type: "main course", snack: false }],
-  ["dinner", { label: "Dinner", weight: 35, type: "main course", snack: false }],
-  ["evening-snack", { label: "Evening snack", weight: 10, type: "snack", snack: true }],
-  ["before-training", { label: "Before training", weight: 10, type: "snack", snack: true }],
+  ["breakfast", { label: "Breakfast", share: 25, type: "breakfast", cap: BREAKFAST_CAP_KCAL }],
+  // The share and the cap set lunch's window, so the guide's maxCalories for lunch is not used.
+  ["lunch", { label: "Lunch", share: 25, type: "main course", cap: LUNCH_CAP_KCAL }],
+  ["dinner", { label: "Dinner", share: 30, type: "main course", cap: DINNER_CAP_KCAL }],
+  // Norwegian kveldsmat is a bread meal like breakfast, and breakfast windows were measured to
+  // have hits across this share's range. "Light supper": "Supper" alone can mean dinner in English.
+  ["supper", { label: "Light supper", share: 20, type: "breakfast" }],
+  ["evening-snack", { label: "Evening snack", share: 10, type: "snack" }],
+  ["before-training", { label: "Before training", share: 10, type: "snack" }],
 ]);
 
 function mealInfo(meal: PlanMeal): PlanMealInfo {
@@ -386,11 +396,12 @@ function mealInfo(meal: PlanMeal): PlanMealInfo {
 export const PLAN_MEAL_OPTIONS: readonly Option<PlanMeal>[] = [...PLAN_MEALS].map(
   ([value, info]) => ({ value, label: info.label })
 );
-export const DEFAULT_PLAN_MEALS: readonly PlanMeal[] = ["breakfast", "lunch", "dinner"];
+export const DEFAULT_PLAN_MEALS: readonly PlanMeal[] = ["breakfast", "lunch", "dinner", "supper"];
 
 export const CALORIE_OPTIONS: readonly Option<CalorieTarget>[] = [
-  { value: "1600", label: "1600 kcal" },
+  { value: "1800", label: "1800 kcal" },
   { value: "2000", label: "2000 kcal" },
+  { value: "2200", label: "2200 kcal" },
   { value: "2500", label: "2500 kcal" },
   { value: "3000", label: "3000 kcal" },
 ];
@@ -454,55 +465,80 @@ export function planRequestPairs(request: PlanRequest): QueryPairs {
 
 export interface MealTarget {
   meal: PlanMeal;
-  /** The meal's share of the target, rounded. Shown as approximate. */
+  /** The meal's kcal after the cap and the scaling, rounded. Shown as approximate. */
   kcal: number;
   filters: RecipeFilters;
 }
 
 /**
- * One random search per meal, within ±25 % of its share. Bounds round to whole kcal and grams.
- * A main meal's share is capped by its weight, and what the cap cuts is not moved to other meals.
+ * One random search per meal, within ±25 % of its kcal. A meal's kcal is its share of the day,
+ * then its cap, and then, if the meals add up to more than the day, all of them scaled down
+ * together. Never up: what a cap cuts is not moved to other meals. Bounds round to whole kcal
+ * and grams.
  */
 export function planTargets(request: PlanRequest): MealTarget[] {
   const total = Number(request.calories);
-  const snackShare = (meal: PlanMeal) => (total * mealInfo(meal).weight) / 100;
-  const snacks = request.meals.filter((meal) => mealInfo(meal).snack);
-  const mains = request.meals.filter((meal) => !mealInfo(meal).snack);
-  const rest = total - snacks.reduce((sum, meal) => sum + snackShare(meal), 0);
-  const mainWeight = mains.reduce((sum, meal) => sum + mealInfo(meal).weight, 0);
-
-  return request.meals.map((meal) => {
+  const capped = request.meals.map((meal) => {
     const info = mealInfo(meal);
-    let share = info.snack ? snackShare(meal) : (rest * info.weight) / mainWeight;
-    if (!info.snack) share = Math.min(share, Math.round(MAIN_CAP_KCAL_PER_WEIGHT * info.weight));
+    const share = (total * info.share) / 100;
+    return info.cap === undefined ? share : Math.min(share, info.cap);
+  });
+  const sum = capped.reduce((acc, kcal) => acc + kcal, 0);
+  const scale = sum > total ? total / sum : 1;
+
+  return request.meals.map((meal, i) => {
+    const kcal = capped[i] * scale;
     const filters: RecipeFilters = {
-      type: info.type,
+      type: mealInfo(meal).type,
       sort: "random",
-      minCalories: Math.round(share * 0.75),
-      maxCalories: Math.round(share * 1.25),
+      minCalories: Math.round(kcal * 0.75),
+      maxCalories: Math.round(kcal * 1.25),
     };
     // Half the energy from carbohydrate, at 4 kcal per gram. Our own definition.
-    if (meal === "before-training") filters.minCarbs = Math.round((share * 0.5) / 4);
-    return { meal, kcal: Math.round(share), filters: applyAvoid(filters, request.avoid) };
+    if (meal === "before-training") filters.minCarbs = Math.round((kcal * 0.5) / 4);
+    return { meal, kcal: Math.round(kcal), filters: applyAvoid(filters, request.avoid) };
   });
 }
 
-/** Only called with at least one meal. */
+export interface PlanCoverage {
+  /** The rounded meal kcal added up, as the h2s show them. */
+  kcal: number;
+  /** Whether the plan comes close enough to the target for the h1 to name the target. */
+  meetsTarget: boolean;
+}
+
+/** The h1's condition, in one place for the page and the tests. */
+export function planCoverage(request: PlanRequest): PlanCoverage {
+  const kcal = planTargets(request).reduce((sum, target) => sum + target.kcal, 0);
+  // After the scaling, rounding can put the sum a kcal over the target. For the offered
+  // targets it is never more; the unit tests check every set.
+  return { kcal, meetsTarget: kcal >= 0.98 * Number(request.calories) };
+}
+
+/** Only called with at least one meal. The same form for every plan, including snack-only plans. */
 export function planHeading(request: PlanRequest): string {
-  const targets = planTargets(request);
-  const covered = targets.reduce((sum, target) => sum + target.kcal, 0);
-  if (targets.every((target) => mealInfo(target.meal).snack)) {
-    return `Snacks only — this plan covers ≈ ${covered} of ${request.calories} kcal`;
-  }
-  // The caps can leave a plan short of its target, and the heading says so instead of claiming it.
-  const short = covered < 0.98 * Number(request.calories);
+  const { kcal, meetsTarget } = planCoverage(request);
   return [
-    short
-      ? `This plan covers ≈ ${covered} of ${request.calories} kcal`
-      : `≈ ${request.calories} kcal`,
-    targets.map((target) => planLabel(target.meal)).join(", "),
+    // Short of the target: the plan's own total, with no target next to it.
+    meetsTarget ? `≈ ${request.calories} kcal` : `These meals add up to ≈ ${kcal} kcal`,
+    request.meals.map((meal) => planLabel(meal)).join(", "),
     ...avoidSummary(request.avoid),
   ].join(" · ");
+}
+
+/**
+ * Each recipe once per plan: a recipe already in an earlier meal (PLAN_MEALS order) is left out
+ * of the later ones. A meal that would be left with nothing keeps its own hits as they are. Free:
+ * it works on what the searches returned. Same length and order as `found`.
+ */
+export function withoutRepeats(found: RecipeSummary[][]): RecipeSummary[][] {
+  const shown = new Set<number>();
+  return found.map((recipes) => {
+    const fresh = recipes.filter((recipe) => !shown.has(recipe.id));
+    const kept = fresh.length > 0 ? fresh : recipes;
+    for (const recipe of kept) shown.add(recipe.id);
+    return kept;
+  });
 }
 
 /**
