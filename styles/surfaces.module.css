@@ -76,8 +76,8 @@
   --glass-blur: var(--glass-clear-blur);
 }
 
-/* Clear glass for the nav bar, the search field and Back on the recipe error branch, all of
-   which sit over the plate part of the photo and so are dimmed further. */
+/* Bar glass: clear glass dimmed further, for the nav bar, the search field and Back on the
+   recipe error branch, which all sit over the plate part of the photo. */
 .liquidGlassBar {
   composes: glass;
   --glass-dim: var(--glass-bar-dim);
