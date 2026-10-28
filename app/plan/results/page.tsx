@@ -188,6 +188,7 @@ async function PlanResults({ request, searches }: PlanResultsProps) {
       </h2>
       {meals[i].length > 0 ? (
         <RecipeCards
+          planMeal
           recipes={meals[i].map((recipe) => ({
             id: recipe.id,
             title: recipe.title,

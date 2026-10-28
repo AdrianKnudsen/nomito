@@ -12,10 +12,16 @@ export interface RecipeCardData {
   details?: ReactNode;
 }
 
+interface RecipeCardsProps {
+  recipes: RecipeCardData[];
+  /** One meal of the day plan. Names the role only: how its cards fill the row is decided by `.planMeal` in result.module.css. */
+  planMeal?: boolean;
+}
+
 /** The card grid every entry point shares. Display only: each caller builds its own hrefs. */
-export default function RecipeCards({ recipes }: { recipes: RecipeCardData[] }) {
+export default function RecipeCards({ recipes, planMeal }: RecipeCardsProps) {
   return (
-    <ul className={styles.recipeList}>
+    <ul className={planMeal ? `${styles.recipeList} ${styles.planMeal}` : styles.recipeList}>
       {recipes.map((recipe) => (
         <li key={recipe.id} className={styles.recipeItem}>
           {/* No prefetch: in production Next prefetches visible links, and for /recipe/[id]

@@ -49,7 +49,7 @@
   list-style: none;
   display: grid;
   /* --shell-max is calculated from the 17rem: change it and calculate the cap again. */
-  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+  grid-template-columns: repeat(var(--list-fit, auto-fill), minmax(17rem, 1fr));
   /* Every row as tall as the tallest card, so all cards match. Bounded because title and
      "Missing" are cut to two lines each, not by a fixed height that would clip text at
      larger font sizes. */
@@ -57,6 +57,13 @@
   gap: var(--space-md);
   /* Room for the cards' focus ring: the scroll container clips anything outside it. */
   padding: calc(var(--focus-ring-width) + var(--focus-ring-offset));
+}
+
+/* The day plan's meals fill their row, but only from three cards: with fewer, auto-fit
+   would stretch one card across the whole row. Up to today's width (--column-max) there
+   are at most three tracks, so three cards fill them either way and nothing changes there. */
+.planMeal:has(> :nth-child(3)) {
+  --list-fit: auto-fit;
 }
 
 .recipeItem {
