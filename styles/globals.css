@@ -12,7 +12,7 @@
   --color-accent: #85ec3c;
   /* The accent lightened for small text on glass. The full accent measured below 4.5:1
      under the glass's bright top edge; this tint held it at every width. */
-  --color-accent-soft: #ecfccb;
+  --color-accent-soft: #a4f16d;
   /* Where a recipe's calories come from. Distinct hues that hold 3:1 against the glass;
      the legend repeats the numbers as text, so colour is never the only carrier. */
   --color-protein: #85ec3c;
