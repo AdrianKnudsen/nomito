@@ -5,11 +5,37 @@
  * inside @media.
  */
 
-/* The app's width. Put on the card itself or its outermost wrapper; the `width: 100%`
-   equivalent, never 100vw — that includes the scrollbar gutter. */
+/* The common cap for surfaces (--shell-max). Put on the card itself or its outermost
+   wrapper; the `width: 100%` equivalent, never 100vw — that includes the scrollbar gutter.
+   Compose exactly one of shell, shellColumn and column. The width expression is the same
+   in .shell, .column and .shellColumn and must be changed in all three together. */
 .shell {
   width: min(100% - 2 * var(--shell-gutter), var(--shell-max));
   margin-inline: auto;
+}
+
+/* Today's width, glass and all, for surfaces that should not grow with the cap (search
+   field, Notice, Back in the error branch). A class of its own, not a variable on .shell:
+   custom properties inherit, so a Notice nested in a result panel would pick up the wrong
+   width. */
+.column {
+  width: min(100% - 2 * var(--shell-gutter), var(--column-max));
+  margin-inline: auto;
+}
+
+/* The glass follows the cap while the content stays on today's column. */
+.shellColumn {
+  composes: shell;
+  /* The column's inset plus the consumer's own. Same expression as .shell's width, so both
+     percentages resolve against the parent, as the width does. The consumer sets its own
+     side padding as --inset-pad and only padding-block itself, never inline padding: that
+     would fight this rule, and the bundler decides who wins. --inset-pad inherits, so each
+     consumer sets its own, and a zero is written 0px: a unitless 0 makes the max() invalid
+     and padding-inline silently falls back to 0. */
+  padding-inline: max(
+    var(--inset-pad, 0px),
+    (min(100% - 2 * var(--shell-gutter), var(--shell-max)) - var(--column-max)) / 2 + var(--inset-pad, 0px)
+  );
 }
 
 /*

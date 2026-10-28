@@ -80,11 +80,23 @@
    */
   --measure: 52ch;
   /*
-   * Measured, not chosen: the recipe spread at its widest — ingredients 22rem + gap
-   * 1.5rem + --measure at --text-base max (28.96rem) + the sheet's padding 2 × 1.5rem.
-   * One value for the whole app, so every card shares its edges on every width.
+   * The width of the surfaces (nav, card grid, glass), measured against the card grid, not
+   * against text. N columns need N × 17rem + (N − 1) × gap, plus the list's focus-ring
+   * room, the .resultBox padding and the glass edges. Four columns start at 73.1rem + 2px,
+   * five at 91.1rem + 2px. The cap must sit at least one scrollbar width (about 15px) above
+   * the threshold for 4 and below the threshold for 5, so at the cap a classic scrollbar
+   * cannot change the column count. Text never gets its width from here: it stays on
+   * --column-max. Change a term, measure again.
    */
-  --shell-max: 55.5rem;
+  --shell-max: 90rem;
+  /*
+   * Today's app width, and the column the text stands on inside the wider surfaces. Measured,
+   * not chosen: the recipe spread at its widest — ingredients 22rem + gap 1.5rem + --measure
+   * at --text-base max (28.96rem) + the sheet's padding 2 × 1.5rem + the glass edges
+   * 2 × 1px. That sums to 55.46rem + 2px = 889.4px against 888px, so it holds within 2px.
+   * Change a term, measure again.
+   */
+  --column-max: 55.5rem;
   --shell-gutter: clamp(0.75rem, 3vw, 2rem);
 
   background-color: var(--color-canvas);

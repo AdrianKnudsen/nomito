@@ -1,11 +1,14 @@
 /*
  * The pages behind the menu. The h1 comes first and carries its own glass: Next focuses the
  * first element of the segment that changes, and a wrapper there would make that a no-op.
+ * The glass is wide (the common cap) while the text stands on the column, through
+ * shellColumn and --inset-pad.
  */
 .title {
-  composes: shell regularGlass from "./surfaces.module.css";
+  composes: shellColumn regularGlass from "./surfaces.module.css";
   flex: none;
-  padding: var(--space-sm) var(--space-md);
+  padding-block: var(--space-sm);
+  --inset-pad: var(--space-md);
   text-align: center;
   font-size: var(--text-xl);
   font-weight: 500;
@@ -16,7 +19,7 @@
    reachable; the results below shrink instead (see the next rule), and when not even one row
    fits, the page scrolls. */
 .panel {
-  composes: shell regularGlass from "./surfaces.module.css";
+  composes: shellColumn regularGlass from "./surfaces.module.css";
   flex: none;
   overflow-y: auto;
   display: flex;
@@ -24,7 +27,8 @@
   gap: var(--space-md);
   /* Padding leaves room around the fields at rest. Scroll padding keeps a focused element's
      ring inside the panel when focus scrolls it: the browser aligns the border box only. */
-  padding: var(--space-md);
+  padding-block: var(--space-md);
+  --inset-pad: var(--space-md);
   scroll-padding-block: calc(var(--focus-ring-width) + var(--focus-ring-offset));
   font-size: var(--text-base);
 }

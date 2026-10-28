@@ -1,6 +1,6 @@
-/* The view below the search bar: shrinks to the space left, the sheet scrolls inside. */
+/* The view below the search bar: shrinks to the space left, the sheet scrolls inside. Only
+   the height chain; the sheet is the surface with the width, and this box has no paint. */
 .resultDetailsWrapper {
-  composes: shell from "./surfaces.module.css";
   flex: 0 1 auto;
   min-height: 0;
   display: flex;
@@ -12,16 +12,18 @@
  * max-height, so content can never spill out of the card.
  */
 .sheet {
-  composes: regularGlass from "./surfaces.module.css";
+  composes: shellColumn regularGlass from "./surfaces.module.css";
   /* The body size of the recipe. Set here so --measure (in ch) resolves against the
-     text it measures, in the grid track and the hero cap alike. */
+     text it measures, in the grid track and the hero cap alike. The sheet is the surface
+     with the cap; its content stands on the column through shellColumn. */
   font-size: var(--text-base);
   min-height: 0;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
-  padding: var(--space-md);
+  padding-block: var(--space-md);
+  --inset-pad: var(--space-md);
 }
 
 .buttonRow {
@@ -31,7 +33,7 @@
 
 /* Back on the error branch, where there is no sheet around it. */
 .errorBack {
-  composes: shell from "./surfaces.module.css";
+  composes: column from "./surfaces.module.css";
   flex: none;
   display: flex;
 }
@@ -300,7 +302,8 @@
     /* Shared by the spread and the nutrition panel. Fixed min/max only, so both grids
        resolve to the same tracks whatever their content. */
     --spread-columns: minmax(16rem, var(--ingredients-max)) minmax(0, var(--measure));
-    padding: var(--space-lg);
+    padding-block: var(--space-lg);
+    --inset-pad: var(--space-lg);
   }
 
   .hero {

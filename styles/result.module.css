@@ -1,7 +1,7 @@
 /* Shared by loading, error and empty states (Notice). Centred in the space below the
    nav by the body's flex column rather than by a percentage margin. */
 .loading {
-  composes: shell regularGlass from "./surfaces.module.css";
+  composes: column regularGlass from "./surfaces.module.css";
   flex: none;
   margin-block: auto;
   padding: var(--space-xl) var(--space-sm);
@@ -24,6 +24,7 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
+  /* --shell-max is calculated from this value: change it and calculate the cap again. */
   padding: 0.8rem;
 }
 
@@ -47,6 +48,7 @@
 .recipeList {
   list-style: none;
   display: grid;
+  /* --shell-max is calculated from the 17rem: change it and calculate the cap again. */
   grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
   /* Every row as tall as the tallest card, so all cards match. Bounded because title and
      "Missing" are cut to two lines each, not by a fixed height that would clip text at
