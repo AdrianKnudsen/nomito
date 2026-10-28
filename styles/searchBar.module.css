@@ -11,7 +11,7 @@
 }
 
 .inputButtonBox {
-  composes: liquidGlass from "./surfaces.module.css";
+  composes: liquidGlassBar from "./surfaces.module.css";
   --glass-radius: var(--radius-pill);
   display: grid;
   grid-template-columns: 1fr auto;

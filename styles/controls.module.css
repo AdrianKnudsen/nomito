@@ -1,9 +1,9 @@
 /*
- * A link or button drawn as a glass pill: the functional layer, so clear glass. `display` and
- * `text-decoration` are reset for <a>; glass sets the border and background for <button>.
+ * The shape of a link or button drawn as a glass pill. The glass itself is chosen by the class
+ * that composes this one: `button` (clear glass) or `buttonBar` (the denser bar glass). `display`
+ * and `text-decoration` are reset for <a>; glass sets the border and background for <button>.
  */
-.button {
-  composes: liquidGlass from "./surfaces.module.css";
+.pill {
   --glass-radius: var(--radius-pill);
   display: inline-block;
   text-decoration: none;
@@ -16,11 +16,24 @@
 }
 
 /* Glass lights up under the pointer. */
-.button:hover {
+.pill:hover {
   --glass-sheen: linear-gradient(180deg, rgb(255 255 255 / 0.28), transparent 70%);
 }
 
 /* Swells slightly when pressed. */
-.button:active {
+.pill:active {
   transform: scale(1.04);
+}
+
+/* The functional layer's ordinary glass button. */
+.button {
+  composes: liquidGlass from "./surfaces.module.css";
+  composes: pill;
+}
+
+/* For a pill that sits straight on the photo with no sheet around it (Back on the recipe
+   error branch), where clear glass is too light to hold text contrast. */
+.buttonBar {
+  composes: liquidGlassBar from "./surfaces.module.css";
+  composes: pill;
 }

@@ -23,14 +23,22 @@
    * Two materials, following Apple's Liquid Glass guidance: clear glass for the
    * functional layer (nav, search, buttons) and a regular, denser material for content
    * cards with a lot of text. The dims are measured, not picked: 0.35 is Apple's
-   * suggested dimming layer over bright media, 0.55 is where body text over the photo
-   * reached 4.5:1 (figures in TODO.md).
+   * suggested dimming layer over bright media, and the bar and regular values are the
+   * ones where text over the photo, with the shimmer streak on at --shimmer-strength,
+   * holds its contrast requirement with margin (figures in TODO.md).
    */
   --glass-clear-dim: rgb(11 15 20 / 0.35);
-  /* The nav bar always sits over the brightest part of the photo (the plate); its title
-     needed 0.5 to hold 3:1 there, while search and buttons hold at 0.35. */
-  --glass-bar-dim: rgb(11 15 20 / 0.5);
-  --glass-regular-dim: rgb(11 15 20 / 0.55);
+  /* The nav bar, the search field and Back on the recipe error branch all sit over the
+     brightest part of the photo (the plate), where clear glass is too light for their text.
+     The nav title with the menu open set this value; the search field and Back hold on it
+     with room to spare. */
+  --glass-bar-dim: rgb(11 15 20 / 0.6);
+  --glass-regular-dim: rgb(11 15 20 / 0.63);
+  /* Opacity of the shimmer streak. The streak is blended with `screen`, so it only
+     lightens what is behind the text; together with the bar and regular dims it sets the
+     contrast floor, and those two are calibrated against this value. Make the streak
+     stronger and the contrast has to be measured again. */
+  --shimmer-strength: 0.5;
   --glass-clear-blur: 1.25rem;
   --glass-regular-blur: 2rem;
   --glass-sheen-top: rgb(255 255 255 / 0.14);

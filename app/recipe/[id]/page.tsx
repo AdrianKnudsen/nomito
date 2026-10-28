@@ -77,7 +77,7 @@ export default async function RecipePage({ params, searchParams }: RecipePagePro
       <>
         {searchBar}
         <div className={styles.errorBack}>
-          <BackLink href={back.href} historyHref={back.historyHref} className={styles.actionButton} />
+          <BackLink href={back.href} historyHref={back.historyHref} className={styles.errorBackButton} />
         </div>
         <Notice role="alert">{error.apiError.message}</Notice>
       </>

@@ -69,14 +69,15 @@
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
 }
 
-/* Functional layer: nav, search, buttons. Highly translucent over the photo. */
+/* Functional layer: buttons. Highly translucent over the photo. */
 .liquidGlass {
   composes: glass;
   --glass-dim: var(--glass-clear-dim);
   --glass-blur: var(--glass-clear-blur);
 }
 
-/* Clear glass for the nav bar, dimmed further because of where it sits on the photo. */
+/* Clear glass for the nav bar, the search field and Back on the recipe error branch, all of
+   which sit over the plate part of the photo and so are dimmed further. */
 .liquidGlassBar {
   composes: glass;
   --glass-dim: var(--glass-bar-dim);
@@ -94,7 +95,8 @@
  * The light streak that follows the scroll position (`--shimmer-shift`, set by
  * ScrollShimmer). `position: relative` is what keeps the pseudo-elements inside the card
  * — without it they resolved against the viewport. `isolation` gives ::after its own
- * stacking context.
+ * stacking context. The dimming on the glass is calibrated against the streak's strength
+ * (`--shimmer-strength`): make the streak brighter and the contrast has to be measured again.
  */
 .shimmer {
   position: relative;
@@ -120,7 +122,7 @@
     transparent calc(var(--shimmer-shift, 50%) + 5%)
   );
   mix-blend-mode: screen;
-  opacity: 0.65;
+  opacity: var(--shimmer-strength);
 }
 
 .shimmer::after {

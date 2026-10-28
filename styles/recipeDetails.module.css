@@ -31,7 +31,8 @@
   gap: var(--space-md);
 }
 
-/* Back on the error branch, where there is no sheet around it. */
+/* Back on the error branch, where there is no sheet around it. The button sits straight on
+   the photo, so it has the bar glass (see errorBackButton) to hold its text contrast. */
 .errorBack {
   composes: column from "./surfaces.module.css";
   flex: none;
@@ -41,6 +42,13 @@
 /* The recipe's Back, drawn like every other glass button. */
 .actionButton {
   composes: button from "./controls.module.css";
+}
+
+/* Back on the error branch: bar glass instead of clear glass, because nothing sits between it
+   and the photo. A separate class rather than a layer on .actionButton, since two glass
+   variants on one element would both set --glass-dim and the bundler would pick. */
+.errorBackButton {
+  composes: buttonBar from "./controls.module.css";
 }
 
 .heading {
