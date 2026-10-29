@@ -14,8 +14,8 @@
   margin-inline: auto;
 }
 
-/* Today's width, glass and all, for surfaces that should not grow with the cap (search
-   field, Notice, Back in the error branch). A class of its own, not a variable on .shell:
+/* Today's width, glass and all, for surfaces that should not grow with the cap (Notice,
+   Back in the error branch). A class of its own, not a variable on .shell:
    custom properties inherit, so a Notice nested in a result panel would pick up the wrong
    width. */
 .column {

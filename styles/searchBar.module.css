@@ -1,5 +1,7 @@
+/* On the shell, not the column: the field lines up with the nav above and the results and
+   recipe sheet below (Adrian, 2026-10-29). A single line of input has no measure to keep. */
 .searchContainer {
-  composes: column from "./surfaces.module.css";
+  composes: shell from "./surfaces.module.css";
   flex: none;
   z-index: 10;
 }
