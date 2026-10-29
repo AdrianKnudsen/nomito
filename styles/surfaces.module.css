@@ -39,9 +39,9 @@
 }
 
 /*
- * Shared glass recipe. Not used directly: compose `liquidGlass`, `liquidGlassBar` or
- * `regularGlass`. A consumer must not set --glass-dim or --glass-blur itself — the
- * variant does, and which of the two wins would be a bundler detail.
+ * Shared glass recipe. Not used directly: compose `liquidGlass`, `liquidGlassBar`,
+ * `regularGlass` or `readingGlass`. A consumer must not set --glass-dim or --glass-blur
+ * itself — the variant does, and which of the two wins would be a bundler detail.
  * Varied through custom properties, never by redeclaring:
  *   --glass-radius  corners (default --radius-md)
  *   --glass-dim     dimming layer under the sheen
@@ -84,10 +84,19 @@
   --glass-blur: var(--glass-clear-blur);
 }
 
-/* Content layer: cards with a lot of text. Denser so body text holds 4.5:1. */
+/* Content layer: cards with a lot of text. Denser than clear glass. Running prose on a
+   reading page uses readingGlass, whose dimming is calibrated separately. */
 .regularGlass {
   composes: glass;
   --glass-dim: var(--glass-regular-dim);
+  --glass-blur: var(--glass-regular-blur);
+}
+
+/* Reading pages: body text at normal size over the photo, which has the stricter contrast
+   requirement. Same blur as regularGlass; only the dimming differs. */
+.readingGlass {
+  composes: glass;
+  --glass-dim: var(--glass-reading-dim);
   --glass-blur: var(--glass-regular-blur);
 }
 

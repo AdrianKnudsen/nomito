@@ -22,10 +22,13 @@
   /*
    * Two materials, following Apple's Liquid Glass guidance: clear glass for the
    * functional layer (nav, search, buttons) and a regular, denser material for content
-   * cards with a lot of text. The dims are measured, not picked: 0.35 is Apple's
-   * suggested dimming layer over bright media, and the bar and regular values are the
-   * ones where text over the photo, with the shimmer streak on at --shimmer-strength,
-   * holds its contrast requirement with margin (figures in TODO.md).
+   * cards with a lot of text. A variant of the regular material, with its own dim, is for
+   * reading pages: body text below large-text size over the photo needs the stricter contrast
+   * requirement. The dims are measured, not picked: 0.35 is Apple's suggested dimming
+   * layer over bright media, and the bar and regular values are the ones where text over
+   * the photo, with the shimmer streak on at --shimmer-strength, holds its contrast
+   * requirement with margin (figures in TODO.md). The reading dim starts at the regular
+   * value and is calibrated the same way on the page that uses it.
    */
   --glass-clear-dim: rgb(11 15 20 / 0.35);
   /* The nav bar, the search field and Back on the recipe error branch all sit over the
@@ -34,10 +37,12 @@
      with room to spare. */
   --glass-bar-dim: rgb(11 15 20 / 0.6);
   --glass-regular-dim: rgb(11 15 20 / 0.63);
+  --glass-reading-dim: rgb(11 15 20 / 0.63);
   /* Opacity of the shimmer streak. The streak is blended with `screen`, so it only
-     lightens what is behind the text; together with the bar and regular dims it sets the
-     contrast floor, and those two are calibrated against this value. Make the streak
-     stronger and the contrast has to be measured again. */
+     lightens what is behind the text; together with the dims it sets the contrast floor.
+     The bar and regular dims are calibrated against this value, and the reading dim is
+     calibrated against it on the page that uses it. Make the streak stronger and the
+     contrast has to be measured again. */
   --shimmer-strength: 0.5;
   --glass-clear-blur: 1.25rem;
   --glass-regular-blur: 2rem;
@@ -116,6 +121,7 @@
     --glass-clear-dim: rgb(11 15 20 / 0.88);
     --glass-bar-dim: rgb(11 15 20 / 0.88);
     --glass-regular-dim: rgb(11 15 20 / 0.92);
+    --glass-reading-dim: rgb(11 15 20 / 0.92);
   }
 }
 
@@ -124,6 +130,7 @@
     --glass-clear-dim: rgb(11 15 20 / 0.88);
     --glass-bar-dim: rgb(11 15 20 / 0.88);
     --glass-regular-dim: rgb(11 15 20 / 0.92);
+    --glass-reading-dim: rgb(11 15 20 / 0.92);
     --glass-hairline: rgb(255 255 255 / 0.6);
   }
 }
