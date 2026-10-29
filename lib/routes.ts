@@ -16,6 +16,7 @@ interface RouteEntry {
 
 export const ROUTES: readonly RouteEntry[] = [
   { prefix: "/", title: "Home", inMenu: false },
+  { prefix: "/about", title: "About", inMenu: false },
   { prefix: "/search", title: "Use up leftovers", inMenu: true },
   { prefix: "/collections", title: "Collections", inMenu: true },
   { prefix: "/guide", title: "Help me choose", inMenu: true },

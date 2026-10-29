@@ -1,0 +1,63 @@
+.card {
+  composes: shell readingGlass shimmer from "./surfaces.module.css";
+  --glass-radius: var(--radius-lg);
+  /* The view below the h1: shrinks to the height available, the text scrolls inside. */
+  flex: 0 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-md);
+}
+
+@media (min-width: 48rem) {
+  .card {
+    padding: var(--space-lg);
+  }
+}
+
+.scrollContainer {
+  overflow: auto;
+  /* The scroll container clips the focus ring: padding gives it room, scroll padding keeps
+     it in view when scrolled to, which also lets scrollIntoView() on an anchor show the ring. */
+  padding: calc(var(--focus-ring-width) + var(--focus-ring-offset));
+  scroll-padding-block: calc(var(--focus-ring-width) + var(--focus-ring-offset));
+  min-height: 0;
+  position: relative;
+  z-index: 1;
+}
+
+/* --measure sits here, on the element that sets the text size, so the measure resolves against
+   the body text's own size. The headings inside are larger and so get shorter lines, never
+   longer. */
+.prose {
+  font-size: var(--text-base);
+  line-height: var(--leading-prose);
+  max-inline-size: var(--measure);
+  margin-inline: auto;
+  text-align: start;
+}
+
+.prose h2 {
+  font-size: var(--text-xl);
+}
+
+.prose h3 {
+  font-size: var(--text-lg);
+  margin-block-start: 1lh;
+}
+
+/* Headings otherwise inherit the global margin: 0 and sit tight against the text below. */
+.prose h2,
+.prose h3 {
+  font-weight: 500;
+  margin-block-end: var(--space-xs);
+}
+
+/* One blank line between paragraphs. */
+.prose p + p {
+  margin-block-start: 1lh;
+}
+
+.prose > section + section {
+  margin-block-start: var(--space-xl);
+}

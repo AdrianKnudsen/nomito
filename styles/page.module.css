@@ -1,8 +1,8 @@
 /*
- * The pages behind the menu. The h1 comes first and carries its own glass: Next focuses the
- * first element of the segment that changes, and a wrapper there would make that a no-op.
- * The glass is wide (the common cap) while the text stands on the column, through
- * shellColumn and --inset-pad.
+ * The pages behind the menu, and About, which uses only .title and puts its own glass card
+ * below it. The h1 comes first and carries its own glass: Next focuses the first element of
+ * the segment that changes, and a wrapper there would make that a no-op. The glass is wide
+ * (the common cap) while the text stands on the column, through shellColumn and --inset-pad.
  */
 .title {
   composes: shellColumn regularGlass from "./surfaces.module.css";

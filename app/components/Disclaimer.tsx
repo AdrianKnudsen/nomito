@@ -3,7 +3,7 @@ import styles from "../../styles/disclaimer.module.css";
 
 /**
  * The short disclaimer Spoonacular's terms require next to recipes, nutrition and prices. The
- * full text is on About, under #disclaimer. A Link, not an <a>: next build's lint rejects a
+ * full text is at /about#disclaimer. A Link, not an <a>: next build's lint rejects a
  * plain <a> to an app page.
  */
 export default function Disclaimer() {
@@ -11,7 +11,7 @@ export default function Disclaimer() {
     <p className={styles.disclaimer}>
       Recipes, nutrition, allergens and prices are estimates from Spoonacular. Always read the
       ingredients yourself, especially if you have an allergy.{" "}
-      <Link href="/#disclaimer">Read more</Link>
+      <Link href="/about#disclaimer">Read more</Link>
     </p>
   );
 }

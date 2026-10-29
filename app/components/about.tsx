@@ -37,29 +37,6 @@ const About = () => {
             hates throwing food away, start with what’s in your fridge and see
             where it takes you.
           </p>
-          {/* tabIndex so "Read more" lands focus here: Next focuses the hash target after a
-              navigation, and focus() is a no-op on an element that cannot take it. */}
-          <section
-            id="disclaimer"
-            tabIndex={-1}
-            aria-labelledby="disclaimer-heading"
-            className={styles.disclaimer}
-          >
-            <h2 id="disclaimer-heading" className={styles.head}>
-              Disclaimer
-            </h2>
-            <p className={styles.infoText}>
-              Nomito shows recipes from Spoonacular, a third-party service. Ingredients,
-              nutrition, allergens, diets, cooking times and prices are estimated automatically
-              and may be wrong or incomplete. Nomito does not check them and cannot take
-              responsibility for allergic reactions, health effects or anything else that comes
-              from using a recipe. Always read the ingredient list and the labels on what you
-              buy, and talk to a doctor or dietitian if you have an allergy or special dietary
-              needs. Prices are rough estimates and vary by shop and country. Nomito is a recipe
-              app: everything it suggests is for inspiration, not dietary, medical or nutritional
-              advice.
-            </p>
-          </section>
         </div>
       </ScrollShimmer>
     </div>
