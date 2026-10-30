@@ -93,6 +93,10 @@ export interface RecipeDetail {
   /** The original recipe. The fallback when `analyzedInstructions` is empty. */
   sourceUrl?: string;
   sourceName?: string;
+  /** Seen in the documentation's example, not in an observed response. */
+  license?: string | null;
+  /** Assumed to be the author, from the documentation's example; not yet verified against a response. */
+  creditsText?: string | null;
   extendedIngredients?: ExtendedIngredient[];
   healthScore?: number;
   readyInMinutes?: number;

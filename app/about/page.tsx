@@ -138,6 +138,10 @@ export default function AboutPage() {
                 Every recipe credits its original source by name, with a link to the original
                 recipe, whenever Spoonacular gives one.
               </p>
+              <p>
+                Recipes shared under a Creative Commons license also show that license, with a
+                link to its terms.
+              </p>
               <p>[[PHOTO_CREDIT]]</p>
             </section>
           </div>

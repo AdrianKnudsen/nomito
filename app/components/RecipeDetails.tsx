@@ -3,6 +3,7 @@ import Disclaimer from "./Disclaimer";
 import NutritionPanel from "./NutritionPanel";
 import RecipeImage from "./RecipeImage";
 import Substitutes from "./Substitutes";
+import { creativeCommonsUrl, licenseAuthor } from "@/lib/credits";
 import { largestRecipeImage } from "@/lib/spoonacular";
 import type { BackTargets } from "@/lib/links";
 import styles from "../../styles/recipeDetails.module.css";
@@ -29,6 +30,15 @@ function recipeFacts(recipe: RecipeDetail): Fact[] {
     facts.push({ label: "Diets", value: recipe.diets.join(", ") });
   }
   return facts;
+}
+
+/** The source's name, else its host, so the link prefers either over a bare "original source". */
+function sourceLabel(sourceName: string | undefined, sourceUrl: string): string | undefined {
+  const name = typeof sourceName === "string" ? sourceName.trim() : "";
+  if (name) return name;
+  if (!URL.canParse(sourceUrl)) return undefined;
+  const host = new URL(sourceUrl).hostname;
+  return host || undefined;
 }
 
 interface RecipeDetailsProps {
@@ -69,6 +79,9 @@ export default function RecipeDetails({
     (group) => group.steps.length > 0
   );
   const facts = recipeFacts(recipe);
+  const license = typeof recipe.license === "string" ? recipe.license.trim() : "";
+  const licenseUrl = license ? creativeCommonsUrl(license) : undefined;
+  const author = licenseAuthor(recipe.creditsText, recipe.sourceName, recipe.sourceUrl);
 
   return (
     <div className={styles.resultDetailsWrapper}>
@@ -174,7 +187,7 @@ export default function RecipeDetails({
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      {recipe.sourceName || "the original source"}
+                      {sourceLabel(recipe.sourceName, recipe.sourceUrl) ?? "the original source"}
                     </a>
                   </p>
                 )}
@@ -187,12 +200,28 @@ export default function RecipeDetails({
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  {recipe.sourceName || "the original recipe"}
+                  {sourceLabel(recipe.sourceName, recipe.sourceUrl) ?? "the original recipe"}
                 </a>
                 .
               </p>
             ) : (
               <p>No instructions available.</p>
+            )}
+            {/* After the ternary, apart from the source credit: it shows in all three branches, and
+                a license asks for its terms and the author, which the source credit does not give. */}
+            {license && (
+              <p className={styles.sourceCredit}>
+                {author && <>By {author}. </>}
+                Licensed under{" "}
+                {licenseUrl ? (
+                  <a href={licenseUrl} target="_blank" rel="noopener noreferrer">
+                    {license}
+                  </a>
+                ) : (
+                  license
+                )}
+                .
+              </p>
             )}
           </section>
         </div>
