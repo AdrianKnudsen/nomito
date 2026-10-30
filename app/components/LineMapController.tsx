@@ -5,11 +5,14 @@ import {
   useReducer,
   useRef,
   type FocusEvent,
+  type MouseEvent,
   type PointerEvent,
   type ReactNode,
 } from "react";
+import Link from "next/link";
 import { FLIP_POOL, layoutBoard } from "../../lib/board";
 import type { BoardLine, LineId } from "../../lib/lines";
+import controls from "../../styles/controls.module.css";
 import styles from "../../styles/lineMap.module.css";
 
 interface LineMapControllerProps {
@@ -44,7 +47,7 @@ function boardEntryDelay(board: Element): number {
   return Math.max(0, start + Number(delay) - now);
 }
 
-type Input = "pointer" | "focus";
+type Input = "pointer" | "focus" | "touch";
 type Drawing = "wide" | "tall";
 type Phase = "running" | "arrived";
 
@@ -338,10 +341,36 @@ export default function LineMapController({
   const boardRef = useRef<HTMLDivElement>(null);
   const dockRef = useRef<HTMLDivElement>(null);
   const tripRef = useRef<Trip | null>(null);
+  // A pointer press in progress, from pointerdown until the click that follows it (or a
+  // cancel). `line` is the line the press started on, if any; a touch press on a line is the
+  // mark that makes the next click on that same line pick instead of navigate (spec 7.3).
+  const pressRef = useRef<{ line: LineId | null; touch: boolean } | null>(null);
   // Mirrors state.selected for the handlers: two events can land before a render.
   const selectedRef = useRef<LineId | null>(null);
 
   const text = boardText(state, lines, idle);
+
+  // A press that never produced a click must not be left standing to swallow a later focus.
+  // On the document, because the end of a press can land outside the map, and a Tab that
+  // moves focus into the map starts outside it. A mouse or pen press is over once the button
+  // is up; a touch press stays until its click (the browser focuses and clicks after
+  // pointerup), and is otherwise ended by a cancel (a swipe) or by the next key press.
+  useEffect(() => {
+    const clearPress = () => {
+      pressRef.current = null;
+    };
+    const clearMousePress = () => {
+      if (pressRef.current && !pressRef.current.touch) pressRef.current = null;
+    };
+    document.addEventListener("keydown", clearPress, true);
+    document.addEventListener("pointercancel", clearPress, true);
+    document.addEventListener("pointerup", clearMousePress, true);
+    return () => {
+      document.removeEventListener("keydown", clearPress, true);
+      document.removeEventListener("pointercancel", clearPress, true);
+      document.removeEventListener("pointerup", clearMousePress, true);
+    };
+  }, []);
 
   // The one effect that touches the cells: it paints the derived text onto them. The text
   // itself is never state. A new text clears the timers of the previous one, so it replaces
@@ -585,9 +614,49 @@ export default function LineMapController({
     select(event.target, "pointer");
   };
 
+  const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    // A second finger must not overwrite the first finger's press.
+    if (!event.isPrimary) return;
+    const raw =
+      event.target instanceof Element
+        ? (event.target.closest("svg [data-line]")?.getAttribute("data-line") ??
+          null)
+        : null;
+    pressRef.current = {
+      line: isLineId(raw) ? raw : null,
+      touch: event.pointerType === "touch",
+    };
+  };
+
+  const handleClickCapture = (event: MouseEvent<HTMLDivElement>) => {
+    const press = pressRef.current;
+    // Removed after the next click, whichever line it lands on.
+    pressRef.current = null;
+    // detail 0 is a keyboard or assistive click; it always follows the link.
+    if (event.detail === 0 || !press?.touch || press.line === null) return;
+    if (!(event.target instanceof Element)) return;
+    const clicked = event.target
+      .closest("svg [data-line]")
+      ?.getAttribute("data-line");
+    if (clicked !== press.line) return;
+    event.preventDefault();
+    select(event.target, "touch");
+  };
+
   const handleFocus = (event: FocusEvent<HTMLDivElement>) => {
+    const press = pressRef.current;
+    // Focus a mouse or pen press caused (Chromium focuses on mousedown) is not keyboard focus.
+    if (press && !press.touch) return;
+    // The touch case of the same rule: a tap's focus comes before the click that picks, and
+    // must not set the input to "focus" first.
+    if (press?.touch) return;
     select(event.target, "focus");
   };
+
+  const openLine =
+    state.input === "touch" && state.selected !== null
+      ? lines.find((candidate) => candidate.id === state.selected)
+      : undefined;
 
   return (
     <div
@@ -598,6 +667,8 @@ export default function LineMapController({
       data-input={state.input ?? undefined}
       data-tour={state.tour ?? undefined}
       onPointerOver={handlePointerOver}
+      onPointerDown={handlePointerDown}
+      onClickCapture={handleClickCapture}
       onFocus={handleFocus}
     >
       <div ref={dockRef} className={styles.dock}>
@@ -606,7 +677,17 @@ export default function LineMapController({
             <span key={`board-${n}`} className={styles.cell} />
           ))}
         </div>
-        <div className={styles.openSlot} />
+        <div className={styles.openSlot}>
+          {openLine && (
+            <Link
+              href={openLine.href}
+              prefetch={false}
+              className={controls.button}
+            >
+              Open {openLine.name}
+            </Link>
+          )}
+        </div>
       </div>
       {children}
     </div>

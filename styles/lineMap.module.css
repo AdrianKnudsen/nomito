@@ -181,6 +181,20 @@
   justify-items: center;
 }
 
+/*
+ * Only a touch makes the Open link appear, so only then is its room reserved, and the map
+ * does not move when it does. The room is the space above the link plus the link's own
+ * height in this element's units: the line height, the pill's 0.5em padding twice and the
+ * glass border twice (controls.module.css .pill).
+ */
+@media (any-pointer: coarse) {
+  .openSlot {
+    font-size: var(--text-sm);
+    padding-block-start: var(--space-sm);
+    min-block-size: calc(var(--space-sm) + 1lh + 1em + 2 * 1px);
+  }
+}
+
 /* Two drawings, both always in the DOM; CSS decides which one is shown. */
 .wide {
   display: none;
