@@ -1,0 +1,297 @@
+.glass {
+  composes: shell regularGlass from "./surfaces.module.css";
+  --glass-radius: var(--radius-lg);
+  /* The view below the nav: shrinks to the height available, the scroller scrolls inside. */
+  flex: 0 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-sm);
+}
+
+@media (min-width: 48rem) {
+  .glass {
+    padding: var(--space-lg);
+  }
+}
+
+.scroller {
+  overflow: auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  /* The scroller clips the focus ring: padding gives it room, scroll padding keeps it in
+     view when scrolled to. */
+  padding: calc(var(--focus-ring-width) + var(--focus-ring-offset));
+  scroll-padding-block: calc(var(--focus-ring-width) + var(--focus-ring-offset));
+}
+
+.title {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  line-height: 1.05;
+  text-align: center;
+}
+
+/* The lede for screen readers: the board that carries it visually is aria-hidden. */
+.visuallyHidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Becomes the client island's root; the drawings stay the scroller's flex items. */
+.root {
+  display: contents;
+}
+
+/* Two drawings, both always in the DOM; CSS decides which one is shown. */
+.wide {
+  display: none;
+}
+
+.tall {
+  display: block;
+  flex: none;
+  overflow: visible;
+  inline-size: 100%;
+  max-inline-size: var(--map-tall-max-inline);
+  margin-inline: auto;
+}
+
+@media (min-width: 48rem) {
+  .wide {
+    display: block;
+    flex: 0 1 auto;
+    inline-size: 100%;
+    max-inline-size: var(--map-max-inline);
+    margin-inline: auto;
+    /* Overrides the flex item's automatic minimum, which would stop the map shrinking
+       with the height left in the glass. */
+    min-block-size: var(--map-min-block);
+    overflow: visible;
+  }
+
+  .tall {
+    display: none;
+  }
+}
+
+/*
+ * Line colours are wired here, never from data. Tracks, names and lit stations read --line.
+ */
+.line[data-line="search"] {
+  --line: var(--color-line-search);
+}
+
+.line[data-line="collections"] {
+  --line: var(--color-line-collections);
+}
+
+.line[data-line="guide"] {
+  --line: var(--color-line-guide);
+}
+
+.line[data-line="plan"] {
+  --line: var(--color-line-plan);
+}
+
+/* svg-units:start */
+/*
+ * Everything in this block styles SVG content, so a length here is a user unit inside the
+ * drawing's viewBox, not a screen pixel. The text therefore scales with the map and with
+ * browser zoom, and shrinks when only the root size grows: the price of user units.
+ */
+.track {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 12;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 44;
+  pointer-events: stroke;
+  cursor: pointer;
+}
+
+.tick {
+  stroke: var(--line);
+  stroke-width: 6;
+  stroke-linecap: butt;
+}
+
+.stn {
+  font-size: 19px;
+  fill: var(--color-text);
+}
+
+.stn.below {
+  dominant-baseline: hanging;
+}
+
+.stn[data-lit] {
+  fill: var(--line);
+  font-weight: 700;
+}
+
+.name {
+  font-weight: 700;
+  fill: var(--line);
+  cursor: pointer;
+}
+
+.wide .name {
+  font-size: 24px;
+}
+
+.tall .name {
+  font-size: 22px;
+}
+
+.hub {
+  fill: var(--color-canvas);
+  stroke-width: 6;
+}
+
+/* Nothing in the sketch is plate-specific beyond the arrival state, so only the rim colour
+   lives here; Task 3's arrival state hooks on this class. */
+.plate {
+  stroke: var(--color-text);
+}
+
+.hub-label {
+  font-size: 26px;
+  font-weight: 700;
+  fill: var(--color-text);
+}
+
+.hub-sub {
+  font-size: 18px;
+  fill: var(--color-text);
+  opacity: 0.9;
+}
+
+.train {
+  fill: var(--color-text);
+  stroke: var(--color-canvas);
+  stroke-width: 3;
+  opacity: 0;
+}
+
+.fridge .body,
+.table .top {
+  fill: none;
+  stroke: var(--color-text);
+  stroke-width: 6;
+}
+
+.fridge .split,
+.fridge .handle {
+  fill: none;
+  stroke: var(--color-text);
+  stroke-width: 6;
+  stroke-linecap: round;
+}
+
+.fridge .panel,
+.freezer .panel {
+  fill: var(--color-canvas);
+  stroke: var(--color-text);
+  stroke-width: 6;
+}
+
+.fridge .inside {
+  fill: var(--map-light-door);
+}
+
+/* The door ends partly open; the opening animation starts from closed (Task 2). */
+.fridge .door {
+  transform-box: fill-box;
+  transform-origin: left center;
+  transform: scaleX(0.86) skewY(-7deg);
+}
+
+.freezer .body {
+  fill: var(--color-canvas);
+  stroke: var(--color-text);
+  stroke-width: 6;
+}
+
+.freezer .handle {
+  stroke: var(--color-text);
+  stroke-width: 6;
+  stroke-linecap: round;
+}
+
+.freezer .inside {
+  fill: var(--map-light-lid);
+}
+
+/* The lid lifts at the front around its back-right hinge. */
+.freezer .lid {
+  transform-box: fill-box;
+  transform-origin: right bottom;
+  transform: translateY(-10px) rotate(-5deg);
+}
+
+.table .top {
+  fill: var(--map-table);
+}
+
+.table .cutlery {
+  fill: none;
+  stroke: var(--color-text);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.85;
+}
+
+.table .rim {
+  fill: none;
+  stroke: var(--color-text);
+  stroke-width: 3;
+  opacity: 0.5;
+}
+
+.steam path {
+  fill: none;
+  stroke: var(--color-text);
+  stroke-width: 4;
+  stroke-linecap: round;
+  opacity: 0;
+}
+
+/* A ring that scales with the map would get thin where the map is shrunk, so the shapes
+   keep their stroke in screen size. Shown only for keyboard focus on the link. */
+.focusHalo,
+.focusShape {
+  fill: none;
+  pointer-events: none;
+  vector-effect: non-scaling-stroke;
+  visibility: hidden;
+}
+
+.focusShape {
+  stroke: var(--color-accent);
+  stroke-width: var(--focus-ring-width);
+}
+
+.focusHalo {
+  stroke: var(--color-canvas);
+  stroke-width: calc(3 * var(--focus-ring-width));
+}
+
+.line a:focus-visible .focusHalo,
+.line a:focus-visible .focusShape {
+  visibility: visible;
+}
+/* svg-units:end */

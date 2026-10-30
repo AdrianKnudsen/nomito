@@ -1,5 +1,5 @@
-import About from "./components/about";
+import LineMap from "./components/LineMap";
 
 export default function HomePage() {
-  return <About />;
+  return <LineMap />;
 }

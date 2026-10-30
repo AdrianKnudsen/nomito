@@ -18,6 +18,23 @@
   --color-protein: #85ec3c;
   --color-fat: #fbbf24;
   --color-carbs: #7dd3fc;
+  /* The home page's four lines: the sketch's colours, which Adrian chose (2026-10-30) knowing
+     that three of them share hues with the nutrition colours and the green with the accent.
+     Literals, so the lines do not follow those tokens if they change. The line names carry
+     the meaning, so colour is never the only cue. */
+  --color-line-search: #85ec3c;
+  --color-line-collections: #fbbf24;
+  --color-line-guide: #7dd3fc;
+  --color-line-plan: #a855f7;
+
+  /* The home page's line map. */
+  --map-max-inline: 64rem;
+  --map-tall-max-inline: 26rem;
+  --map-min-block: 16rem;
+  --map-table: rgb(255 255 255 / 0.04);
+  --map-light-door: rgb(255 248 220 / 0.35);
+  --map-light-lid: rgb(255 248 220 / 0.4);
+  --map-plate-glow: color-mix(in srgb, var(--color-accent-soft) 70%, transparent);
 
   /*
    * Two materials, following Apple's Liquid Glass guidance: clear glass for the
