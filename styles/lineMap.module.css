@@ -49,6 +49,138 @@
   display: contents;
 }
 
+/* The departure board and the room for the Open link under it. The dock is the container
+   the board's column count is measured against. */
+.dock {
+  container-type: inline-size;
+  container-name: dock;
+  display: grid;
+  justify-items: center;
+}
+
+/*
+ * The board is one grid of BOARD_CELLS cells (LineMapController) on every width; the custom
+ * properties below say how many of them show. cols x rows must be at most BOARD_CELLS in
+ * every form, each form's nth-child rule must hide from cols x rows + 1, and every text in
+ * lib/lines.ts and the idle text must wrap within `rows` rows at `cols` columns. Change one
+ * of them and run the text check again.
+ */
+.board {
+  --board-cols: 18;
+  --board-rows: 5;
+  container-type: inline-size;
+  display: grid;
+  grid-template-columns: repeat(var(--board-cols), 1fr);
+  gap: var(--board-gap-row) var(--board-gap-col);
+  inline-size: 100%;
+  max-inline-size: var(--board-max-inline-narrow);
+  padding: var(--board-pad);
+  border: 1px solid var(--board-edge);
+  border-radius: var(--radius-md);
+  background: var(--board-bg-sticky);
+}
+
+.board .cell:nth-child(n + 91) {
+  display: none;
+}
+
+/*
+ * Fewer columns where the dock is narrow in rem, so the characters do not shrink when the
+ * root size grows. A step's columns are chosen so a cell is never narrower than the base
+ * form's cell at the narrowest dock at root size 16 (that width over the base column
+ * count), and never below the longest word in lib/lines.ts and the idle text; rows are what
+ * the texts then need. Every threshold lies below the narrowest dock at root size 16, so
+ * that size keeps the base form everywhere. N is the largest cols x rows over the base form
+ * and the steps. A smaller step comes later in the file and wins where both match.
+ */
+@container dock (inline-size < 16rem) {
+  .board {
+    --board-cols: 14;
+    --board-rows: 6;
+  }
+
+  .board .cell:nth-child(n + 85) {
+    display: none;
+  }
+}
+
+@container dock (inline-size < 12.75rem) {
+  .board {
+    --board-cols: 11;
+    --board-rows: 7;
+  }
+
+  .board .cell:nth-child(n + 78) {
+    display: none;
+  }
+}
+
+@media (min-width: 48rem) {
+  /* The board spans the wide drawing from the fridge's left edge to the table's right edge.
+     The numbers are user units from that drawing's viewBox and its fridge and table rects in
+     LineMap.tsx; change the geometry there and they must follow. */
+  .dock {
+    --map-view-width: 1120;
+    --map-board-start: 30;
+    --map-board-span: 1048;
+  }
+
+  .board {
+    --board-cols: 32;
+    --board-rows: 2;
+    /* The width the wide drawing is drawn at, reported by the island (it letterboxes when the
+       glass is low). Without it, the drawing's box: the same expression as .wide, resolved
+       against the dock, which is as wide as the scroller the drawing sits in. */
+    --map-box: var(--map-drawn, min(100%, var(--map-max-inline)));
+    justify-self: start;
+    inline-size: calc(var(--map-box) * var(--map-board-span) / var(--map-view-width));
+    max-inline-size: none;
+    margin-inline-start: calc(
+      (100% - var(--map-box)) / 2 + var(--map-box) * var(--map-board-start) /
+        var(--map-view-width)
+    );
+    background: var(--board-bg);
+  }
+
+  .board .cell:nth-child(n + 65) {
+    display: none;
+  }
+}
+
+/* One split-flap cell. The font follows the board's width, so the characters fill the cell
+   at any column count. */
+.cell {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 2 / 3;
+  font-size: calc(100cqi / var(--board-cols) * 0.78);
+  font-weight: 500;
+  line-height: 1;
+  color: var(--color-text);
+  border-radius: 0.1875rem;
+  background: linear-gradient(
+    180deg,
+    var(--board-flap-top) 0 49%,
+    var(--board-flap-bottom) 51% 100%
+  );
+}
+
+/* The hairline between the two flaps. */
+.cell::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: 50%;
+  block-size: 1px;
+  background: var(--board-flap-split);
+}
+
+.openSlot {
+  display: grid;
+  justify-items: center;
+}
+
 /* Two drawings, both always in the DOM; CSS decides which one is shown. */
 .wide {
   display: none;
@@ -459,7 +591,8 @@
 
   .tick,
   .stn,
-  .name {
+  .name,
+  .board {
     animation: show 0.4s ease 1.3s backwards;
   }
 }

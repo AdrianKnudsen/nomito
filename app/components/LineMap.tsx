@@ -1,7 +1,14 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import LineMapController from "./LineMapController";
-import { LINES, lineName, type Line, type LineId } from "../../lib/lines";
+import {
+  IDLE_TEXT,
+  LINES,
+  lineName,
+  toBoardLine,
+  type Line,
+  type LineId,
+} from "../../lib/lines";
 import styles from "../../styles/lineMap.module.css";
 import disclaimerStyles from "../../styles/disclaimer.module.css";
 
@@ -382,7 +389,10 @@ export default function LineMap() {
           Nomito finds recipes for the food already in your fridge. Four
           lines, and every one ends at the table.
         </p>
-        <LineMapController>
+        <LineMapController
+          lines={LINES.map(toBoardLine)}
+          idle={IDLE_TEXT}
+        >
           <WideDrawing />
           <TallDrawing />
         </LineMapController>

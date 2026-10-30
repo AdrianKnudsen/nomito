@@ -36,6 +36,20 @@
   --map-light-lid: rgb(255 248 220 / 0.4);
   --map-plate-glow: color-mix(in srgb, var(--color-accent-soft) 70%, transparent);
 
+  /* The departure board on the home page. The gaps and the padding are tighter under 48rem
+     (redefined below the root rule); the background is denser there too, because the board
+     sits over the map. */
+  --board-max-inline-narrow: 24rem;
+  --board-bg: rgb(0 0 0 / 0.55);
+  --board-bg-sticky: rgb(0 0 0 / 0.82);
+  --board-edge: rgb(255 255 255 / 0.12);
+  --board-flap-top: #1d232b;
+  --board-flap-bottom: #12161c;
+  --board-flap-split: rgb(0 0 0 / 0.8);
+  --board-gap-row: 0.1875rem;
+  --board-gap-col: 0.125rem;
+  --board-pad: 0.375rem;
+
   /*
    * Two materials, following Apple's Liquid Glass guidance: clear glass for the
    * functional layer (nav, search, buttons) and a regular, denser material for content
@@ -130,6 +144,14 @@
   --shell-gutter: clamp(0.75rem, 3vw, 2rem);
 
   background-color: var(--color-canvas);
+}
+
+@media (min-width: 48rem) {
+  :root {
+    --board-gap-row: 0.3125rem;
+    --board-gap-col: 0.1875rem;
+    --board-pad: 0.625rem;
+  }
 }
 
 /* The CSS counterparts of the system settings Apple's glass responds to. */

@@ -8,11 +8,40 @@ import {
   type PointerEvent,
   type ReactNode,
 } from "react";
-import type { LineId } from "../../lib/lines";
+import { FLIP_POOL, layoutBoard } from "../../lib/board";
+import type { BoardLine, LineId } from "../../lib/lines";
 import styles from "../../styles/lineMap.module.css";
 
 interface LineMapControllerProps {
+  lines: readonly BoardLine[];
+  idle: string;
   children: ReactNode;
+}
+
+// How many cells the board renders: the largest cols x rows over the base form, the 48rem form
+// and the container steps in lineMap.module.css (the base form is the largest). Recompute it
+// with the text check whenever a form changes.
+const BOARD_CELLS = 90;
+
+const FLIP_STEP_MS = 55;
+
+/**
+ * How long until the board's own fade-in (a CSS animation with a delay) starts showing it, so
+ * the text enters together with the rest of the opening and the delay is written only in CSS.
+ * No such animation (reduced motion, already finished, no styles yet) means no wait.
+ */
+function boardEntryDelay(board: Element): number {
+  const now = document.timeline.currentTime;
+  if (typeof now !== "number") return 0;
+  const animation = board
+    .getAnimations()
+    .find((candidate) => candidate instanceof CSSAnimation);
+  if (!animation) return 0;
+  const delay = animation.effect?.getTiming().delay ?? 0;
+  // A null start time means the animation is pending: it starts about now.
+  const start =
+    typeof animation.startTime === "number" ? animation.startTime : now;
+  return Math.max(0, start + Number(delay) - now);
 }
 
 type Input = "pointer" | "focus";
@@ -26,6 +55,8 @@ interface State {
   tour: Drawing | null;
   /** From --map-board-stations on the drawing at tour start, for showing station names off the map. */
   boardStations: boolean;
+  /** The last station the train stood at on this trip; the board holds it until the next. */
+  station: number | null;
 }
 
 type Action =
@@ -39,6 +70,7 @@ type Action =
       instant: boolean;
     }
   | { type: "input"; input: Input }
+  | { type: "station"; index: number }
   | { type: "arrive" };
 
 const INITIAL_STATE: State = {
@@ -47,6 +79,7 @@ const INITIAL_STATE: State = {
   input: null,
   tour: null,
   boardStations: false,
+  station: null,
 };
 
 function reducer(state: State, action: Action): State {
@@ -58,16 +91,40 @@ function reducer(state: State, action: Action): State {
         input: action.input,
         tour: action.tour,
         boardStations: action.boardStations,
+        // A new selection ends whatever stop the old trip was at.
+        station: null,
       };
+    case "station":
+      return { ...state, station: action.index };
     case "input":
       return state.input === action.input
         ? state
         : { ...state, input: action.input };
     case "arrive":
       return state.phase === "running"
-        ? { ...state, phase: "arrived" }
+        ? { ...state, phase: "arrived", station: null }
         : state;
   }
+}
+
+/**
+ * What the board says, worked out during render. Where the drawing names its own stations
+ * the board has the line text from the start; where it does not (the tall one) the board
+ * shows the line name, then each station from the moment the train stands at it until the
+ * next one (the approved sketch does the same), then the line text.
+ */
+function boardText(
+  state: State,
+  lines: readonly BoardLine[],
+  idle: string
+): string {
+  if (state.selected === null) return idle;
+  const line = lines.find((candidate) => candidate.id === state.selected);
+  if (!line) throw new Error(`No board line for "${state.selected}"`);
+  if (!state.boardStations || state.phase === "arrived") return line.board;
+  return state.station === null
+    ? line.name
+    : (line.stations[state.station] ?? line.name);
 }
 
 // The ids the drawings carry, written out here because lib/lines.ts imports the route table
@@ -205,8 +262,9 @@ function stopTrip(trip: Trip) {
   clearLit(trip);
 }
 
-// cx and cy on the train, and data-lit on a station name, are the only DOM writes the island
-// makes outside React; both are presentation hooks CSS reads.
+// The DOM writes the island makes outside React: cx and cy on the train, data-lit on a
+// station name, the board's cells (their text and flap animations) and --map-drawn on the
+// dock. The first three and the last are presentation hooks CSS reads.
 function place(path: SVGPathElement, train: SVGCircleElement, distance: number) {
   const point = path.getPointAtLength(distance);
   train.setAttribute("cx", String(point.x));
@@ -219,6 +277,7 @@ function runTrip(
   path: SVGPathElement,
   train: SVGCircleElement,
   stations: readonly Element[],
+  onStation: (index: number) => void,
   onDone: () => void
 ) {
   let index = 0;
@@ -233,6 +292,7 @@ function runTrip(
       if (entered !== index) {
         entered = index;
         if (phase.kind === "dwell") {
+          onStation(phase.station);
           const station = stations[phase.station];
           if (station) {
             station.setAttribute("data-lit", "");
@@ -269,13 +329,167 @@ function runTrip(
  * the server, as ScrollShimmer does, so none of their markup is in the client bundle.
  */
 export default function LineMapController({
+  lines,
+  idle,
   children,
 }: LineMapControllerProps) {
   const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
   const rootRef = useRef<HTMLDivElement>(null);
+  const boardRef = useRef<HTMLDivElement>(null);
+  const dockRef = useRef<HTMLDivElement>(null);
   const tripRef = useRef<Trip | null>(null);
   // Mirrors state.selected for the handlers: two events can land before a render.
   const selectedRef = useRef<LineId | null>(null);
+
+  const text = boardText(state, lines, idle);
+
+  // The one effect that touches the cells: it paints the derived text onto them. The text
+  // itself is never state. A new text clears the timers of the previous one, so it replaces
+  // a flip in progress; cells that already show the right character stand still.
+  useEffect(() => {
+    const board = boardRef.current;
+    if (!board) return;
+    const cells = Array.from(board.children);
+
+    const timers = new Set<number>();
+    const later = (action: () => void, ms: number) => {
+      const id = window.setTimeout(() => {
+        timers.delete(id);
+        action();
+      }, ms);
+      timers.add(id);
+    };
+    const cancelFlips = () => {
+      timers.forEach((id) => window.clearTimeout(id));
+      timers.clear();
+    };
+
+    // Null while the module's styles are not applied yet (seen in dev after history.back()):
+    // the board then waits and the ResizeObserver below paints once the styles arrive. A
+    // value that is set but not a number still throws.
+    const readShape = () => {
+      const props = getComputedStyle(board);
+      if (
+        props.getPropertyValue("--board-cols").trim() === "" ||
+        props.getPropertyValue("--board-rows").trim() === ""
+      ) {
+        return null;
+      }
+      return {
+        cols: readCssNumber(board, "--board-cols"),
+        rows: readCssNumber(board, "--board-rows"),
+      };
+    };
+
+    // Writes every cell at once, also clearing the ones the current form hides.
+    const paintNow = (target: string) => {
+      cells.forEach((cell, i) => {
+        cell.textContent = target[i] ?? "";
+      });
+    };
+
+    let shape = readShape();
+
+    if (shape === null) {
+      // Nothing to paint yet; see readShape.
+    } else if (readCssNumber(board, "--map-motion") === 0) {
+      paintNow(layoutBoard(text, shape.cols, shape.rows));
+    } else {
+      const { cols, rows } = shape;
+      const target = layoutBoard(text, cols, rows);
+      const entry = boardEntryDelay(board);
+      cells.forEach((cell, i) => {
+        const wanted = target[i] ?? "";
+        if (cell.textContent === wanted) return;
+        const start = entry + (i % cols) * 12 + Math.floor(i / cols) * 40;
+        const flip = (remaining: number) => {
+          cell.animate(
+            [
+              { transform: "scaleY(1)" },
+              { transform: "scaleY(0.15)" },
+              { transform: "scaleY(1)" },
+            ],
+            { duration: 70, easing: "linear" }
+          );
+          // Math.random runs only here, in a timer, never during render.
+          cell.textContent =
+            remaining > 0
+              ? FLIP_POOL[Math.floor(Math.random() * FLIP_POOL.length)]
+              : wanted;
+          if (remaining > 0) later(() => flip(remaining - 1), FLIP_STEP_MS);
+        };
+        later(() => flip(3 + (i % 5)), start);
+      });
+    }
+
+    // A changed form (a container step, a new root size) lays the text out again, without flipping.
+    const observer = new ResizeObserver(() => {
+      const next = readShape();
+      if (next === null) return;
+      if (shape && next.cols === shape.cols && next.rows === shape.rows) return;
+      shape = next;
+      cancelFlips();
+      paintNow(layoutBoard(text, shape.cols, shape.rows));
+    });
+    observer.observe(board);
+
+    return () => {
+      observer.disconnect();
+      cancelFlips();
+    };
+  }, [text]);
+
+  // The wide drawing letterboxes when the glass is too low for its full height, so it can be
+  // narrower than its box, and CSS cannot read that. The island reports the width it is
+  // actually drawn at, for the board to line up under it. No style prop on the dock in
+  // render, so React never overwrites it. Display none (a width of 0) removes it again.
+  useEffect(() => {
+    const svg = rootRef.current?.querySelector<SVGSVGElement>(
+      'svg[data-drawing="wide"]'
+    );
+    const dock = dockRef.current;
+    if (!svg || !dock) return;
+
+    // The board's height feeds back into the drawing's height, so a write inside the
+    // callback changes the observed size in the same frame and Chromium reports "loop
+    // completed with undelivered notifications". The write waits for the next frame, and a
+    // change under half a unit is not written, which ends the damped back and forth.
+    let pending: number | null = null;
+    let latest = 0;
+    let written: number | null = null;
+
+    const write = () => {
+      pending = null;
+      if (written !== null && Math.abs(latest - written) < 0.5) return;
+      written = latest;
+      dock.style.setProperty("--map-drawn", `${latest}px`);
+    };
+
+    const observer = new ResizeObserver((entries) => {
+      const box = entries[entries.length - 1]?.contentBoxSize[0];
+      const view = svg.viewBox.baseVal;
+      if (!box || box.inlineSize === 0 || view.height === 0) {
+        if (pending !== null) cancelAnimationFrame(pending);
+        pending = null;
+        written = null;
+        dock.style.removeProperty("--map-drawn");
+        return;
+      }
+      // preserveAspectRatio is the default, meet: the drawing fits inside its box.
+      latest = Math.min(
+        box.inlineSize,
+        (box.blockSize * view.width) / view.height
+      );
+      if (pending === null) pending = requestAnimationFrame(write);
+    });
+    observer.observe(svg);
+
+    return () => {
+      observer.disconnect();
+      if (pending !== null) cancelAnimationFrame(pending);
+      dock.style.removeProperty("--map-drawn");
+    };
+  }, []);
 
   // A trip that is running in a drawing that has since been hidden ends at once (spec 1.3).
   // Only the display is read, never a size.
@@ -351,10 +565,18 @@ export default function LineMapController({
     tripRef.current = trip;
     place(path, train, 0);
     dispatch({ type: "select", id, input, tour, boardStations, instant: false });
-    runTrip(trip, plan, path, train, stations, () => {
-      tripRef.current = null;
-      dispatch({ type: "arrive" });
-    });
+    runTrip(
+      trip,
+      plan,
+      path,
+      train,
+      stations,
+      (index) => dispatch({ type: "station", index }),
+      () => {
+        tripRef.current = null;
+        dispatch({ type: "arrive" });
+      }
+    );
   };
 
   // Only a mouse or a pen picks by hovering; a touch has no hover to read.
@@ -378,6 +600,14 @@ export default function LineMapController({
       onPointerOver={handlePointerOver}
       onFocus={handleFocus}
     >
+      <div ref={dockRef} className={styles.dock}>
+        <div ref={boardRef} className={styles.board} aria-hidden="true">
+          {Array.from({ length: BOARD_CELLS }, (_, n) => (
+            <span key={`board-${n}`} className={styles.cell} />
+          ))}
+        </div>
+        <div className={styles.openSlot} />
+      </div>
       {children}
     </div>
   );
