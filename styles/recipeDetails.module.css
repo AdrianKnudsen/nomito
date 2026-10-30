@@ -8,7 +8,8 @@
 }
 
 /*
- * The recipe sheet and the only scroll owner in the view. Nothing inside has a
+ * The recipe sheet, and the scroll owner of the recipe: the document only scrolls on to
+ * the footer, and <main> takes over in a very low window. Nothing inside has a
  * max-height, so content can never spill out of the card.
  */
 .sheet {

@@ -142,20 +142,29 @@
 }
 
 /*
- * One view at a time fills the height below the nav (and the search bar), through
- * <main>, which continues this flex column. The view shrinks with `min-height: 0` and
- * scrolls itself — so nothing has to guess the nav height with calc().
+ * The body is a column holding the frame (nav and <main>) and then the footer. The frame
+ * is what fills the window, and the frame holds the cap, so a long page scrolls inside it
+ * and the footer waits below. Nothing has to guess the nav height with calc().
  */
 body {
-  height: 100dvh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  gap: var(--space-lg);
-  padding-block: var(--space-lg);
+  /* The distance under the footer, mirroring the distance above the nav in the frame. */
+  padding-block-end: var(--space-lg);
   /* No background here: the canvas colour sits on :root only. A body background would
      paint over the fixed photo, which has z-index -1. */
   color: var(--color-text);
   font-family: var(--font-khand), sans-serif;
+}
+
+/* A classic scrollbar takes room only when the page is long. Holding that room always
+   keeps the nav, the footer and the cards the same width on short and long pages. The
+   document scrolls now, and focus scrolling there would otherwise stop at the element's
+   box and cut the ring, so the ring's room is added as scroll padding. */
+html {
+  scrollbar-gutter: stable;
+  scroll-padding-block: calc(var(--focus-ring-width) + var(--focus-ring-offset));
 }
 
 /* Form controls do not inherit the font on their own. */

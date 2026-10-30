@@ -17,7 +17,7 @@
 
 /* Everything between the h1 and the results. Keeps its full height so Apply is always
    reachable; the results below shrink instead (see the next rule), and when not even one row
-   fits, the page scrolls. */
+   fits, then <main> scrolls. */
 .panel {
   composes: shellColumn regularGlass from "./surfaces.module.css";
   flex: none;

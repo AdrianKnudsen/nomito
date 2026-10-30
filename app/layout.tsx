@@ -3,6 +3,7 @@ import { Suspense, type ReactNode } from "react";
 import { Khand } from "next/font/google";
 import "../styles/globals.css";
 import styles from "../styles/app.module.css";
+import Footer from "./components/Footer";
 import NavBar from "./components/NavBar";
 import UrlTracker from "./components/UrlTracker";
 
@@ -23,9 +24,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en">
       <body className={khand.variable}>
         <div className={styles.backgroundImg} aria-hidden="true" />
-        <NavBar />
-        {/* The one main landmark for every page; the nav stays outside it. */}
-        <main className={styles.main}>{children}</main>
+        <div className={styles.frame}>
+          <NavBar />
+          {/* The one main landmark for every page; the nav and the footer stay outside it. */}
+          <main className={styles.main}>{children}</main>
+        </div>
+        <Footer />
         <Suspense fallback={null}>
           <UrlTracker />
         </Suspense>

@@ -1,5 +1,5 @@
-/* Shared by loading, error and empty states (Notice). Centred in the space below the
-   nav by the body's flex column rather than by a percentage margin. */
+/* Shared by loading, error and empty states (Notice). Shown centred in <main>'s column,
+   between the nav and the footer when there is room, rather than by a percentage margin. */
 .loading {
   composes: column regularGlass from "./surfaces.module.css";
   flex: none;

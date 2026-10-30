@@ -9,9 +9,10 @@ interface ResultPanelProps {
 }
 
 /**
- * The glass panel with the scrolling result list, one per page so a page has one scroll
- * container. A Suspense around a call goes inside it, as children, never next to it: the panel
- * has no key, so it stays mounted while its contents change.
+ * The glass panel with the scrolling result list, one per page, so a page has
+ * one scrolling result list and not several competing ones. A Suspense around a call goes
+ * inside it, as children, never next to it: the panel has no key, so it stays mounted while
+ * its contents change.
  */
 export default function ResultPanel({ heading, children }: ResultPanelProps) {
   return (

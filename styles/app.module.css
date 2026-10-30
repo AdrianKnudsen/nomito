@@ -15,12 +15,33 @@
   }
 }
 
-/* The page below the nav. Continues the body's flex column, so a view can still shrink
-   with min-height: 0 and scroll itself. */
+/* The nav and the page, as one column with the cap. It grows to fill the window when the
+   page is short, so the footer sits at the bottom of the window, and `max-block-size`
+   rather than `height` lets it be exactly as tall as its content when that fits. A long
+   page is clamped here and scrolls inside, so the footer sits below the fold. What cannot
+   shrink then overflows the frame, which on its own would lie over the footer; <main>
+   scrolls to prevent that. */
+.frame {
+  flex: 1 0 auto;
+  max-block-size: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding-block-start: var(--space-lg);
+}
+
+/* The page below the nav, continuing the frame's column. The padding stands inside because
+   <main> clips at its padding box: the focus ring and the top of a glass shadow would be
+   cut at the edge otherwise. */
 .main {
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
+  padding-block: var(--space-lg);
+  /* The page only scrolls when what cannot shrink is taller than the frame; the glass
+     inside shrinks first. Scrolling here, and not on the document, keeps that content from
+     lying over the footer. */
+  overflow-y: auto;
+  scroll-padding-block: calc(var(--focus-ring-width) + var(--focus-ring-offset));
 }
