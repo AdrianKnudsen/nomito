@@ -1,0 +1,33 @@
+/*
+ * Links only, so it is the functional layer like the nav and gets bar glass, not regularGlass.
+ * No shimmer: the nav's streak stands still and sets that bar's contrast floor for a large title,
+ * while this text is small and is measured without it. If the footer ever gets running text, it
+ * moves to regularGlass.
+ */
+.footer {
+  composes: shell liquidGlassBar from "./surfaces.module.css";
+  --glass-radius: var(--radius-lg);
+  flex: none;
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--text-sm);
+}
+
+.links {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-xs) var(--space-lg);
+}
+
+/* No underline at rest: the footer is links only, with no running text around them, so colour is
+   not the only cue (WCAG 1.4.1); add underlines if running text is ever added.
+   Hover underlines instead of changing colour: the accent colour does not hold contrast on small
+   text under the glass rim. */
+.link {
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
