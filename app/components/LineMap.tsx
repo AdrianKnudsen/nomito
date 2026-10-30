@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import LineMapController from "./LineMapController";
 import { LINES, lineName, type Line, type LineId } from "../../lib/lines";
 import styles from "../../styles/lineMap.module.css";
 import disclaimerStyles from "../../styles/disclaimer.module.css";
@@ -381,11 +382,10 @@ export default function LineMap() {
           Nomito finds recipes for the food already in your fridge. Four
           lines, and every one ends at the table.
         </p>
-        {/* display: contents, so the drawings are the scroller's flex items. */}
-        <div className={styles.root}>
+        <LineMapController>
           <WideDrawing />
           <TallDrawing />
-        </div>
+        </LineMapController>
         <p className={disclaimerStyles.disclaimer}>
           Recipes and nutrition come from Spoonacular and are estimates.{" "}
           <Link href="/about#disclaimer" prefetch={false}>

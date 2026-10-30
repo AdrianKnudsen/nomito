@@ -161,8 +161,7 @@
   stroke-width: 6;
 }
 
-/* Nothing in the sketch is plate-specific beyond the arrival state, so only the rim colour
-   lives here; Task 3's arrival state hooks on this class. */
+/* The plate's rim colour; the arrival state below changes it for the plate only. */
 .plate {
   stroke: var(--color-text);
 }
@@ -212,7 +211,7 @@
   fill: var(--map-light-door);
 }
 
-/* The door ends partly open; the opening animation starts from closed (Task 2). */
+/* The door ends partly open; the opening animation starts from closed. */
 .fridge .door {
   transform-box: fill-box;
   transform-origin: left center;
@@ -295,6 +294,60 @@
   visibility: visible;
 }
 
+/* What belongs to the drawing and not to the viewport: the island reads these when a tour
+   starts. The board shows station names only where the drawing has none (the tall one). */
+.wide {
+  --map-dwell: 650ms;
+  --map-board-stations: 0;
+}
+
+.tall {
+  --map-dwell: 900ms;
+  --map-board-stations: 1;
+}
+
+/* The island reads this instead of asking the browser: 0 means no train and no waiting. */
+.root {
+  --map-motion: 0;
+}
+
+/* A line is chosen: the others recede. Only tracks and tick strokes; the names stay at full
+   strength because they are links and reading text. No transition: the dimming is instant. */
+.root[data-selected] .track,
+.root[data-selected] .tick {
+  opacity: 0.22;
+}
+
+.root[data-selected="search"] .line[data-line="search"] :is(.track, .tick),
+.root[data-selected="collections"] .line[data-line="collections"] :is(.track, .tick),
+.root[data-selected="guide"] .line[data-line="guide"] :is(.track, .tick),
+.root[data-selected="plan"] .line[data-line="plan"] :is(.track, .tick) {
+  opacity: 1;
+}
+
+.root[data-selected="search"] .line[data-line="search"] .track,
+.root[data-selected="collections"] .line[data-line="collections"] .track,
+.root[data-selected="guide"] .line[data-line="guide"] .track,
+.root[data-selected="plan"] .line[data-line="plan"] .track {
+  stroke-width: 16;
+}
+
+/* The train shows only in the drawing the tour runs in, and only while it runs. */
+.root[data-state="running"][data-tour="wide"] .wide .train,
+.root[data-state="running"][data-tour="tall"] .tall .train {
+  opacity: 1;
+}
+
+.root[data-state="arrived"] .plate {
+  stroke: var(--color-accent-soft);
+  filter: drop-shadow(0 0 10px var(--map-plate-glow));
+}
+
+/* Without motion the steam stands still. */
+.root[data-state="arrived"] .steam path {
+  opacity: 0.6;
+}
+
 /*
  * The opening. The end state above is the base rule; each animation runs from the start
  * state with fill-mode backwards, so reduced motion (and a browser that skips the
@@ -325,6 +378,22 @@
   }
 }
 
+@keyframes steam {
+  0% {
+    opacity: 0;
+    translate: 0 10px;
+  }
+
+  40% {
+    opacity: 0.8;
+  }
+
+  100% {
+    opacity: 0;
+    translate: 0 -14px;
+  }
+}
+
 @keyframes show {
   from {
     opacity: 0;
@@ -332,6 +401,10 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
+  .root {
+    --map-motion: 1;
+  }
+
   .fridge .door {
     animation: door-open 0.7s cubic-bezier(0.3, 0, 0.2, 1) backwards;
   }
@@ -351,6 +424,25 @@
     stroke-dasharray: 1;
     stroke-dashoffset: 0;
     animation: draw 1.1s cubic-bezier(0.6, 0.1, 0.3, 1) backwards;
+    transition: stroke-width 0.3s;
+  }
+
+  .plate {
+    transition:
+      stroke 0.4s,
+      filter 0.4s;
+  }
+
+  .root[data-state="arrived"] .steam path {
+    animation: steam 1.6s ease-out infinite backwards;
+  }
+
+  .root[data-state="arrived"] .steam path:nth-child(2) {
+    animation-delay: 0.3s;
+  }
+
+  .root[data-state="arrived"] .steam path:nth-child(3) {
+    animation-delay: 0.6s;
   }
 
   .line[data-line="collections"] .track {
