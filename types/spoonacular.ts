@@ -93,9 +93,9 @@ export interface RecipeDetail {
   /** The original recipe. The fallback when `analyzedInstructions` is empty. */
   sourceUrl?: string;
   sourceName?: string;
-  /** Seen in the documentation's example, not in an observed response. */
+  /** Seen in a real response, not only in the documentation's example. */
   license?: string | null;
-  /** Assumed to be the author, from the documentation's example; not yet verified against a response. */
+  /** Seen in a real response, equal to `sourceName` there. Reading it as the author is still assumed. */
   creditsText?: string | null;
   extendedIngredients?: ExtendedIngredient[];
   healthScore?: number;
