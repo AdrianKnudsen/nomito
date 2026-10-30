@@ -27,8 +27,8 @@
    * requirement. The dims are measured, not picked: 0.35 is Apple's suggested dimming
    * layer over bright media, and the bar and regular values are the ones where text over
    * the photo, with the shimmer streak on at --shimmer-strength, holds its contrast
-   * requirement with margin (figures in TODO.md). The reading dim starts at the regular
-   * value and is calibrated the same way on the page that uses it.
+   * requirement with margin (figures in TODO.md). The reading dim is measured the same
+   * way, against the body text on the reading page that uses it.
    */
   --glass-clear-dim: rgb(11 15 20 / 0.35);
   /* The nav bar, the search field and Back on the recipe error branch all sit over the
@@ -37,12 +37,12 @@
      with room to spare. */
   --glass-bar-dim: rgb(11 15 20 / 0.6);
   --glass-regular-dim: rgb(11 15 20 / 0.63);
-  --glass-reading-dim: rgb(11 15 20 / 0.63);
+  --glass-reading-dim: rgb(11 15 20 / 0.80);
   /* Opacity of the shimmer streak. The streak is blended with `screen`, so it only
      lightens what is behind the text; together with the dims it sets the contrast floor.
-     The bar and regular dims are calibrated against this value, and the reading dim is
-     calibrated against it on the page that uses it. Make the streak stronger and the
-     contrast has to be measured again. */
+     The bar, regular and reading dims are all measured with the streak on at this value
+     (the reading dim against the body text on the reading page). Make the streak
+     stronger and the contrast has to be measured again. */
   --shimmer-strength: 0.5;
   --glass-clear-blur: 1.25rem;
   --glass-regular-blur: 2rem;
