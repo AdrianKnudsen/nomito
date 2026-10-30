@@ -26,6 +26,12 @@
   --color-line-collections: #fbbf24;
   --color-line-guide: #7dd3fc;
   --color-line-plan: #a855f7;
+  /* The glow round the plate when a line has arrived, in that line's colour. Written out here
+     because the module keeps colour functions out; the 70 % mix is the glow's old strength. */
+  --map-plate-glow-search: color-mix(in srgb, var(--color-line-search) 70%, transparent);
+  --map-plate-glow-collections: color-mix(in srgb, var(--color-line-collections) 70%, transparent);
+  --map-plate-glow-guide: color-mix(in srgb, var(--color-line-guide) 70%, transparent);
+  --map-plate-glow-plan: color-mix(in srgb, var(--color-line-plan) 70%, transparent);
 
   /* The home page's line map. */
   --map-max-inline: 64rem;
@@ -34,7 +40,6 @@
   --map-table: rgb(255 255 255 / 0.04);
   --map-light-door: rgb(255 248 220 / 0.35);
   --map-light-lid: rgb(255 248 220 / 0.4);
-  --map-plate-glow: color-mix(in srgb, var(--color-accent-soft) 70%, transparent);
 
   /* The departure board on the home page. The gaps and the padding are tighter under 48rem
      (redefined below the root rule); the background is denser there too, because the board

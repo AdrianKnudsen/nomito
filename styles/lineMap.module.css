@@ -246,6 +246,27 @@
   --line: var(--color-line-plan);
 }
 
+/* The plate is outside the line groups, so the root carries the chosen line's colour to it. */
+.root[data-selected="search"] {
+  --plate-line: var(--color-line-search);
+  --plate-glow: var(--map-plate-glow-search);
+}
+
+.root[data-selected="collections"] {
+  --plate-line: var(--color-line-collections);
+  --plate-glow: var(--map-plate-glow-collections);
+}
+
+.root[data-selected="guide"] {
+  --plate-line: var(--color-line-guide);
+  --plate-glow: var(--map-plate-glow-guide);
+}
+
+.root[data-selected="plan"] {
+  --plate-line: var(--color-line-plan);
+  --plate-glow: var(--map-plate-glow-plan);
+}
+
 /* svg-units:start */
 /*
  * Everything in this block styles SVG content, so a length here is a user unit inside the
@@ -485,8 +506,8 @@
 }
 
 .root[data-state="arrived"] .plate {
-  stroke: var(--color-accent-soft);
-  filter: drop-shadow(0 0 10px var(--map-plate-glow));
+  stroke: var(--plate-line);
+  filter: drop-shadow(0 0 10px var(--plate-glow));
 }
 
 /* Without motion the steam stands still. */
