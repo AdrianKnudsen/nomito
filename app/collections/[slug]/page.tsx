@@ -159,7 +159,7 @@ function AdjustForm({ collection, adjustment }: AdjustFormProps) {
       <div className={page.formActions}>
         <SubmitOnce className={controls.buttonAccent}>Apply</SubmitOnce>
         {isAdjusted(adjustment) && (
-          <Link href={path} className={controls.button}>
+          <Link href={path} className={controls.buttonBack}>
             Reset
           </Link>
         )}

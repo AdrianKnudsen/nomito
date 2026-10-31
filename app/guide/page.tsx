@@ -63,7 +63,7 @@ export default async function GuidePage({ searchParams }: GuidePageProps) {
         {step !== 1 && (
           <Link
             href={withQuery("/guide", guidePairs(withoutPreviousAnswer(answers, step)))}
-            className={`${controls.button} ${page.back}`}
+            className={`${controls.buttonBack} ${page.back}`}
           >
             Previous question
           </Link>

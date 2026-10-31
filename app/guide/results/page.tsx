@@ -56,10 +56,10 @@ export default async function GuideResultsPage({ searchParams }: GuideResultsPag
       </h1>
       <div className={page.panel}>
         <div className={page.actions}>
-          <Link href={withQuery(GUIDE_FORM_PATH, pairs)} className={controls.button}>
+          <Link href={withQuery(GUIDE_FORM_PATH, pairs)} className={controls.buttonBack}>
             Change answers
           </Link>
-          <Link href="/guide" className={controls.button}>
+          <Link href="/guide" className={controls.buttonBack}>
             Start over
           </Link>
         </div>

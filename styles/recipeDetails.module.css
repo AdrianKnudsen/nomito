@@ -32,24 +32,23 @@
   gap: var(--space-md);
 }
 
-/* Back on the error branch, where there is no sheet around it. The button sits straight on
-   the photo, so it has the bar glass (see errorBackButton) to hold its text contrast. */
+/* Back on the error branch, where there is no sheet around it. */
 .errorBack {
   composes: column from "./surfaces.module.css";
   flex: none;
   display: flex;
 }
 
-/* The recipe's Back, drawn like every other glass button. */
+/* The recipe's Back: frosted glass, like every back button. */
 .actionButton {
-  composes: button from "./controls.module.css";
+  composes: buttonBack from "./controls.module.css";
 }
 
-/* Back on the error branch: bar glass instead of clear glass, because nothing sits between it
-   and the photo. A separate class rather than a layer on .actionButton, since two glass
-   variants on one element would both set --glass-dim and the bundler would pick. */
+/* Back on the error branch: the same frosted glass as the recipe's Back. Its own class, so the
+   error branch, which sits straight on the photo, can get other glass in CSS alone if the
+   contrast final round asks for it. */
 .errorBackButton {
-  composes: buttonBar from "./controls.module.css";
+  composes: buttonBack from "./controls.module.css";
 }
 
 .heading {
@@ -127,7 +126,7 @@
   white-space: nowrap;
 }
 
-/* Next to the missing pill, drawn like the other glass buttons. */
+/* Next to the missing pill: green glass, since it leads on. */
 .substitutesButton {
   composes: button from "./controls.module.css";
   margin-inline-start: 0.5em;

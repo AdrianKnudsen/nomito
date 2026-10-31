@@ -57,7 +57,8 @@
 
   /*
    * Two materials, following Apple's Liquid Glass guidance: clear glass for the
-   * functional layer (nav, search, buttons) and a regular, denser material for content
+   * functional layer (nav, search, and the buttons as tinted variants of it) and a regular,
+   * denser material for content
    * cards with a lot of text. A variant of the regular material, with its own dim, is for
    * reading pages: body text below large-text size over the photo needs the stricter contrast
    * requirement. The dims are measured, not picked: 0.35 is Apple's suggested dimming
@@ -67,10 +68,9 @@
    * way, against the body text on the reading page that uses it.
    */
   --glass-clear-dim: rgb(11 15 20 / 0.35);
-  /* The nav bar, the search field and Back on the recipe error branch all sit over the
-     brightest part of the photo (the plate), where clear glass is too light for their text.
-     The nav title with the menu open set this value; the search field and Back hold on it
-     with room to spare. */
+  /* The nav bar and the search field sit over the brightest part of the photo (the plate),
+     where clear glass is too light for their text. The nav title with the menu open set this
+     value; the search field holds on it with room to spare. */
   --glass-bar-dim: rgb(11 15 20 / 0.6);
   --glass-regular-dim: rgb(11 15 20 / 0.63);
   --glass-reading-dim: rgb(11 15 20 / 0.80);
@@ -87,9 +87,14 @@
   --glass-hairline: rgb(255 255 255 / 0.22);
   /* Cards that sit *on* the glass, like the result cards. */
   --surface-inset: rgb(30 30 30 / 0.18);
-  /* The green tint of the closing button (the accentGlass variant). The value is the mockup's,
-     not measured; the contrast final round measures it. */
+  /* The green tint of the buttons that lead on (the accentGlass variant). The value is the
+     mockup's, not measured; the contrast final round measures it. */
   --glass-accent-dim: color-mix(in srgb, var(--color-accent) 45%, rgb(11 15 20 / 0.5));
+  /* The light tint and edge of the back and reset buttons (the frostGlass variant). The
+     mockup's values, not measured; white text on a light tint is the contrast risk, so the
+     contrast final round measures them. */
+  --glass-frost-dim: rgb(255 255 255 / 0.1);
+  --glass-frost-edge: rgb(255 255 255 / 0.4);
   /* The form choices' own tokens, not --glass-*: a choice is a control that has to hold 3:1 as
      non-text (WCAG 1.4.11), while --glass-hairline is decoration. The values are the mockup's,
      not measured; the contrast final round measures them. */
@@ -186,6 +191,9 @@
     --choice-fill: rgb(11 15 20 / 0.6);
     --choice-checked-fill: color-mix(in srgb, var(--color-accent) 22%, rgb(11 15 20 / 0.88));
     --glass-accent-dim: color-mix(in srgb, var(--color-accent) 45%, rgb(11 15 20 / 0.88));
+    /* The frost tint goes dark and dense like the clear dim: a light tint would lower the
+       contrast these settings ask for. */
+    --glass-frost-dim: rgb(11 15 20 / 0.88);
   }
 }
 
@@ -202,6 +210,8 @@
     --choice-fill: rgb(11 15 20 / 0.6);
     --choice-checked-fill: color-mix(in srgb, var(--color-accent) 22%, rgb(11 15 20 / 0.88));
     --glass-accent-dim: color-mix(in srgb, var(--color-accent) 45%, rgb(11 15 20 / 0.88));
+    --glass-frost-dim: rgb(11 15 20 / 0.88);
+    --glass-frost-edge: rgb(255 255 255 / 0.6);
   }
 }
 

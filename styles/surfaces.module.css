@@ -40,9 +40,9 @@
 
 /*
  * Shared glass recipe. Not used directly: compose `liquidGlass`, `liquidGlassBar`,
- * `regularGlass`, `readingGlass` or `accentGlass`. A consumer must not set --glass-dim,
- * --glass-blur or --glass-edge itself — the variant does, and which of the two wins would be
- * a bundler detail.
+ * `regularGlass`, `readingGlass`, `accentGlass` or `frostGlass`. A consumer must not set
+ * --glass-dim, --glass-blur or --glass-edge itself — the variant does, and which of the two
+ * wins would be a bundler detail.
  * Varied through custom properties, never by redeclaring:
  *   --glass-radius  corners (default --radius-md)
  *   --glass-dim     dimming layer under the sheen
@@ -79,8 +79,8 @@
   --glass-blur: var(--glass-clear-blur);
 }
 
-/* Bar glass: clear glass dimmed further, for the nav bar, the search field and Back on the
-   recipe error branch, which all sit over the plate part of the photo. */
+/* Bar glass: clear glass dimmed further, for the nav bar and the search field, which sit over
+   the plate part of the photo. */
 .liquidGlassBar {
   composes: glass;
   --glass-dim: var(--glass-bar-dim);
@@ -103,14 +103,23 @@
   --glass-blur: var(--glass-regular-blur);
 }
 
-/* Functional layer: the closing button of a form. Clear glass tinted green and edged with the
-   accent. The tint is a variant, not something a consumer sets, so it is a token
-   (--glass-accent-dim, not measured yet). */
+/* Functional layer: buttons that lead on, a form's closing button among them. Clear glass
+   tinted green and edged with the accent. The tint is a variant, not something a consumer
+   sets, so it is a token (--glass-accent-dim, not measured yet). */
 .accentGlass {
   composes: glass;
   --glass-dim: var(--glass-accent-dim);
   --glass-blur: var(--glass-clear-blur);
   --glass-edge: var(--color-accent);
+}
+
+/* Functional layer: back and reset buttons. Light frosted glass, so the green buttons read as
+   the way forward. A white tint instead of a dim (--glass-frost-dim, not measured yet). */
+.frostGlass {
+  composes: glass;
+  --glass-dim: var(--glass-frost-dim);
+  --glass-blur: var(--glass-clear-blur);
+  --glass-edge: var(--glass-frost-edge);
 }
 
 /*

@@ -64,7 +64,7 @@ export default async function PlanResultsPage({ searchParams }: PlanResultsPageP
           Choose at least one meal
         </h1>
         <div className={page.panel}>
-          <Link href={changeHref} className={controls.button}>
+          <Link href={changeHref} className={controls.buttonBack}>
             Choose meals
           </Link>
         </div>
@@ -104,7 +104,7 @@ export default async function PlanResultsPage({ searchParams }: PlanResultsPageP
             <NewPlanSlot searches={searches} href={nextHref} className={controls.button} />
           </Suspense>
           <span className={page.note}>Each new plan uses quota</span>
-          <Link href={changeHref} className={controls.button}>
+          <Link href={changeHref} className={controls.buttonBack}>
             Change choices
           </Link>
         </div>

@@ -1,7 +1,8 @@
 /*
  * The shape of a link or button drawn as a glass pill. The glass itself is chosen by the class
- * that composes this one: `button` (clear glass), `buttonBar` (the denser bar glass) or
- * `buttonAccent` (green glass). The size is varied through --pill-size, --pill-pad and
+ * that composes this one: `button` (green glass, a button that leads on), `buttonBack`
+ * (frosted glass, back and reset) or `buttonAccent` (green glass, larger: a form's closing
+ * button). The size is varied through --pill-size, --pill-pad and
  * --pill-min, which default to the ordinary pill; a variant sets them and never redeclares the
  * property. `display` and `text-decoration` are reset for <a>; glass sets the border and
  * background for <button>.
@@ -28,16 +29,16 @@
   transform: scale(1.04);
 }
 
-/* The functional layer's ordinary glass button. */
+/* A button that leads on (an answer, New plan, Open, substitutes): green glass. Back and reset
+   use buttonBack, so the way forward is the green one. */
 .button {
-  composes: liquidGlass from "./surfaces.module.css";
+  composes: accentGlass from "./surfaces.module.css";
   composes: pill;
 }
 
-/* For a pill that sits straight on the photo with no sheet around it (Back on the recipe
-   error branch), where clear glass is too light to hold text contrast. */
-.buttonBar {
-  composes: liquidGlassBar from "./surfaces.module.css";
+/* Back and reset: light frosted glass. */
+.buttonBack {
+  composes: frostGlass from "./surfaces.module.css";
   composes: pill;
 }
 
