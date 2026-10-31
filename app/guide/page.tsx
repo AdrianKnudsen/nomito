@@ -63,7 +63,7 @@ export default async function GuidePage({ searchParams }: GuidePageProps) {
         {step !== 1 && (
           <Link
             href={withQuery("/guide", guidePairs(withoutPreviousAnswer(answers, step)))}
-            className={controls.button}
+            className={`${controls.button} ${page.back}`}
           >
             Previous question
           </Link>
@@ -109,7 +109,9 @@ function AvoidForm({ answers }: { answers: CompleteGuideAnswers }) {
           </label>
         ))}
       </fieldset>
-      <SubmitOnce className={controls.button}>Show recipes</SubmitOnce>
+      <div className={page.formActions}>
+        <SubmitOnce className={controls.buttonAccent}>Show recipes</SubmitOnce>
+      </div>
     </Form>
   );
 }

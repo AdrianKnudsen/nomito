@@ -101,8 +101,8 @@ function PlanForm({ choices }: { choices: PlanChoices }) {
           </label>
         ))}
       </fieldset>
-      <div className={page.actions}>
-        <SubmitOnce className={controls.button}>Make a plan</SubmitOnce>
+      <div className={page.formActions}>
+        <SubmitOnce className={controls.buttonAccent}>Make a plan</SubmitOnce>
         <span className={page.note}>Each new plan uses quota</span>
       </div>
     </Form>

@@ -156,8 +156,8 @@ function AdjustForm({ collection, adjustment }: AdjustFormProps) {
           </label>
         ))}
       </fieldset>
-      <div className={page.actions}>
-        <SubmitOnce className={controls.button}>Apply</SubmitOnce>
+      <div className={page.formActions}>
+        <SubmitOnce className={controls.buttonAccent}>Apply</SubmitOnce>
         {isAdjusted(adjustment) && (
           <Link href={path} className={controls.button}>
             Reset

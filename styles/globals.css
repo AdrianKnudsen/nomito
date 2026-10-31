@@ -87,6 +87,21 @@
   --glass-hairline: rgb(255 255 255 / 0.22);
   /* Cards that sit *on* the glass, like the result cards. */
   --surface-inset: rgb(30 30 30 / 0.18);
+  /* The green tint of the closing button (the accentGlass variant). The value is the mockup's,
+     not measured; the contrast final round measures it. */
+  --glass-accent-dim: color-mix(in srgb, var(--color-accent) 45%, rgb(11 15 20 / 0.5));
+  /* The form choices' own tokens, not --glass-*: a choice is a control that has to hold 3:1 as
+     non-text (WCAG 1.4.11), while --glass-hairline is decoration. The values are the mockup's,
+     not measured; the contrast final round measures them. */
+  --choice-edge: rgb(255 255 255 / 0.35);
+  --choice-fill: rgb(11 15 20 / 0.25);
+  --choice-sheen: rgb(255 255 255 / 0.1);
+  --choice-sheen-hover: rgb(255 255 255 / 0.22);
+  --choice-rim: rgb(255 255 255 / 0.25);
+  --choice-checked-fill: color-mix(in srgb, var(--color-accent) 22%, rgb(11 15 20 / 0.4));
+  /* The least width of the closing button. Used as min(100%, …), so it never outgrows a narrow
+     row. */
+  --action-min-inline: 15rem;
 
   /* Fluid between 360px and 1280px, then locked. The middle term is solved so the min
      lands at exactly 360px and the max at exactly 1280px with a 16px root:
@@ -166,6 +181,11 @@
     --glass-bar-dim: rgb(11 15 20 / 0.88);
     --glass-regular-dim: rgb(11 15 20 / 0.92);
     --glass-reading-dim: rgb(11 15 20 / 0.92);
+    /* The choice fills and the accent dim go denser like the dims above. Estimates after their
+       pattern (0.88 for bar and clear); the contrast final round measures them. */
+    --choice-fill: rgb(11 15 20 / 0.6);
+    --choice-checked-fill: color-mix(in srgb, var(--color-accent) 22%, rgb(11 15 20 / 0.88));
+    --glass-accent-dim: color-mix(in srgb, var(--color-accent) 45%, rgb(11 15 20 / 0.88));
   }
 }
 
@@ -176,6 +196,12 @@
     --glass-regular-dim: rgb(11 15 20 / 0.92);
     --glass-reading-dim: rgb(11 15 20 / 0.92);
     --glass-hairline: rgb(255 255 255 / 0.6);
+    /* As the hairline: the choice edge gets stronger too. The fills are the same as under
+       reduced transparency. */
+    --choice-edge: rgb(255 255 255 / 0.6);
+    --choice-fill: rgb(11 15 20 / 0.6);
+    --choice-checked-fill: color-mix(in srgb, var(--color-accent) 22%, rgb(11 15 20 / 0.88));
+    --glass-accent-dim: color-mix(in srgb, var(--color-accent) 45%, rgb(11 15 20 / 0.88));
   }
 }
 

@@ -1,15 +1,18 @@
 /*
  * The shape of a link or button drawn as a glass pill. The glass itself is chosen by the class
- * that composes this one: `button` (clear glass) or `buttonBar` (the denser bar glass). `display`
- * and `text-decoration` are reset for <a>; glass sets the border and background for <button>.
+ * that composes this one: `button` (clear glass), `buttonBar` (the denser bar glass) or
+ * `buttonAccent` (green glass). The size is varied through --pill-size, --pill-pad and
+ * --pill-min, which default to the ordinary pill; a variant sets them and never redeclares the
+ * property. `display` and `text-decoration` are reset for <a>; glass sets the border and
+ * background for <button>.
  */
 .pill {
   --glass-radius: var(--radius-pill);
   display: inline-block;
   text-decoration: none;
-  padding: 0.5em 1.2em;
-  font-size: var(--text-sm);
-  min-width: 5.625rem;
+  padding: var(--pill-pad, 0.5em 1.2em);
+  font-size: var(--pill-size, var(--text-sm));
+  min-width: var(--pill-min, 5.625rem);
   text-align: center;
   cursor: pointer;
   transition: transform 0.2s ease;
@@ -36,4 +39,16 @@
 .buttonBar {
   composes: liquidGlassBar from "./surfaces.module.css";
   composes: pill;
+}
+
+/* The closing button of a form: green glass, larger and wider than the ordinary pill. The weight
+   is set here because neither .pill nor .glass sets one, so nothing is redeclared. 500, not 600:
+   the layout loads Khand in 400, 500 and 700 only. Hover and :active come from .pill. */
+.buttonAccent {
+  composes: accentGlass from "./surfaces.module.css";
+  composes: pill;
+  --pill-size: var(--text-base);
+  --pill-pad: 0.55em 2em;
+  --pill-min: min(100%, var(--action-min-inline));
+  font-weight: 500;
 }

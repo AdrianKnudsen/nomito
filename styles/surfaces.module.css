@@ -40,12 +40,15 @@
 
 /*
  * Shared glass recipe. Not used directly: compose `liquidGlass`, `liquidGlassBar`,
- * `regularGlass` or `readingGlass`. A consumer must not set --glass-dim or --glass-blur
- * itself — the variant does, and which of the two wins would be a bundler detail.
+ * `regularGlass`, `readingGlass` or `accentGlass`. A consumer must not set --glass-dim,
+ * --glass-blur or --glass-edge itself — the variant does, and which of the two wins would be
+ * a bundler detail.
  * Varied through custom properties, never by redeclaring:
  *   --glass-radius  corners (default --radius-md)
  *   --glass-dim     dimming layer under the sheen
  *   --glass-blur    backdrop blur
+ *   --glass-edge    the colour of the 1px border (default --glass-hairline); set by the
+ *                   variant, never by a consumer
  *   --glass-sheen   the light film; hover/active swap it without touching background
  * The specular rim (bright top edge, faint sides) is what reads as Liquid Glass rather
  * than flat frosted glass; there is deliberately no noise texture.
@@ -58,7 +61,7 @@
       linear-gradient(180deg, var(--glass-sheen-top), transparent 45%)
     ),
     var(--glass-dim);
-  border: 1px solid var(--glass-hairline);
+  border: 1px solid var(--glass-edge, var(--glass-hairline));
   box-shadow:
     inset 0 1px 0 var(--glass-rim),
     inset 1px 0 0 rgb(255 255 255 / 0.12),
@@ -98,6 +101,16 @@
   composes: glass;
   --glass-dim: var(--glass-reading-dim);
   --glass-blur: var(--glass-regular-blur);
+}
+
+/* Functional layer: the closing button of a form. Clear glass tinted green and edged with the
+   accent. The tint is a variant, not something a consumer sets, so it is a token
+   (--glass-accent-dim, not measured yet). */
+.accentGlass {
+  composes: glass;
+  --glass-dim: var(--glass-accent-dim);
+  --glass-blur: var(--glass-clear-blur);
+  --glass-edge: var(--color-accent);
 }
 
 /*

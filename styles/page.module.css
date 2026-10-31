@@ -50,7 +50,7 @@
 .fieldset {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-xs) var(--space-lg);
+  gap: var(--space-xs);
   border: 1px solid var(--glass-hairline);
   border-radius: var(--radius-sm);
   padding: var(--space-sm) var(--space-md);
@@ -61,10 +61,154 @@
   font-weight: 500;
 }
 
+/*
+ * A form choice (checkbox or radio) drawn as a pill. A control, not a surface: it does not compose
+ * `glass`, which brings a blur, an outer shadow and a fixed rim, and the pill sits inside a glass
+ * panel where a second blur would only cost. So it has its own --choice-* tokens. Do not "tidy"
+ * this over to `composes`.
+ *
+ * State goes through custom properties, the way .pill does with --glass-sheen, so the order
+ * between hover and checked does not matter. The -now names are local to this class and are not
+ * in globals.css. The input is real and only invisible, which keeps the native keyboard model:
+ * Tab enters a radio group on the checked one, arrows move the choice, Space ticks a checkbox.
+ */
 .choice {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: var(--space-xs);
+  padding: 0.3em 0.95em;
+  border: 1px solid var(--choice-edge-now, var(--choice-edge));
+  border-radius: var(--radius-pill);
+  background:
+    linear-gradient(180deg, var(--choice-sheen-now, var(--choice-sheen)), transparent 60%),
+    var(--choice-fill-now, var(--choice-fill));
+  box-shadow:
+    inset 0 1px 0 var(--choice-rim),
+    inset 0 0 0 var(--choice-ring-now, 0) var(--color-accent);
+  cursor: pointer;
+  /* A word breaks only when it would otherwise push the pill out of a narrow fieldset (a large
+     root size on a phone); at normal sizes nothing changes. */
+  overflow-wrap: anywhere;
+  /* The colours and the checked ring animate together; a gradient does not animate. */
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.choice:hover {
+  --choice-sheen-now: var(--choice-sheen-hover);
+}
+
+/* Checked: the border is twice as thick as unchecked (the inner shadow adds 1px, with no layout
+   shift), so checked differs by more than colour (WCAG 1.4.1); on a radio, which has no icon,
+   that thicker border is the only cue besides colour. */
+.choice:has(:checked) {
+  --choice-fill-now: var(--choice-checked-fill);
+  --choice-edge-now: var(--color-accent);
+  --choice-ring-now: 1px;
+}
+
+/* opacity: 0, not display: none: the input must stay focusable and in the accessibility tree. It
+   covers the pill's border box (out over the 1px border), so a screen reader's focus frame and
+   focus scrolling follow the pill, and scroll-padding leaves room for the whole ring. The size is
+   explicit because a checkbox is a replaced element and inset alone does not stretch it. */
+.choice input {
+  position: absolute;
+  inset: -1px;
+  inline-size: calc(100% + 2px);
+  block-size: calc(100% + 2px);
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* The plus on an unchecked checkbox. A mask, so the colour comes from the tokens; only the alpha
+   of the SVG counts. The opacity is an optical dimming: the plus should read weaker than the
+   text. No `display` here: a flex child is blockified anyway, and the forced-colors rule further
+   down, which hides the icon with the same selector, has to win. */
+.choice:has(input[type="checkbox"])::before {
+  content: "";
+  flex: none;
+  inline-size: 0.9em;
+  aspect-ratio: 1;
+  margin-inline-start: -0.2em;
+  background-color: var(--color-text);
+  opacity: 0.8;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 3.5v9M3.5 8h9' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 3.5v9M3.5 8h9' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E");
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+/* :checked has to sit inside the same :has(), or this rule loses on specificity to the unchecked
+   rule above. */
+.choice:has(input[type="checkbox"]:checked)::before {
+  background-color: var(--color-accent);
+  opacity: 1;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5l3 3 6-7' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5l3 3 6-7' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+/* A radio has no icon, so the pill gets a little more inline padding to stay balanced. */
+.choice:has(input[type="radio"]) {
+  padding-inline: 1.1em;
+}
+
+/* The ring goes on the pill, not on the invisible input. The rule that removes the input's own
+   ring contains :has() too, so a browser without :has() drops it, and there the input keeps the
+   browser's ring (see the @supports block below). */
+.choice:has(:focus-visible) {
+  outline: var(--focus-ring-width) solid var(--color-accent);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.choice:has(:focus-visible) input:focus-visible {
+  outline: none;
+}
+
+/* Support and preference checks, not layout breakpoints (the same kind as the prefers-* blocks in
+   globals.css). Forced colors: the browser overrides colours and backgrounds, so the border and
+   tint that show "checked" vanish; the input is shown again with its own state and the icon is
+   hidden. The ring moves to the input: it is now smaller than the pill, and focus scrolling
+   brings the input into view, so a ring on the pill would be clipped in a scrolling panel. Keep
+   these two blocks after the rules above: they have the same specificity and have to win. */
+@media (forced-colors: active) {
+  .choice input {
+    position: static;
+    inline-size: auto;
+    block-size: auto;
+    opacity: 1;
+  }
+
+  .choice:has(input[type="checkbox"])::before {
+    display: none;
+  }
+
+  .choice:has(:focus-visible) {
+    outline: none;
+  }
+
+  .choice:has(:focus-visible) input:focus-visible {
+    outline: var(--focus-ring-width) solid var(--color-accent);
+    outline-offset: var(--focus-ring-offset);
+  }
+}
+
+/* A browser without :has(): the checked state would be invisible, so the input is shown. The icon
+   needs no rule here, its rule contains :has() and is dropped anyway. */
+@supports not selector(:has(*)) {
+  .choice input {
+    position: static;
+    inline-size: auto;
+    block-size: auto;
+    opacity: 1;
+  }
 }
 
 .actions {
@@ -72,6 +216,24 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-md);
+}
+
+/* The closing row of a form: the button centred, with air above it on top of the form's own gap.
+   The note (the quota line on /plan) takes a line of its own below. On /collections Reset sits
+   beside Apply and wraps under it when the row is too narrow. A class of its own because .actions
+   is shared with the result pages. */
+.formActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-xs) var(--space-md);
+  margin-block-start: var(--space-md);
+}
+
+.formActions .note {
+  flex-basis: 100%;
+  text-align: center;
 }
 
 .note {
@@ -90,4 +252,11 @@
   flex-wrap: wrap;
   justify-content: center;
   gap: var(--space-md);
+}
+
+/* "Previous question" in the guide: its natural width, centred, instead of stretched over the
+   panel. Otherwise a full-width ordinary button would sit right under the narrower green one on
+   step 4, and the green one would not read as the last step. */
+.back {
+  align-self: center;
 }
