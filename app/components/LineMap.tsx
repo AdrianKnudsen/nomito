@@ -233,9 +233,11 @@ function WideDrawing() {
       </g>
       <g aria-hidden="true" className={styles.table}>
         <rect className={styles.top} x="862" y="100" width="176" height="230" rx="16" />
+        {/* The diner sits at the right long side, so the knife lies above the plate and the fork
+            below, tips to the left; there is no room beside the plate in this portrait table. */}
         <path
           className={styles.cutlery}
-          d="M884,160 V270 M876,160 V185 Q884,200 892,185 V160 M1016,160 Q1024,200 1016,215 V270"
+          d="M1005,124 H895 Q935,108 950,124 M895,309 H1005 M895,301 H920 Q935,309 920,317 H895"
         />
         <circle className={`${styles.hub} ${styles.plate}`} cx="950" cy="215" r="74" />
         <circle className={styles.rim} cx="950" cy="215" r="52" />
@@ -328,7 +330,7 @@ function TallDrawing() {
         <rect className={styles.top} x="110" y="832" width="180" height="160" rx="16" />
         <path
           className={styles.cutlery}
-          d="M128,870 V950 M121,870 V888 Q128,900 135,888 V870 M272,870 Q279,900 272,912 V950"
+          d="M128,870 V950 M121,870 V888 Q128,900 135,888 V870 M272,950 V870 Q286,894 272,912"
         />
         <circle className={`${styles.hub} ${styles.plate}`} cx="200" cy="912" r="58" />
         <circle className={styles.rim} cx="200" cy="912" r="40" />
