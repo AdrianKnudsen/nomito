@@ -37,18 +37,9 @@
   text-align: start;
 }
 
+/* Headings otherwise inherit the global margin: 0 and sit tight against the text below. */
 .prose h2 {
   font-size: var(--text-xl);
-}
-
-.prose h3 {
-  font-size: var(--text-lg);
-  margin-block-start: 1lh;
-}
-
-/* Headings otherwise inherit the global margin: 0 and sit tight against the text below. */
-.prose h2,
-.prose h3 {
   font-weight: 500;
   margin-block-end: var(--space-xs);
 }

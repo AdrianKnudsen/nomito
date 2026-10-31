@@ -49,8 +49,8 @@ export default function AboutPage() {
                 reference diet.
               </p>
               <p>
-                Nomito is a personal, non-commercial project by [[NAME]]. It has no accounts, no
-                ads and nothing to buy.
+                Nomito is a personal, non-commercial portfolio project. It has no accounts, no ads
+                and nothing to buy.
               </p>
             </section>
 
@@ -80,50 +80,23 @@ export default function AboutPage() {
             <section id="privacy" tabIndex={-1} aria-labelledby="privacy-heading">
               <h2 id="privacy-heading">Privacy</h2>
               <p>
-                [[NAME]] runs Nomito as a private individual and is responsible for Nomito. You can
-                reach [[NAME]] at <a href="mailto:[[EMAIL]]">[[EMAIL]]</a>.
-              </p>
-
-              <h3>What is recorded</h3>
-              <p>
                 Nomito has no accounts and does not use cookies, local storage, analytics or
                 third-party scripts. Nomito itself does not store your searches.
               </p>
               <p>
-                Nomito is hosted by [[HOST]], which records the requests made to the site: your IP
+                Nomito is hosted by Vercel, which records the requests made to the site: your IP
                 address, the approximate location derived from it, your browser, and the address of
                 the page (URL) you asked for. For a search or a recipe, that URL contains the
-                ingredients and choices you entered.
-              </p>
-
-              <h3>Why, and on what basis</h3>
-              <p>
-                [[HOST_ROLE_SENTENCE]] You can ask for the assessment behind this. You don’t have to
-                give Nomito any personal data, but the site cannot be served without these records.
-                Nomito makes no automated decisions about you.
+                ingredients and choices you entered. How Vercel uses these records and how long it
+                keeps them is described in{" "}
+                <a href="https://vercel.com/legal/privacy-notice">Vercel’s privacy notice</a>.
               </p>
               <p>
                 To find recipes, Nomito’s server sends the ingredients and choices you enter to
                 Spoonacular. Your IP address is not sent to Spoonacular: recipe images are loaded
                 through Nomito’s own server.
               </p>
-
-              <h3>Who else receives it, and for how long</h3>
-              <p>[[HOST_SENTENCE]] [[RETENTION_SENTENCE]]</p>
-
-              <h3>Your rights</h3>
-              <p>
-                You can object at any time to this processing, on grounds relating to your
-                situation. Write to <a href="mailto:[[EMAIL]]">[[EMAIL]]</a>.
-              </p>
-              <p>
-                You can ask for access to the personal data about you, and to have it corrected,
-                deleted or restricted. Write to <a href="mailto:[[EMAIL]]">[[EMAIL]]</a>.{" "}
-                [[HOST_RIGHTS_SENTENCE]] You can also complain to Datatilsynet, the Norwegian Data
-                Protection Authority, at <a href="https://www.datatilsynet.no/">datatilsynet.no</a>,
-                or the data protection authority where you live.
-              </p>
-              <p>Last updated [[DATE]].</p>
+              <p>Last updated 31 October 2026.</p>
             </section>
 
             <section id="credits" tabIndex={-1} aria-labelledby="credits-heading">
@@ -142,7 +115,10 @@ export default function AboutPage() {
                 Recipes shared under a Creative Commons license also show that license, with a
                 link to its terms.
               </p>
-              <p>[[PHOTO_CREDIT]]</p>
+              <p>
+                Background photo by <a href="https://unsplash.com/@brookelark">Brooke Lark</a> on{" "}
+                <a href="https://unsplash.com/photos/jUPOXXRNdcA">Unsplash</a>.
+              </p>
             </section>
           </div>
         </ScrollShimmer>
