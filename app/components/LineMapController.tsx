@@ -206,6 +206,19 @@ function readCssMs(el: Element, name: string): number {
   return match[2] === "s" ? Number(match[1]) * 1000 : Number(match[1]);
 }
 
+/** An element's block scroll padding as CSS resolves it, in px. */
+function readScrollPadding(el: Element): { top: number; bottom: number } {
+  const style = getComputedStyle(el);
+  const top = parseFloat(style.scrollPaddingTop);
+  const bottom = parseFloat(style.scrollPaddingBottom);
+  if (!Number.isFinite(top) || !Number.isFinite(bottom)) {
+    throw new Error(
+      `scroll-padding-block is not a length: "${style.scrollPaddingTop} ${style.scrollPaddingBottom}"`
+    );
+  }
+  return { top, bottom };
+}
+
 const stopCache = new WeakMap<SVGPathElement, number[]>();
 
 /**
@@ -306,42 +319,79 @@ interface Trip {
  * above the line nothing scrolls, and once the train passes it the scroller moves so its centre
  * stays on the line. Then it never scrolls up, and the scroller's own ends stop it. Runs in
  * the same frame as the train's move, so the two stay together.
+ *
+ * While something in the scroller has a visible focus ring (:focus-visible, so not the focus a
+ * tap gives in some browsers), the scroll may move only as far as keeps that ring inside the
+ * window: the follow is limited, never reversed to bring focus back. The train can then pass
+ * the anchor line and leave the window; that is the price of keeping the keyboard user's ring
+ * in view.
  */
 function keepInView(follow: Follow, train: SVGCircleElement, now: number) {
   const { scroller, dock, anchor, catchup } = follow;
   const trainBox = train.getBoundingClientRect();
   const area = scroller.getBoundingClientRect();
-  const covered =
-    getComputedStyle(dock).position === "sticky"
-      ? Math.max(area.top, dock.getBoundingClientRect().bottom)
-      : area.top;
+  const stuck = getComputedStyle(dock).position === "sticky";
+  const covered = stuck
+    ? Math.max(area.top, dock.getBoundingClientRect().bottom)
+    : area.top;
   const line = covered + (area.bottom - covered) * anchor;
   const centre = (trainBox.top + trainBox.bottom) / 2;
+  const current = scroller.scrollTop;
 
   if (follow.stage === "start") {
     const outside = trainBox.top < covered || trainBox.bottom > area.bottom;
     follow.stage = outside && catchup > 0 ? "catching" : "following";
-    follow.from = scroller.scrollTop;
+    follow.from = current;
     follow.startedAt = now;
   }
 
+  let next = current;
   if (follow.stage === "catching") {
     const furthest = Math.max(0, scroller.scrollHeight - area.height);
-    const target = Math.min(
-      furthest,
-      Math.max(0, scroller.scrollTop + centre - line)
-    );
+    const target = Math.min(furthest, Math.max(0, current + centre - line));
     const k = (now - follow.startedAt) / catchup;
     if (k >= 1) {
-      scroller.scrollTop = target;
+      next = target;
       follow.stage = "following";
     } else {
-      scroller.scrollTop = follow.from + (target - follow.from) * ease(k);
+      next = follow.from + (target - follow.from) * ease(k);
     }
-    return;
+  } else if (centre > line) {
+    next = current + centre - line;
   }
 
-  if (centre > line) scroller.scrollTop += centre - line;
+  // Scrolling down moves the focused link up, so the room down is how far its ring is from
+  // the top of the window, and the room up is how far it is from the bottom. The edges are the
+  // ones the browser uses when it scrolls to the link itself: the scroller's scroll padding
+  // (which holds the sticky dock as well as the ring's room) and the link's scroll margin. Read
+  // each frame, because the dock grows when Open appears. Any focus in the scroller counts, not
+  // only the map's links, except Open while the dock is stuck: it does not move with the scroll.
+  const focused = document.activeElement;
+  if (
+    focused instanceof Element &&
+    scroller.contains(focused) &&
+    !(stuck && dock.contains(focused)) &&
+    focused.matches(":focus-visible")
+  ) {
+    const box = focused.getBoundingClientRect();
+    const margins = getComputedStyle(focused);
+    const padding = readScrollPadding(scroller);
+    const roomDown = Math.max(
+      0,
+      box.top - parseFloat(margins.scrollMarginTop) - (area.top + padding.top)
+    );
+    const roomUp = Math.max(
+      0,
+      area.bottom -
+        padding.bottom -
+        (box.bottom + parseFloat(margins.scrollMarginBottom))
+    );
+    next = Math.min(Math.max(next, current - roomUp), current + roomDown);
+  }
+
+  // A write of the same value is not free: it can halt a scroll the stop listeners did not see
+  // (a scrollbar drag in some browsers).
+  if (next !== current) scroller.scrollTop = next;
 }
 
 function clearLit(trip: Trip) {
@@ -715,9 +765,6 @@ export default function LineMapController({
     if (!isLineId(id) || !isDrawing(tour)) return;
 
     if (id === selectedRef.current) {
-      // Focus stays where the user put it: a follow that started from a tap must not carry
-      // a newly focused link away under the dock or out of the window.
-      if (input === "focus" && tripRef.current) tripRef.current.follow = null;
       dispatch({ type: "input", input });
       return;
     }
@@ -741,11 +788,12 @@ export default function LineMapController({
           )
         : null;
     // Only the tall drawing is taller than the window it scrolls in; the wide one fits. The
-    // island asks which drawing the tour runs in, never the viewport.
+    // island asks which drawing the tour runs in, never the viewport. A tour picked by focus
+    // follows too; keepInView only limits how far, so a visible focus ring stays in view.
     const scroller = root.parentElement;
     const dock = dockRef.current;
     const follow: Follow | null =
-      plan && tour === "tall" && input !== "focus" && scroller && dock
+      plan && tour === "tall" && scroller && dock
         ? {
             scroller,
             dock,
