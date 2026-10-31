@@ -316,7 +316,7 @@ function TallDrawing() {
           <rect className={styles.panel} x="62" y="50" width="276" height="24" rx="7" />
         </g>
         <text className={styles["hub-label"]} x="200" y="140" textAnchor="middle">
-          Your freezer
+          Your fridge
         </text>
         <text className={styles["hub-sub"]} x="200" y="166" textAnchor="middle">
           You are here
