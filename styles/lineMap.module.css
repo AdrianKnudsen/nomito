@@ -27,6 +27,49 @@
   scroll-padding-block: calc(var(--focus-ring-width) + var(--focus-ring-offset));
 }
 
+/*
+ * The dock stays in view while the tall map scrolls under it, but only where there is height
+ * to spare: on a low screen (a phone on its side, a large root size) it would cover the
+ * scroll window. This is the one exception to "min-width only" besides any-pointer and the
+ * container query: it changes nothing about the layout between widths, only whether the dock
+ * sticks. The threshold is in rem so a large root size counts as a low screen, and it is
+ * written literally because custom properties do not work in a media condition; the
+ * measurements behind it are in TODO.md. The dock sticks only once the island has mounted
+ * (data-ready): without JS the board is empty and the dock stays static. --dock-block is
+ * unset then, hence the 0rem fallback. The scroll padding adds the dock to the ring's room
+ * so a focused link never ends up under it. It applies whenever the condition holds, also
+ * without JS (the scroller cannot see data-ready), which then costs only the --space-xs
+ * offset.
+ */
+@media (min-height: 35.5rem) {
+  .root[data-ready] .dock {
+    position: sticky;
+    inset-block-start: var(--space-xs);
+    z-index: 1;
+  }
+
+  .scroller {
+    scroll-padding-block-start: calc(
+      var(--dock-block, 0rem) + var(--space-xs) + var(--focus-ring-width) +
+        var(--focus-ring-offset)
+    );
+  }
+}
+
+/* From 48rem the dock is not sticky and the scroll padding is the ring's room again. It
+   comes after the rule above, so it wins where both match. */
+@media (min-width: 48rem) {
+  .root[data-ready] .dock {
+    position: static;
+  }
+
+  .scroller {
+    scroll-padding-block-start: calc(
+      var(--focus-ring-width) + var(--focus-ring-offset)
+    );
+  }
+}
+
 .title {
   font-size: var(--text-2xl);
   font-weight: 700;
@@ -56,6 +99,15 @@
   container-name: dock;
   display: grid;
   justify-items: center;
+  /* While the dock sticks, its empty room for the Open link is a transparent box over the
+     map, and it would take taps meant for a line seen through it. Only what is drawn in it
+     takes events: the board (so a tap there never reaches a line hidden under it) and Open. */
+  pointer-events: none;
+}
+
+.dock .board,
+.openSlot a {
+  pointer-events: auto;
 }
 
 /*
@@ -459,6 +511,13 @@
 .line a:focus-visible .focusHalo,
 .line a:focus-visible .focusShape {
   visibility: visible;
+}
+
+/* Scrolling a link into view uses its geometry box, which leaves out stroke widths. The halo
+   is a stroke of three ring widths centred on the shape, so it reaches one and a half ring
+   widths past that box; without this margin it ends up under the sticky dock. */
+.line a {
+  scroll-margin-block: calc(1.5 * var(--focus-ring-width));
 }
 
 /* What belongs to the drawing and not to the viewport: the island reads these when a tour

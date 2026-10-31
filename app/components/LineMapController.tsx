@@ -60,6 +60,8 @@ interface State {
   boardStations: boolean;
   /** The last station the train stood at on this trip; the board holds it until the next. */
   station: number | null;
+  /** Set once the island has mounted: the sticky dock only applies when its height is known. */
+  ready: boolean;
 }
 
 type Action =
@@ -74,7 +76,8 @@ type Action =
     }
   | { type: "input"; input: Input }
   | { type: "station"; index: number }
-  | { type: "arrive" };
+  | { type: "arrive" }
+  | { type: "ready" };
 
 const INITIAL_STATE: State = {
   selected: null,
@@ -83,12 +86,14 @@ const INITIAL_STATE: State = {
   tour: null,
   boardStations: false,
   station: null,
+  ready: false,
 };
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
     case "select":
       return {
+        ...state,
         selected: action.id,
         phase: action.instant ? "arrived" : "running",
         input: action.input,
@@ -97,6 +102,8 @@ function reducer(state: State, action: Action): State {
         // A new selection ends whatever stop the old trip was at.
         station: null,
       };
+    case "ready":
+      return state.ready ? state : { ...state, ready: true };
     case "station":
       return { ...state, station: action.index };
     case "input":
@@ -266,8 +273,8 @@ function stopTrip(trip: Trip) {
 }
 
 // The DOM writes the island makes outside React: cx and cy on the train, data-lit on a
-// station name, the board's cells (their text and flap animations) and --map-drawn on the
-// dock. The first three and the last are presentation hooks CSS reads.
+// station name, the board's cells (their text and flap animations), --map-drawn on the dock
+// and --dock-block on the scroller. All but the cells are presentation hooks CSS reads.
 function place(path: SVGPathElement, train: SVGCircleElement, distance: number) {
   const point = path.getPointAtLength(distance);
   train.setAttribute("cx", String(point.x));
@@ -468,6 +475,32 @@ export default function LineMapController({
     };
   }, [text]);
 
+  // Marks that the island is running, so CSS makes the dock sticky only then: without JS the
+  // board is empty and must not cover anything. A mount flag, not derived state.
+  useEffect(() => {
+    dispatch({ type: "ready" });
+  }, []);
+
+  // The dock's height, for the scroller's scroll padding. Written on the scroller, the root's
+  // parent, because the scroller is the element whose scroll padding reads it.
+  useEffect(() => {
+    const dock = dockRef.current;
+    const scroller = rootRef.current?.parentElement;
+    if (!dock || !scroller) return;
+
+    const observer = new ResizeObserver((entries) => {
+      const box = entries[entries.length - 1]?.borderBoxSize[0];
+      if (!box) return;
+      scroller.style.setProperty("--dock-block", `${box.blockSize}px`);
+    });
+    observer.observe(dock);
+
+    return () => {
+      observer.disconnect();
+      scroller.style.removeProperty("--dock-block");
+    };
+  }, []);
+
   // The wide drawing letterboxes when the glass is too low for its full height, so it can be
   // narrower than its box, and CSS cannot read that. The island reports the width it is
   // actually drawn at, for the board to line up under it. No style prop on the dock in
@@ -666,6 +699,7 @@ export default function LineMapController({
       data-state={state.phase ?? undefined}
       data-input={state.input ?? undefined}
       data-tour={state.tour ?? undefined}
+      data-ready={state.ready ? "" : undefined}
       onPointerOver={handlePointerOver}
       onPointerDown={handlePointerDown}
       onClickCapture={handleClickCapture}
