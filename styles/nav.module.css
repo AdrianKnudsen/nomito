@@ -82,7 +82,9 @@
   grid-column: 1 / -1;
   align-self: stretch;
   min-height: 0;
-  overflow: hidden;
+  /* Not hidden: that makes the generated content box a scroll container, which crashes WebKit
+     on iOS. Clip cuts without one and still keeps the row animation from spilling. */
+  overflow: clip;
 }
 
 /* The space above the menu is padding inside the list, so it opens and closes with the menu. */
