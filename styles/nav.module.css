@@ -5,9 +5,10 @@
 }
 
 /*
- * Row 2 is the menu. 0fr → 1fr animates to the content's own height, so there is no
- * hard-coded expanded height to break when a menu item is added. Only the opening animates:
- * a closed details hides its content at once, and the row falls to 0 with it.
+ * Both rows are auto and nothing on the nav animates. The menu opens in a grid of its own
+ * (.menu::details-content): an fr row directly in this grid hands the share of the space it has
+ * not taken yet to row 1, where the content is centred, so the logo, the title and the button
+ * moved while the menu opened (measured). Auto rows follow the drawer's height instead.
  */
 .nav {
   composes: liquidGlassBar shimmer from "./surfaces.module.css";
@@ -15,19 +16,16 @@
   padding: 0.8rem;
   display: grid;
   grid-template-columns: auto 1fr auto;
-  grid-template-rows: auto 0fr;
+  grid-template-rows: auto auto;
+  /* The least the title keeps from the logo and the button. */
+  column-gap: var(--space-sm);
   align-items: center;
-  transition: grid-template-rows 1s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.nav:has(.menu[open]) {
-  grid-template-rows: auto 1fr;
 }
 
 .logo {
   width: auto;
   height: 4.5em;
-  margin-left: 0.5rem;
+  margin-left: var(--space-xs);
 }
 
 /* The logo is wrapped in a link, so the link is the grid item. Flex removes the
@@ -38,22 +36,50 @@
   display: flex;
 }
 
+/*
+ * The title may break into two balanced lines when it does not fit on one, and is never cut:
+ * min-inline-size lets the grid column shrink below the text, and `hyphens: auto` splits a long
+ * word at a syllable when it would otherwise cross the logo or the button (large text). Two lines
+ * stand close, so the line height is unitless and low; the value is measured, see TODO.md.
+ * A word that cannot be hyphenated (Chromium leaves capitalised words alone, such as
+ * "Collections") is broken anywhere as the last resort, so it never runs into the logo or button.
+ */
 .title {
   font-weight: 500;
   justify-self: center;
+  min-inline-size: 0;
   font-size: var(--text-xl);
+  line-height: 1.1;
+  text-align: center;
+  text-wrap: balance;
+  hyphens: auto;
+  overflow-wrap: anywhere;
 }
 
-/* No box of its own: the summary and the content become the nav's grid items. */
+/*
+ * No box of its own: the summary and the drawer become the nav's grid items. The times are local
+ * to the menu (the rest of the code writes durations as literals). They sit here, on the element
+ * that JSX gives --n, because --menu-fade-out-total reads it: custom properties inherit, so the
+ * drawer, the items and the bars all see them, and nothing has to be edited when an item is added.
+ * --menu-items-after is when the first item starts to fade in, --menu-fade-out-total is when the
+ * last one has faded out.
+ */
 .menu {
   display: contents;
+  --menu-move: 600ms;
+  --menu-fade: 300ms;
+  --menu-stagger-in: 45ms;
+  --menu-stagger-out: 35ms;
+  --menu-items-after: 360ms;
+  --menu-fade-out-total: calc(var(--menu-fade) + (var(--n) - 1) * var(--menu-stagger-out));
+  --menu-ease: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .menuButton {
   grid-column: 3;
   justify-self: end;
   background: none;
-  margin-right: 0.5rem;
+  margin-right: var(--space-xs);
   border: none;
   cursor: pointer;
   list-style: none;
@@ -71,30 +97,114 @@
 }
 
 /*
- * The content box is the grid item in row 2. Stretch makes it follow the 0fr row as it grows;
- * without it the nav's align-items: center gives the box its full height from the first frame of
- * an opening, centred over the growing row, so the links show over the logo row (measured). A
- * closed menu is hidden by the browser either way. No transition here: when `open` goes, the
- * browser hides the content at once, also halfway through an opening, so a closed menu's links
- * are never reachable.
+ * The three bars. The individual `translate` and `rotate`, not `transform`, so each can have its
+ * own delay: opening gathers the bars to the middle in the first half of --menu-move and turns them
+ * in the second, closing does it backwards. fill-box and center make each bar turn about its own
+ * middle. The middle bar fades with the turning. The base is the hamburger; without JS the browser
+ * closes at once and the bars simply go back, turn first and then spread.
+ */
+.barTop,
+.barMiddle,
+.barBottom {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition-property: translate, rotate, opacity;
+  transition-duration: calc(var(--menu-move) / 2);
+  transition-timing-function: var(--menu-ease);
+  transition-delay: calc(var(--menu-move) / 2), 0ms, 0ms;
+}
+
+/*
+ * Closing: the bars wait until the last item has faded out, the same --menu-fade-out-total as the
+ * drawer's delay, and the spreading ends --menu-move later, when the drawer is closed. The two
+ * must be changed together: JS waits for the icon, since Chromium exposes no animation for the
+ * drawer, and `open` is removed when the icon is done. Testing catches it if they drift apart.
+ */
+.menu[data-closing] .barTop,
+.menu[data-closing] .barMiddle,
+.menu[data-closing] .barBottom {
+  transition-delay:
+    calc(var(--menu-fade-out-total) + var(--menu-move) / 2), var(--menu-fade-out-total),
+    var(--menu-fade-out-total);
+}
+
+.menu[open]:not([data-closing]) .barTop,
+.menu[open]:not([data-closing]) .barMiddle,
+.menu[open]:not([data-closing]) .barBottom {
+  transition-delay: 0ms, calc(var(--menu-move) / 2), calc(var(--menu-move) / 2);
+}
+
+.menu[open]:not([data-closing]) .barTop {
+  rotate: 45deg;
+}
+
+.menu[open]:not([data-closing]) .barBottom {
+  rotate: -45deg;
+}
+
+.menu[open]:not([data-closing]) .barMiddle {
+  opacity: 0;
+}
+
+/* The bars meet in the middle of the 17-high viewBox: the distance from the outer bars to it. */
+/* svg-units:start */
+.menu[open]:not([data-closing]) .barTop {
+  translate: 0 6.4583px;
+}
+
+.menu[open]:not([data-closing]) .barBottom {
+  translate: 0 -6.4583px;
+}
+/* svg-units:end */
+
+/*
+ * The drawer is the generated content box of the details, a grid with one row. Animating that row,
+ * 0fr to 1fr, grows the drawer to the content's own height with no height written down, and the
+ * nav's auto row follows it. There is nothing to stretch into, so no align-self (measured: the
+ * logo row stands still without it). It has no @starting-style: the content box of a closed
+ * details is display: block with content-visibility: hidden, not display: none, so the transition
+ * has a start value when `open` is added. Not hidden on overflow: that makes the generated box a
+ * scroll container, which crashes WebKit on iOS. Clip cuts without one and still keeps the row
+ * animation from spilling.
  */
 .menu::details-content {
   grid-column: 1 / -1;
-  align-self: stretch;
   min-height: 0;
-  /* Not hidden: that makes the generated content box a scroll container, which crashes WebKit
-     on iOS. Clip cuts without one and still keeps the row animation from spilling. */
+  overflow: clip;
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--menu-move) var(--menu-ease);
+}
+
+.menu[open]:not([data-closing])::details-content {
+  grid-template-rows: 1fr;
+}
+
+/*
+ * Closing: the drawer waits for the last item to fade out, then runs for --menu-move. It starts
+ * with the icon's first closing transition and ends with its last, see the bars above. JS waits on
+ * the icon, since Chromium does not expose this transition: change them together.
+ */
+.menu[data-closing]::details-content {
+  transition-delay: var(--menu-fade-out-total);
+}
+
+/*
+ * The only row of the drawer. min-height and clip let the 0fr row squeeze it to nothing. The space
+ * above the menu is padding inside the list, so it opens and closes with the menu.
+ */
+.menuContent {
+  text-align: center;
+  min-height: 0;
   overflow: clip;
 }
 
-/* The space above the menu is padding inside the list, so it opens and closes with the menu. */
-.menuContent {
-  text-align: center;
-}
-
+/* The content box clips, so the last item's focus ring needs room under it. This keeps that room
+   from depending on how the item margins collapse. The room above the first item is the padding. */
 .menuContent ul {
   list-style: none;
-  padding-top: var(--space-md);
+  padding-block-start: var(--space-md);
+  padding-block-end: calc(var(--focus-ring-width) + var(--focus-ring-offset));
 }
 
 .menuContent li {
@@ -113,11 +223,85 @@
 }
 
 /*
+ * The items' animations hang on these two state selectors and nowhere else. They are keyframes,
+ * not transitions, because the items appear in the same moment the details opens. A closed menu
+ * matches neither, so its items have no animation and the next opening starts a new one: hidden
+ * content does not start animations, so one fixed on the `li` would run on the first opening only.
+ */
+.menu[open]:not([data-closing], [data-reopened]) .menuContent li {
+  animation-name: itemIn;
+  animation-duration: var(--menu-fade);
+  animation-timing-function: var(--menu-ease);
+  animation-fill-mode: both;
+  animation-delay: calc(var(--menu-items-after) + var(--i) * var(--menu-stagger-in));
+}
+
+/* From the last item up, starting from each item's opacity when the closing began (--item-from,
+   set by JS just before). */
+.menu[data-closing] .menuContent li {
+  animation-name: itemOut;
+  animation-duration: var(--menu-fade);
+  animation-timing-function: var(--menu-ease);
+  animation-fill-mode: both;
+  animation-delay: calc((var(--n) - 1 - var(--i)) * var(--menu-stagger-out));
+}
+
+@keyframes itemIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes itemOut {
+  from {
+    opacity: var(--item-from, 1);
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* A closing that was undone: no animation, so no item has to start over from nothing. Chromium
+   does not start this transition from the animated value (measured), so the items snap to full;
+   an engine that does start it fades them back instead. */
+.menu[data-reopened]:not([data-closing]) .menuContent li {
+  transition:
+    color 0.2s,
+    opacity var(--menu-fade) var(--menu-ease);
+}
+
+/*
+ * A preference check, not a breakpoint. The global rule in globals.css only shortens durations,
+ * and it does not reach ::details-content at all, so the drawer's time is zeroed here with the
+ * delays. The icon's delays are computed from --menu-move, so they follow, and
+ * JS closes at once because every animation it waits for is done in the next frame.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .menu {
+    --menu-move: 0ms;
+    --menu-fade: 0ms;
+    --menu-stagger-in: 0ms;
+    --menu-stagger-out: 0ms;
+    --menu-items-after: 0ms;
+  }
+}
+
+/*
  * Without ::details-content (older Safari and Firefox) the content box cannot be placed, and the
  * grid puts it in the logo's column. A wrapping flex row gives the list a line of its own at the
- * nav's full width instead. The menu opens without the animation there.
+ * nav's full width instead. The menu opens without a drawer animation there, so the items start at
+ * once instead of waiting for a drawer that is not there, and the icon starts back as the items go,
+ * so the emptied box stands for a shorter time while JS waits on the icon.
  */
 @supports not selector(::details-content) {
+  .menu {
+    --menu-items-after: 0ms;
+    --menu-fade-out-total: 0ms;
+  }
+
   .nav {
     display: flex;
     flex-wrap: wrap;
