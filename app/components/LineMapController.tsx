@@ -28,6 +28,17 @@ const BOARD_CELLS = 90;
 
 const FLIP_STEP_MS = 55;
 
+// The keys that scroll a scroller; one of them during a tour hands the scroll to the user.
+const SCROLL_KEYS: readonly string[] = [
+  "ArrowUp",
+  "ArrowDown",
+  "PageUp",
+  "PageDown",
+  "Home",
+  "End",
+  " ",
+];
+
 /**
  * How long until the board's own fade-in (a CSS animation with a delay) starts showing it, so
  * the text enters together with the rest of the opening and the delay is written only in CSS.
@@ -179,6 +190,14 @@ function readCssNumber(el: Element, name: string): number {
   return value;
 }
 
+/** A custom property in percent, as a fraction ("50%" gives 0.5). */
+function readCssFraction(el: Element, name: string): number {
+  const raw = readCssProperty(el, name);
+  const match = /^(\d*\.?\d+)%$/.exec(raw);
+  if (!match) throw new Error(`${name} is not a percentage: "${raw}"`);
+  return Number(match[1]) / 100;
+}
+
 /** A duration custom property CSS owns, in milliseconds ("650ms" and "0.65s" both work). */
 function readCssMs(el: Element, name: string): number {
   const raw = readCssProperty(el, name);
@@ -256,10 +275,73 @@ function buildPlan(
   return plan;
 }
 
+/** What the scroller needs to follow the train, and where the following has got to. */
+interface Follow {
+  scroller: HTMLElement;
+  dock: HTMLElement;
+  /** How far down the visible window the train is held, as a fraction of its height. */
+  anchor: number;
+  /** How long the scroller takes to catch up with a train that starts out of view, in ms. */
+  catchup: number;
+  /** "start" until the first frame has seen where the train is. */
+  stage: "start" | "catching" | "following";
+  from: number;
+  startedAt: number;
+}
+
 interface Trip {
   svg: SVGSVGElement;
   frame: number;
   lit: Element | null;
+  /** Null when the drawing does not follow, or once the user has scrolled during the tour. */
+  follow: Follow | null;
+}
+
+/**
+ * Holds the train on an anchor line in the part of the scroller that can be seen (below the
+ * dock where it is stuck, down to the scroller's bottom). If the train starts out of view
+ * (after an arrival the scroller can be at the bottom while the next train leaves the top) the
+ * scroller first catches up, eased over a set time toward where the train's centre is on the
+ * line; the target is worked out again each frame because the train keeps moving. After that,
+ * above the line nothing scrolls, and once the train passes it the scroller moves so its centre
+ * stays on the line. Then it never scrolls up, and the scroller's own ends stop it. Runs in
+ * the same frame as the train's move, so the two stay together.
+ */
+function keepInView(follow: Follow, train: SVGCircleElement, now: number) {
+  const { scroller, dock, anchor, catchup } = follow;
+  const trainBox = train.getBoundingClientRect();
+  const area = scroller.getBoundingClientRect();
+  const covered =
+    getComputedStyle(dock).position === "sticky"
+      ? Math.max(area.top, dock.getBoundingClientRect().bottom)
+      : area.top;
+  const line = covered + (area.bottom - covered) * anchor;
+  const centre = (trainBox.top + trainBox.bottom) / 2;
+
+  if (follow.stage === "start") {
+    const outside = trainBox.top < covered || trainBox.bottom > area.bottom;
+    follow.stage = outside && catchup > 0 ? "catching" : "following";
+    follow.from = scroller.scrollTop;
+    follow.startedAt = now;
+  }
+
+  if (follow.stage === "catching") {
+    const furthest = Math.max(0, scroller.scrollHeight - area.height);
+    const target = Math.min(
+      furthest,
+      Math.max(0, scroller.scrollTop + centre - line)
+    );
+    const k = (now - follow.startedAt) / catchup;
+    if (k >= 1) {
+      scroller.scrollTop = target;
+      follow.stage = "following";
+    } else {
+      scroller.scrollTop = follow.from + (target - follow.from) * ease(k);
+    }
+    return;
+  }
+
+  if (centre > line) scroller.scrollTop += centre - line;
 }
 
 function clearLit(trip: Trip) {
@@ -273,8 +355,9 @@ function stopTrip(trip: Trip) {
 }
 
 // The DOM writes the island makes outside React: cx and cy on the train, data-lit on a
-// station name, the board's cells (their text and flap animations), --map-drawn on the dock
-// and --dock-block on the scroller. All but the cells are presentation hooks CSS reads.
+// station name, the board's cells (their text and flap animations), --map-drawn on the dock,
+// --dock-block on the scroller, and the scroller's scrollTop while the train is followed. The
+// cells and scrollTop are not hooks CSS reads.
 function place(path: SVGPathElement, train: SVGCircleElement, distance: number) {
   const point = path.getPointAtLength(distance);
   train.setAttribute("cx", String(point.x));
@@ -290,6 +373,12 @@ function runTrip(
   onStation: (index: number) => void,
   onDone: () => void
 ) {
+  // The train's step and the scroller's follow-up share a frame.
+  const move = (distance: number, now: number) => {
+    place(path, train, distance);
+    if (trip.follow) keepInView(trip.follow, train, now);
+  };
+
   let index = 0;
   let entered = -1;
   let phaseStart: number | null = null;
@@ -315,13 +404,13 @@ function runTrip(
       if (elapsed < phase.duration) {
         if (phase.kind === "move") {
           const k = ease(elapsed / phase.duration);
-          place(path, train, phase.from + (phase.to - phase.from) * k);
+          move(phase.from + (phase.to - phase.from) * k, now);
         }
         trip.frame = requestAnimationFrame(frame);
         return;
       }
 
-      if (phase.kind === "move") place(path, train, phase.to);
+      if (phase.kind === "move") move(phase.to, now);
       else clearLit(trip);
       phaseStart += phase.duration;
       index++;
@@ -354,6 +443,9 @@ export default function LineMapController({
   const pressRef = useRef<{ line: LineId | null; touch: boolean } | null>(null);
   // Mirrors state.selected for the handlers: two events can land before a render.
   const selectedRef = useRef<LineId | null>(null);
+  // Where the mouse or pen last moved to, so a pointerover that comes from the content
+  // scrolling under a resting pointer can be told from one the pointer caused.
+  const lastMoveRef = useRef<{ x: number; y: number } | null>(null);
 
   const text = boardText(state, lines, idle);
 
@@ -376,6 +468,42 @@ export default function LineMapController({
       document.removeEventListener("keydown", clearPress, true);
       document.removeEventListener("pointercancel", clearPress, true);
       document.removeEventListener("pointerup", clearMousePress, true);
+    };
+  }, []);
+
+  // Records where the mouse or pen last moved, for the hover check in handlePointerOver.
+  useEffect(() => {
+    const record = (event: globalThis.PointerEvent) => {
+      if (event.pointerType === "mouse" || event.pointerType === "pen") {
+        lastMoveRef.current = { x: event.clientX, y: event.clientY };
+      }
+    };
+    document.addEventListener("pointermove", record, true);
+    return () => document.removeEventListener("pointermove", record, true);
+  }, []);
+
+  // The user taking over the scroll ends the following for the rest of that tour; the tour
+  // itself runs on, and the next selection follows again. Not the scroll event: the island's
+  // own scrolling fires it too.
+  useEffect(() => {
+    const scroller = rootRef.current?.parentElement;
+    if (!scroller) return;
+
+    const stopFollowing = () => {
+      if (tripRef.current) tripRef.current.follow = null;
+    };
+    const stopOnScrollKey = (event: KeyboardEvent) => {
+      if (SCROLL_KEYS.includes(event.key)) stopFollowing();
+    };
+    scroller.addEventListener("wheel", stopFollowing, { passive: true });
+    scroller.addEventListener("touchstart", stopFollowing, { passive: true });
+    scroller.addEventListener("pointerdown", stopFollowing);
+    document.addEventListener("keydown", stopOnScrollKey, true);
+    return () => {
+      scroller.removeEventListener("wheel", stopFollowing);
+      scroller.removeEventListener("touchstart", stopFollowing);
+      scroller.removeEventListener("pointerdown", stopFollowing);
+      document.removeEventListener("keydown", stopOnScrollKey, true);
     };
   }, []);
 
@@ -587,6 +715,9 @@ export default function LineMapController({
     if (!isLineId(id) || !isDrawing(tour)) return;
 
     if (id === selectedRef.current) {
+      // Focus stays where the user put it: a follow that started from a tap must not carry
+      // a newly focused link away under the dock or out of the window.
+      if (input === "focus" && tripRef.current) tripRef.current.follow = null;
       dispatch({ type: "input", input });
       return;
     }
@@ -609,6 +740,22 @@ export default function LineMapController({
             readCssMs(svg, "--map-dwell")
           )
         : null;
+    // Only the tall drawing is taller than the window it scrolls in; the wide one fits. The
+    // island asks which drawing the tour runs in, never the viewport.
+    const scroller = root.parentElement;
+    const dock = dockRef.current;
+    const follow: Follow | null =
+      plan && tour === "tall" && input !== "focus" && scroller && dock
+        ? {
+            scroller,
+            dock,
+            anchor: readCssFraction(scroller, "--map-follow-at"),
+            catchup: readCssMs(scroller, "--map-follow-catchup"),
+            stage: "start",
+            from: 0,
+            startedAt: 0,
+          }
+        : null;
 
     // A trip already running finishes unless another line is chosen; that is this case.
     selectedRef.current = id;
@@ -623,7 +770,7 @@ export default function LineMapController({
     }
 
     const stations = Array.from(lineEl.querySelectorAll("[data-station]"));
-    const trip: Trip = { svg, frame: 0, lit: null };
+    const trip: Trip = { svg, frame: 0, lit: null, follow };
     tripRef.current = trip;
     place(path, train, 0);
     dispatch({ type: "select", id, input, tour, boardStations, instant: false });
@@ -644,6 +791,12 @@ export default function LineMapController({
   // Only a mouse or a pen picks by hovering; a touch has no hover to read.
   const handlePointerOver = (event: PointerEvent<HTMLDivElement>) => {
     if (event.pointerType !== "mouse" && event.pointerType !== "pen") return;
+    // Scrolling moves a new line under a pointer that has not moved and the browser reports a
+    // pointerover for it; picking then would restart the tour for as long as it scrolls. A
+    // pointerover from real movement arrives before the pointermove at its new position, so
+    // it never equals the last one. No recorded position yet: the first hover, accept.
+    const last = lastMoveRef.current;
+    if (last && last.x === event.clientX && last.y === event.clientY) return;
     select(event.target, "pointer");
   };
 

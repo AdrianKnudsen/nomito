@@ -25,6 +25,12 @@
      view when scrolled to. */
   padding: calc(var(--focus-ring-width) + var(--focus-ring-offset));
   scroll-padding-block: calc(var(--focus-ring-width) + var(--focus-ring-offset));
+  /* Where in the visible window (below the sticky dock, down to the scroller's bottom) the
+     scroller holds the train while it follows it down the tall map: near the middle, so the
+     stops can be read and the whole table is in view on arrival. */
+  --map-follow-at: 50%;
+  /* How long the scroller takes to catch up with a train that starts out of view. */
+  --map-follow-catchup: 0.5s;
 }
 
 /*
