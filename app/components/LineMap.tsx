@@ -10,7 +10,6 @@ import {
   type LineId,
 } from "../../lib/lines";
 import styles from "../../styles/lineMap.module.css";
-import disclaimerStyles from "../../styles/disclaimer.module.css";
 
 interface Tick {
   /** Where the stroke meets the track, read by the client island to find the stops. */
@@ -396,12 +395,6 @@ export default function LineMap() {
           <WideDrawing />
           <TallDrawing />
         </LineMapController>
-        <p className={disclaimerStyles.disclaimer}>
-          Recipes and nutrition come from Spoonacular and are estimates.{" "}
-          <Link href="/about#disclaimer" prefetch={false}>
-            Read the disclaimer
-          </Link>
-        </p>
       </div>
       <div hidden>
         {LINES.map((line) => (
