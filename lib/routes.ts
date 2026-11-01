@@ -57,6 +57,11 @@ export const VIA: ReadonlyMap<Via, ViaEntry> = new Map<Via, ViaEntry>([
 export const PLAN_FORM_PATH = "/plan";
 export const GUIDE_FORM_PATH = "/guide";
 
+/** A collection's free form, in front of its list. */
+export function collectionFormPath(slug: string): string {
+  return `/collections/${slug}/adjust`;
+}
+
 export function isVia(value: string): value is Via {
   return (VIA as ReadonlyMap<string, ViaEntry>).has(value);
 }

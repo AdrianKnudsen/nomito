@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Form from "next/form";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
@@ -8,15 +7,13 @@ import FilteredResults from "../../components/FilteredResults";
 import Notice from "../../components/Notice";
 import RecipeCards, { type RecipeCardData } from "../../components/RecipeCards";
 import ResultPanel from "../../components/ResultPanel";
-import SubmitOnce from "../../components/SubmitOnce";
 import controls from "../../../styles/controls.module.css";
 import page from "../../../styles/page.module.css";
+import result from "../../../styles/result.module.css";
 import { COLLECTIONS, findCollection, type Collection } from "@/lib/collections";
 import {
-  collectionAvoidOptions,
   collectionFilters,
   collectionPairs,
-  collectionTimeOptions,
   isAdjusted,
   parseCollectionAdjustment,
   receivedQuery,
@@ -25,7 +22,8 @@ import {
   type SearchParams,
 } from "@/lib/filters";
 import { recipeHrefVia } from "@/lib/links";
-import type { CollectionAdjustment, ViaOrigin } from "@/types/filters";
+import { collectionFormPath } from "@/lib/routes";
+import type { ViaOrigin } from "@/types/filters";
 
 interface CollectionPageProps {
   params: Promise<{ slug: string }>;
@@ -84,12 +82,6 @@ export default async function CollectionPage({ params, searchParams }: Collectio
       <h1 tabIndex={-1} className={page.title}>
         {collection.title}
       </h1>
-      <div className={page.panel}>
-        {/* Keyed by the query so it remounts and shows the URL's state after Reset and after a
-            redirect; otherwise the old choices stay and the next Apply pays for them. */}
-        <AdjustForm key={`form-${query}`} collection={collection} adjustment={adjustment} />
-        <Disclaimer />
-      </div>
       <ResultPanel>
         {isAdjusted(adjustment) ? (
           <Suspense
@@ -108,62 +100,24 @@ export default async function CollectionPage({ params, searchParams }: Collectio
         ) : (
           <RecipeCards recipes={storedCards(collection, origin)} />
         )}
+        {/* None of these links costs quota: the form and the unadjusted list make no call. */}
+        <div className={result.resultFooter}>
+          <div className={result.footerActions}>
+            <Link href={withQuery(collectionFormPath(collection.slug), pairs)} className={controls.buttonBack}>
+              Change choices
+            </Link>
+            {isAdjusted(adjustment) && (
+              <Link href={`/collections/${collection.slug}`} className={controls.buttonBack}>
+                Reset
+              </Link>
+            )}
+            <Link href="/collections" className={controls.buttonBack}>
+              All collections
+            </Link>
+          </div>
+          <Disclaimer />
+        </div>
       </ResultPanel>
     </>
-  );
-}
-
-interface AdjustFormProps {
-  collection: Collection;
-  adjustment: CollectionAdjustment;
-}
-
-/** GET to the same slug. Only choices that tighten the collection are rendered. */
-function AdjustForm({ collection, adjustment }: AdjustFormProps) {
-  const path = `/collections/${collection.slug}`;
-  return (
-    <Form action={path} className={page.form}>
-      <fieldset className={page.fieldset}>
-        <legend className={page.legend}>Time</legend>
-        {/* Empty value: "Any" is the collection's own limit, which the canonical URL drops. */}
-        <label className={page.choice}>
-          <input type="radio" name="time" value="" defaultChecked={adjustment.time === undefined} />
-          Any
-        </label>
-        {collectionTimeOptions(collection).map((option) => (
-          <label key={`time-${option.value}`} className={page.choice}>
-            <input
-              type="radio"
-              name="time"
-              value={option.value}
-              defaultChecked={adjustment.time === option.value}
-            />
-            {option.label}
-          </label>
-        ))}
-      </fieldset>
-      <fieldset className={page.fieldset}>
-        <legend className={page.legend}>Avoid</legend>
-        {collectionAvoidOptions(collection).map((option) => (
-          <label key={`avoid-${option.value}`} className={page.choice}>
-            <input
-              type="checkbox"
-              name="avoid"
-              value={option.value}
-              defaultChecked={adjustment.avoid.includes(option.value)}
-            />
-            {option.label}
-          </label>
-        ))}
-      </fieldset>
-      <div className={page.formActions}>
-        <SubmitOnce className={controls.buttonAccent}>Apply</SubmitOnce>
-        {isAdjusted(adjustment) && (
-          <Link href={path} className={controls.buttonBack}>
-            Reset
-          </Link>
-        )}
-      </div>
-    </Form>
   );
 }

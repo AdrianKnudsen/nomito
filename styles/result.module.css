@@ -9,12 +9,10 @@
   font-size: var(--text-2xl);
 }
 
-/* The view below the search bar: shrinks to the space left, the list scrolls inside. A page
-   with a form above sets --result-floor; the default 0 keeps /search as it was. */
+/* The view below the search bar: shrinks to the space left, the list scrolls inside. */
 .resultWrapper {
   composes: shell from "./surfaces.module.css";
   flex: 0 1 auto;
-  min-height: var(--result-floor, 0);
   display: flex;
   flex-direction: column;
 }
@@ -37,11 +35,41 @@
   z-index: 1;
 }
 
+/* The h2 follows the page h1 down so it is never larger than it. */
 .heading {
   text-align: center;
-  font-size: var(--text-xl);
+  font-size: var(--text-lg);
   margin: var(--space-md) 0;
   letter-spacing: 0.03em;
+}
+
+/* The page's own controls and notes, after the last result: on a phone the recipes come first.
+   The hairline is decoration. Block padding gives the last button air at the end of the list; the
+   inline padding leaves room for the buttons' focus ring, which the scroll container would clip.
+   The framing line keeps the size it had in the panel; the disclaimer and buttons set their own. */
+.resultFooter {
+  font-size: var(--text-base);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  margin-block-start: var(--space-lg);
+  border-block-start: 1px solid var(--glass-hairline);
+  padding: var(--space-md) calc(var(--focus-ring-width) + var(--focus-ring-offset));
+  text-align: center;
+}
+
+/* Reading text stands on the measure, in ch at its own size. */
+.resultFooter p {
+  max-inline-size: var(--measure);
+}
+
+.footerActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-md);
 }
 
 /* Column count follows the width instead of a breakpoint. */

@@ -91,24 +91,6 @@ export default async function PlanResultsPage({ searchParams }: PlanResultsPageP
       <h1 tabIndex={-1} className={page.title}>
         {planHeading(request)}
       </h1>
-      <div className={page.panel}>
-        <PlanFraming />
-        <Disclaimer />
-        <div className={page.actions}>
-          {/* The link only exists once the plan has arrived. The Suspense key gives each round a
-              fresh link, because without it React keeps the old one through the transition. */}
-          <Suspense
-            key={`link-${query}`}
-            fallback={<span className={controls.button}>New plan</span>}
-          >
-            <NewPlanSlot searches={searches} href={nextHref} className={controls.button} />
-          </Suspense>
-          <span className={page.note}>Each new plan uses quota</span>
-          <Link href={changeHref} className={controls.buttonBack}>
-            Change choices
-          </Link>
-        </div>
-      </div>
       <ResultPanel>
         <Suspense
           key={`results-${query}`}
@@ -116,6 +98,23 @@ export default async function PlanResultsPage({ searchParams }: PlanResultsPageP
         >
           <PlanResults request={request} searches={searches} />
         </Suspense>
+        <div className={result.resultFooter}>
+          <div className={result.footerActions}>
+            {/* The link only exists once the plan has arrived. The Suspense key gives each round a
+                fresh link, because without it React keeps the old one through the transition. */}
+            <Suspense
+              key={`link-${query}`}
+              fallback={<span className={controls.button}>New plan</span>}
+            >
+              <NewPlanSlot searches={searches} href={nextHref} className={controls.button} />
+            </Suspense>
+            <Link href={changeHref} className={controls.buttonBack}>
+              Change choices
+            </Link>
+          </div>
+          <PlanFraming />
+          <Disclaimer />
+        </div>
       </ResultPanel>
     </>
   );

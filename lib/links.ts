@@ -17,7 +17,7 @@ import {
   type QueryPairs,
 } from "./filters";
 import { findCollection } from "./collections";
-import { GUIDE_FORM_PATH, lookupVia, PLAN_FORM_PATH } from "./routes";
+import { collectionFormPath, GUIDE_FORM_PATH, lookupVia, PLAN_FORM_PATH } from "./routes";
 
 /**
  * The search goes along for Back, and the missing ingredients by id so the recipe can mark
@@ -85,9 +85,8 @@ export function isRandomOrigin(origin: ViaOrigin): boolean {
 function originFormHref(origin: ViaOrigin): string {
   switch (origin.via) {
     case "collection":
-      // A collection has no free form: its page is the paid list. No collection is random (a test
-      // pins it), so this branch is never Back's link; a random collection needs a form first.
-      return originBackHref(origin);
+      // Its free form. No collection is random (a test pins it), so this is never Back's link today.
+      return withQuery(collectionFormPath(origin.slug), collectionPairs(origin));
     case "guide":
       return withQuery(GUIDE_FORM_PATH, guidePairs(origin));
     case "plan":

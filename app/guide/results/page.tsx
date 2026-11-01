@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
-import Disclaimer from "../../components/Disclaimer";
 import FilteredResults from "../../components/FilteredResults";
 import Notice from "../../components/Notice";
 import ResultPanel from "../../components/ResultPanel";
 import controls from "../../../styles/controls.module.css";
 import page from "../../../styles/page.module.css";
+import result from "../../../styles/result.module.css";
 import {
   completeGuideAnswers,
   guideFilters,
@@ -54,17 +54,6 @@ export default async function GuideResultsPage({ searchParams }: GuideResultsPag
       <h1 tabIndex={-1} className={page.title}>
         {guideSummary(complete)}
       </h1>
-      <div className={page.panel}>
-        <div className={page.actions}>
-          <Link href={withQuery(GUIDE_FORM_PATH, pairs)} className={controls.buttonBack}>
-            Change answers
-          </Link>
-          <Link href="/guide" className={controls.buttonBack}>
-            Start over
-          </Link>
-        </div>
-        <Disclaimer />
-      </div>
       <ResultPanel>
         <Suspense
           key={`results-${query}`}
@@ -73,6 +62,16 @@ export default async function GuideResultsPage({ searchParams }: GuideResultsPag
           {/* "Surprise me" sorts at random, so every load gives new hits. */}
           <FilteredResults filters={guideFilters(complete)} origin={{ via: "guide", ...complete }} />
         </Suspense>
+        <div className={result.resultFooter}>
+          <div className={result.footerActions}>
+            <Link href={withQuery(GUIDE_FORM_PATH, pairs)} className={controls.buttonBack}>
+              Change answers
+            </Link>
+            <Link href="/guide" className={controls.buttonBack}>
+              Start over
+            </Link>
+          </div>
+        </div>
       </ResultPanel>
     </>
   );

@@ -10,14 +10,13 @@
   padding-block: var(--space-sm);
   --inset-pad: var(--space-md);
   text-align: center;
-  font-size: var(--text-xl);
+  font-size: var(--text-lg);
   font-weight: 500;
   letter-spacing: 0.03em;
 }
 
-/* Everything between the h1 and the results. Keeps its full height so Apply is always
-   reachable; the results below shrink instead (see the next rule), and when not even one row
-   fits, then <main> scrolls. */
+/* The form panel under the h1. Keeps its full height so Apply is always reachable; when it
+   does not fit, <main> scrolls. */
 .panel {
   composes: shellColumn regularGlass from "./surfaces.module.css";
   flex: none;
@@ -30,14 +29,6 @@
   padding-block: var(--space-md);
   --inset-pad: var(--space-md);
   scroll-padding-block: calc(var(--focus-ring-width) + var(--focus-ring-offset));
-  font-size: var(--text-base);
-}
-
-/* The result panel that follows a form keeps one row of cards. Set as a custom property,
-   not by redeclaring min-height: the order between this module and result.module.css is a
-   bundler detail. font-size is the card title's, so the token's lh measures a title line. */
-.panel + * {
-  --result-floor: var(--result-min-block);
   font-size: var(--text-base);
 }
 
@@ -211,17 +202,10 @@
   }
 }
 
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-md);
-}
-
 /* The closing row of a form: the button centred, with air above it on top of the form's own gap.
    The note (the quota line on /plan) takes a line of its own below. On /collections Reset sits
-   beside Apply and wraps under it when the row is too narrow. A class of its own because .actions
-   is shared with the result pages. */
+   beside Apply and wraps under it when the row is too narrow. A class of its own because the result
+   pages' button row lives in result.module.css. */
 .formActions {
   display: flex;
   flex-wrap: wrap;

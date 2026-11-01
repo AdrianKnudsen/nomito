@@ -1,5 +1,6 @@
 import Link from "next/link";
 import RecipeImage from "./RecipeImage";
+import { collectionFormPath } from "@/lib/routes";
 import styles from "../../styles/collections.module.css";
 
 export interface CollectionCardData {
@@ -32,7 +33,9 @@ export default function CollectionCards({ collections }: { collections: Collecti
           </span>
           <div className={styles.text}>
             <h2 className={styles.title}>
-              <Link href={`/collections/${collection.slug}`} className={styles.link}>
+              {/* Choosing a collection always starts at Time/Avoid; Apply without choices shows the
+                  whole stored list, free. */}
+              <Link href={collectionFormPath(collection.slug)} className={styles.link}>
                 {collection.title}
               </Link>
             </h2>
